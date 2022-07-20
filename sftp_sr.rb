@@ -11,19 +11,21 @@ remote_paths = {
 
 puts "Connecting to the SFTP server"
 
-Net::SFTP.start('host', 'username', :password => 'password') do |sftp|
+Net::SFTP.start('secure.iriworldwide.co.za', :port => '22', 'tsello01', :password => 'password') do |sftp|
   puts "Connected to SFTP server"
   
   remote_paths.each do |key, value| 
   
-    regex = /(#{key})_[a-zA-Z]+_\d{8}_[a-zA-Z0-9- ]*.zip/gi
+    regex = /(#{key})_[a-zA-Z]+_\d{8}_[a-zA-Z0-9- ]*.zip/
+		distribution_reginal_regex = /(#{key})_[a-zA-Z]+_\d{8}.zip/
+
 		matches = []
     
 		# list the entries in a directory.
 		sftp.dir.foreach(local_path) do |file|
 				
 			# Returns an array of files that need to be sent.
-			if !!(file.to_s =~ regex)
+			if !!(file.to_s =~ (regex || distribution_reginal_regex))
 				matches << file
 			else 
 				next
