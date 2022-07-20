@@ -11,7 +11,7 @@ remote_paths = {
 
 puts "Connecting to the SFTP server"
 
-Net::SFTP.start('secure.iriworldwide.co.za', :port => '22', 'tsello01', :password => 'password') do |sftp|
+Net::SFTP.start('secure.iriworldwide.co.za:22', 'tsello01', :password => 'password') do |sftp|
   puts "Connected to SFTP server"
   
   remote_paths.each do |key, value| 
