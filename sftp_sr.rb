@@ -17,10 +17,10 @@ Net::SFTP.start('host', 'username', :password => 'password') do |sftp|
   remote_paths.each do |key, value| 
   
     regex = /(#{key})_[a-zA-Z]+_\d{8}_[a-zA-Z0-9- ]*.zip/gi
+		matches = []
     
 		# list the entries in a directory.
 		sftp.dir.foreach(local_path) do |file|
-			matches = []
 				
 			# Returns an array of files that need to be sent.
 			if !!(file.to_s =~ regex)
@@ -29,16 +29,15 @@ Net::SFTP.start('host', 'username', :password => 'password') do |sftp|
 				next
 			end
 				
-				puts file.longname
-			end
-			
-			if matches.any?
-				matches.each do |zip|
-					puts "Sending #{zip} to #{value}"
-					
-					# Send the folders to the location.
-					sftp.upload!(zip, value)  
-				end
+			puts file.longname		
+		end
+
+		if matches.any?
+			matches.each do |zip|
+				puts "Sending #{zip} to #{value}"
+				
+				# Send the folders to the location.
+				sftp.upload!(zip, value)  
 			end
 		end
 		
