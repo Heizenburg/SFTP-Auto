@@ -5,8 +5,7 @@ local_path = 'Q:\Retailer Service\External Clients\Shoprite\Shoprite Extractions
 remote_paths = {
   '3M'              => '/Clients/3M/Upload/Weekly',
   'Abbotts Lab'	    => '/Clients/Abbott Lab/Upload/Weekly',
-  'ABV Brands'	    => '/Clients/ABV Brands/Upload/Weekly',
-  'Action Classics'	=> '/Clients/Action Classics/Upload/Weekly'
+  'ABV Brands'	    => '/Clients/ABV Brands/Upload/Weekly'
 }
 
 puts "Connecting to the SFTP server"
@@ -15,17 +14,16 @@ Net::SFTP.start('secure.iriworldwide.co.za:22', 'tsello01', :password => 'passwo
   puts "Connected to SFTP server"
   
   remote_paths.each do |key, value| 
-  
-    regex = /(#{key})_[a-zA-Z]+_\d{8}_[a-zA-Z0-9- ]*.zip/
-		distribution_reginal_regex = /(#{key})_[a-zA-Z]+_\d{8}.zip/
-
 		matches = []
-    
-		# list the entries in a directory.
+		
+    extract = /(#{key})_[a-zA-Z]+_\d{8}_[a-zA-Z0-9- ]*.zip/
+		distribution = /(#{key})_[a-zA-Z]+_\d{8}.zip/
+
+		# Go through all files in directory and find client files.
 		sftp.dir.foreach(local_path) do |file|
 				
 			# Returns an array of files that need to be sent.
-			if !!(file.to_s =~ (regex || distribution_reginal_regex))
+			if !!(file =~ (extract || distribution))
 				matches << file
 			else 
 				next
@@ -35,16 +33,19 @@ Net::SFTP.start('secure.iriworldwide.co.za:22', 'tsello01', :password => 'passwo
 		end
 
 		if matches.any?
-			matches.each do |zip|
+			matches.map do |zip|
 				puts "Sending #{zip} to #{value}"
 				
 				# Send the folders to the location.
-				sftp.upload!(zip, value)  
+				sftp.upload!(zip, value)
+				matches.each { |match| match.wait } 
 			end
 		end
-		
-		puts "Done sending available files", "Connection terminated"
+
+		puts "#{matches.length} files for #{key} sent successfully"
 	end
+
+	puts "Done sending available files", "Connection terminated"
 end
 
 puts 'File transfer complete'
