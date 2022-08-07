@@ -10,12 +10,30 @@ require_relative 'terminal'
 local = '/mnt/c/Users/sello/Dropbox/PC/Documents/Testing'
 
 remote = {
-  '3M'              => '/Clients/Test',
-  'Abbotts Lab'	    => '/Clients/Test'
+  '3M'                  => '/Clients/Test',
+  'Abbotts Lab'	        => '/Clients/Test',
+  'ABV Brands'	        => '/Clients/Test',
+  'Action Classics'	    => '/Clients/Test',
+  'Aerosol & Cosmetics'	=> '/Clients/Test',
+  'African Extracts'	  => '/Clients/Test',
+  'AJ Products'	        => '/Clients/Test',
+  'All Joy'	            => '/Clients/Test',
+  'Aquelle'	            => '/Clients/Test',
+  'B M Foods'	          => '/Clients/Test',
+  'Aquelle'	            => '/Clients/Test',
+  'Bavaria'	            => '/Clients/Test',
+  'BBH'	                => '/Clients/Test',
+  'BIC'	                => '/Clients/Test',
+  'Bliss Chemicals'	    => '/Clients/Test',
+  'BOS'	                => '/Clients/Test',
+  'Brands 2 Africa'	    => '/Clients/Test',
+  'Brother Bees'	      => '/Clients/Test',
+  'Buttanutt Tree'	    => '/Clients/Test',
+  'Caffeluxe'	      		=> '/Clients/Test'
 }
 
 # Connection to the SFTP server. 
-# Removing password parameter is safer as it prompts the password in the terminal. 
+# Removing password parameter is safer as it prompts the password within terminal. 
 Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
   puts "Connected to SFTP server"
 
