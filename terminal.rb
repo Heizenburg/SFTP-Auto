@@ -27,4 +27,4 @@ class String
   def light_blue
     colorize(36)
   end
-end
+end 
