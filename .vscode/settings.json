@@ -19,8 +19,8 @@
           "include": "**/*.rb",
           "exclude": "{**/@(test|spec|tmp|.*),**/@(test|spec|tmp|.*)/**,**/*_spec.rb}"
         },
-        "editor.formatOnSaveTimeout": 1500
+        "editor.formatOnSaveTimeout": 1500,
         "[ruby]": {
           "editor.formatOnSave": true
-        },
+        }
 }

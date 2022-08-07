@@ -3,8 +3,10 @@ require 'dotenv/load'
 require 'pry'
 require 'pathname'
 
-# This will be for the shoprite path
-# Remember to -- Dir.pwd -- to see the distinct file location format
+require_relative 'terminal'
+
+# This will ultimately be for the shoprite path.
+# Remember to -- Dir.pwd -- to see the distinct file location format.
 local = '/mnt/c/Users/sello/Dropbox/PC/Documents/Testing'
 
 remote = {
@@ -12,18 +14,16 @@ remote = {
   'Abbotts Lab'	    => '/Clients/Test'
 }
 
-binding.pry
-
 # Connection to the SFTP server. 
-# Removing password parameter is safer as it prompts the password in the terminal 
-Net::SFTP.start(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD']) do |sftp|
+# Removing password parameter is safer as it prompts the password in the terminal. 
+Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
   puts "Connected to SFTP server"
 
   remote.each do |key, value|
 		matches = []
 		
-    extract = /(#{key})_[a-zA-Z]+_\d{8}_([a-zA-Z0-9 | K_NECT])*.zip/
-		distribution = /(#{key})_(Reginal|Distribution)_20220710.zip/
+    extract = /(#{key})_[a-zA-Z]+_\d{8}_([a-zA-Z0-9 | K_NECT | K'NECT])*.zip/
+		distribution = /(#{key})_(Reginal|Distribution)_\d{8}.zip/
 
 		# Go through all files in directory and find client files.
 		Dir.each_child(local) do |file|
@@ -31,6 +31,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD']) do |sftp|
 			next if File.directory?(file) || file == '.' || file == '..'
 
 			# Returns an array of files that need to be sent.
+			# Add matches in an array. 
 			if !!(file =~ extract || file =~ distribution)
 				matches << file
 			else
@@ -39,16 +40,17 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD']) do |sftp|
 		end
 
 		if matches.any?
-			matches.each do |zip|
-				puts "Sending #{zip} to #{value}"
+			matches.map do |zip_file|
+				file_location = "/" + zip_file
+
+				puts "Sending #{zip_file} to #{value}"
 				
-				# Send the folders to the location.
-				sftp.upload!(local + "/" + zip, value)
-				matches.each { |match| match.wait } 
+				Send the folders to the location.
+				sftp.upload!(local + file_location, value + file_location)
 			end
 		end
 
-		puts "#{matches.length} files for #{key} sent to #{value}"
+		puts "#{matches.length} #{key} files sent to #{value}".green
 	end
 
 	puts "Done sending available files", "Connection terminated"
