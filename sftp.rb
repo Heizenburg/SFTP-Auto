@@ -51,7 +51,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 
 		# Go through all files in directory and find client files.
 		Dir.each_child(local) do |file|
-			puts "#{file} is a directory\n".pink if File.directory?(file)
+			puts "Skipped over #{file} directory\n".pink if File.directory?(file)
 			next if File.directory?(file) || file == '.' || file == '..'
 
 			# Adds matched client to an array. 
@@ -63,7 +63,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 		end
 
 		if client_matches.any? 
-			puts "Client[#{index + 1}]: #{key}".yellow
+			puts "Client[#{index.next}]: #{key}".yellow
 
 			client_matches.map do |zip_file|
 				file_location = "/" + zip_file
@@ -77,6 +77,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 
 				# Send the files to their respective clients folders.
 				sftp.upload!(local + file_location, value + file_location)
+				
 				spinner.success("Sent".green) 
 			end
 		end
