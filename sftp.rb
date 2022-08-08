@@ -2,6 +2,7 @@ require 'net/sftp'
 require 'dotenv/load'
 require 'pry'
 require 'pathname'
+require 'tty-spinner'
 
 require_relative 'terminal'
 
@@ -37,7 +38,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME'], password: '@Cellz911##') do |sftp|
   puts "Connected to SFTP server"
 
   remote.each do |key, value|
-		matches = []
+		client_matches = []
 		
     extract = /(#{key})_[a-zA-Z]+_\d{8}_([a-zA-Z0-9 | K_NECT | K'NECT])*.zip/
 		distribution = /(#{key})_(Regional|Distribution)_\d{8}.zip/
@@ -48,28 +49,33 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME'], password: '@Cellz911##') do |sftp|
 			next if File.directory?(file) || file == '.' || file == '..'
 
 			# Returns an array of files that need to be sent.
-			# Add matches in an array. 
+			# Add client_matches in an array. 
 			if !!(file =~ extract || file =~ distribution)
-				matches << file
+				client_matches << file
 			else
 				next 
 			end
 		end
 
-		if matches.any?
+		if client_matches.any?
 			puts "Client: #{key}".yellow
 
-			matches.map do |zip_file|
+			client_matches.map do |zip_file|
 				file_location = "/" + zip_file
+					
+				spinner = TTY::Spinner.new(
+					"[:spinner] Sending #{zip_file} to #{value}",
+					success_mark: "+"
+				)
+				spinner.auto_spin # Automatic animation with default interval
 
-				puts "Sending #{zip_file} to #{value}"
-				
 				# Send the folders to the location.
 				sftp.upload!(local + file_location, value + file_location)
+				spinner.success("Sent".green) # Stop spinner animation on success
 			end
 		end
 
-		puts "#{matches.length} #{key} files sent to #{value}\n".green
+		puts "#{client_matches.length} #{key} files sent to #{value}\n".green
 	end
 
 	puts "Done sending available files", "Connection terminated"
