@@ -4,7 +4,7 @@ require 'pry'
 require 'pathname'
 require 'tty-spinner'
 
-require_relative 'terminal'
+require_relative 'helpers/terminal'
 
 # This will ultimately be for the shoprite path.
 # Remember to -- Dir.pwd -- to see the distinct file location format.
@@ -29,54 +29,61 @@ remote = {
   'Brands 2 Africa'	    => '/Clients/Test',
   'Brother Bees'	      => '/Clients/Test',
   'ButtaNutt'	          => '/Clients/Test',
-  'Caffeluxe'	      		=> '/Clients/Test'
+  'Caffeluxe'	      		=> '/Clients/Test',
+	'CBC'                 => '/Clients/Test',
+	'Cerebos'             => '/Clients/Test',
+	'Chet'                => '/Clients/Test',
+	'Chill Beverages'     => '/Clients/Test',
+	'Cleopatra Tissue'    => '/Clients/Test',
+	'Continental Biscuits'=> '/Clients/Test',
+	'CTP'                 => '/Clients/Test'
 }
 
 # Connection to the SFTP server. 
 # Removing password parameter is safer as it prompts the password within terminal. 
-Net::SFTP.start(ENV['HOST'], ENV['USERNAME'], password: '@Cellz911##') do |sftp|
+Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
   puts "Connected to SFTP server"
 
-  remote.each do |key, value|
+  remote.each_with_index do |(key, value), index|
 		client_matches = []
 		
-    extract = /(#{key})_[a-zA-Z]+_\d{8}_([a-zA-Z0-9 | K_NECT | K'NECT])*.zip/
-		distribution = /(#{key})_(Regional|Distribution)_\d{8}.zip/
+    extract_regex = /(#{key})_\w+_([\w+ | K_NECT | K'NEC])*.zip/
 
 		# Go through all files in directory and find client files.
 		Dir.each_child(local) do |file|
-			puts "#{file} is a directory" if File.directory?(file)
+			puts "#{file} is a directory\n".pink if File.directory?(file)
 			next if File.directory?(file) || file == '.' || file == '..'
 
-			# Returns an array of files that need to be sent.
-			# Add client_matches in an array. 
-			if !!(file =~ extract || file =~ distribution)
+			# Adds matched client to an array. 
+			if !!(file =~ extract_regex)
 				client_matches << file
 			else
 				next 
 			end
 		end
 
-		if client_matches.any?
-			puts "Client: #{key}".yellow
+		if client_matches.any? 
+			puts "Client[#{index + 1}]: #{key}".yellow
 
 			client_matches.map do |zip_file|
 				file_location = "/" + zip_file
 					
 				spinner = TTY::Spinner.new(
 					"[:spinner] Sending #{zip_file} to #{value}",
-					success_mark: "+"
+					success_mark: "+",
+					clear: true
 				)
-				spinner.auto_spin # Automatic animation with default interval
+				spinner.auto_spin 
 
-				# Send the folders to the location.
+				# Send the files to their respective clients folders.
 				sftp.upload!(local + file_location, value + file_location)
-				spinner.success("Sent".green) # Stop spinner animation on success
+				spinner.success("Sent".green) 
 			end
 		end
 
-		puts "#{client_matches.length} #{key} files sent to #{value}\n".green
+		files_sent = "#{client_matches.length} #{key} files sent to #{value}\n"
+		puts (client_matches.length < 17 ? files_sent.red : files_sent.green) 
 	end
 
-	puts "Done sending available files", "Connection terminated"
+	puts "Done sending available files\n", "Connection terminated"
 end
