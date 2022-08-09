@@ -43,14 +43,12 @@ remote = {
 # Removing password parameter is safer as it prompts the password within terminal. 
 Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 
-	opening = <<-OPEN
+	puts opening = <<-OPEN
 		Connected to the SFTP server.
 		
 		Host: #{ENV['HOST']}
 		Username: #{ENV['USERNAME']}
 	OPEN
-
-	puts opening
 
   remote.each_with_index do |(key, value), index|
 		matches = []
@@ -69,7 +67,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 			end
 		end
 
-		if matches.any? 
+		if matches.any?
 			puts "Client[#{index.next}]: #{key}".yellow
 
 			matches.map do |zip_file|
@@ -90,7 +88,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 		end
 
 		files_sent = "#{matches.length} #{key} files sent to #{value}\n"
-		puts (matches.length < 17 ? files_sent.red : files_sent.green) 
+		puts (matches.length < 17 || matches.length > 19 ? files_sent.red : files_sent.green) 
 	end
 
 	puts "Done sending available files\n", "Connection terminated"
