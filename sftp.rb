@@ -48,7 +48,6 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 		
 		Host: #{ENV['HOST']}
 		Username: #{ENV['USERNAME']}
-		Port: #{sftp.port}
 	OPEN
 
 	puts opening

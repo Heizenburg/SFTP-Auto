@@ -1,6 +1,6 @@
 {
     "ruby.codeCompletion": "rcodetools",
-    "ruby.format": false,
+    "ruby.format": true,
         "editor.tabSize": 2,
         // Time (ms) to wait after keypress before running enabled linters. Ensures
         // linters are only run when typing has finished and not for every keypress
