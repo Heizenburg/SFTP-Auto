@@ -42,30 +42,38 @@ remote = {
 # Connection to the SFTP server. 
 # Removing password parameter is safer as it prompts the password within terminal. 
 Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
-  puts "Connected to SFTP server"
+
+	opening = <<-OPEN
+		Connected to the SFTP server.
+		
+		Host: #{ENV['HOST']}
+		Username: #{ENV['USERNAME']}
+		Port: #{sftp.port}
+	OPEN
+
+	puts opening
 
   remote.each_with_index do |(key, value), index|
-		client_matches = []
+		matches = []
 		
-    extract_regex = /(#{key})_\w+_([\w+ | K_NECT | K'NEC])*.zip/
+    extract = /(#{key})_\w+_([\w+ | K_NECT | K'NEC])*.zip/
 
-		# Go through all files in directory and find client files.
+		# Go through all files in directory to find client files.
 		Dir.each_child(local) do |file|
-			puts "Skipped over #{file} directory\n".pink if File.directory?(file)
 			next if File.directory?(file) || file == '.' || file == '..'
 
-			# Adds matched client to an array. 
-			if !!(file =~ extract_regex)
-				client_matches << file
+			# Adds client to matches if the file matches the regex. 
+			if !!(file =~ extract)
+				matches << file
 			else
 				next 
 			end
 		end
 
-		if client_matches.any? 
+		if matches.any? 
 			puts "Client[#{index.next}]: #{key}".yellow
 
-			client_matches.map do |zip_file|
+			matches.map do |zip_file|
 				file_location = "/" + zip_file
 					
 				spinner = TTY::Spinner.new(
@@ -82,8 +90,8 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 			end
 		end
 
-		files_sent = "#{client_matches.length} #{key} files sent to #{value}\n"
-		puts (client_matches.length < 17 ? files_sent.red : files_sent.green) 
+		files_sent = "#{matches.length} #{key} files sent to #{value}\n"
+		puts (matches.length < 17 ? files_sent.red : files_sent.green) 
 	end
 
 	puts "Done sending available files\n", "Connection terminated"
