@@ -66,9 +66,6 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 			end
 		end
 
-		# If there are no matches, skip to the next client.
-		next if matches.empty?
-
 		if matches.any?
 			puts "Client[#{index.next}]: #{key}".yellow
 
@@ -76,8 +73,8 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 				file_location = "/" + zip_file
 					
 				spinner = TTY::Spinner.new(
-					"[:spinner] message: Sending #{zip_file} to #{value}",
-					success_mark: "+"
+					"[:spinner] Sending #{zip_file} to #{value}",
+					success_mark: "+",
 					clear: true
 				)
 				spinner.auto_spin 
