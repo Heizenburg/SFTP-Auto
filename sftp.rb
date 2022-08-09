@@ -43,29 +43,31 @@ remote = {
 # Removing password parameter is safer as it prompts the password within terminal. 
 Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 
-	puts opening = <<-OPEN
+	puts opening = <<~OPEN
 		Connected to the SFTP server.
 		
 		Host: #{ENV['HOST']}
-		Username: #{ENV['USERNAME']}
+		Username: #{ENV['USERNAME']}\n
 	OPEN
 
   remote.each_with_index do |(key, value), index|
 		matches = []
 		
-    extract = /(#{key})_\w+_([\w+ | K_NECT | K'NEC])*.zip/
-
 		# Go through all files in directory to find client files.
 		Dir.each_child(local) do |file|
 			next if File.directory?(file) || file == '.' || file == '..'
-
-			# Adds client to matches if the file matches the regex. 
-			if !!(file =~ extract)
+			
+			# Adds client to matches if the file matches the regex.
+			# Matches for respective client files. 
+			if !!(file =~ /(#{key}).*\.zip$/)
 				matches << file
 			else
 				next 
 			end
 		end
+
+		# If there are no matches, skip to the next client.
+		next if matches.empty?
 
 		if matches.any?
 			puts "Client[#{index.next}]: #{key}".yellow
@@ -74,15 +76,14 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 				file_location = "/" + zip_file
 					
 				spinner = TTY::Spinner.new(
-					"[:spinner] Sending #{zip_file} to #{value}",
-					success_mark: "+",
+					"[:spinner] message: Sending #{zip_file} to #{value}",
+					success_mark: "+"
 					clear: true
 				)
 				spinner.auto_spin 
 
 				# Send the files to their respective clients folders.
-				sftp.upload!(local + file_location, value + file_location)
-				
+				sftp.upload!(local + file_location, value + file_location) 
 				spinner.success("Sent".green) 
 			end
 		end
