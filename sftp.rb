@@ -73,7 +73,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 				file_location = "/" + zip_file
 					
 				spinner = TTY::Spinner.new(
-					"[:spinner] Sending #{zip_file} to #{value}",
+					"[:spinner] Copying #{zip_file} to #{value}",
 					success_mark: "+",
 					clear: true
 				)
@@ -89,5 +89,5 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 		puts (matches.length < 17 || matches.length > 19 ? files_sent.red : files_sent.green) 
 	end
 
-	puts "Done sending available files\n", "Connection terminated"
+	puts "Done copying available files\n", "Connection terminated"
 end
