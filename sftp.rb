@@ -113,8 +113,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 			puts "Client[#{index.next}]: #{key}".yellow
 
 			matches.map do |zip_file|
-				file_location = "/" + zip_file
-					
+				
 				spinner = TTY::Spinner.new(
 					"[:spinner] Copying #{zip_file} to #{value}",
 					success_mark: "+",
@@ -123,8 +122,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 				spinner.auto_spin 
 
 				# Send the files to their respective clients folders.
-				sftp.upload!(local + file_location, value + file_location) 
-				spinner.success("Sent".green) 
+				sftp.upload!("#{local}/#{zip_file}", "#{value}/#{zip_file}") 
 			end
 		end
 
