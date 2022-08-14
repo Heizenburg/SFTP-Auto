@@ -84,9 +84,13 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 	OPEN
 
 	# Close connection if there are no file in local directory.	
-	# or if sftp does not exist
-	if sftp.list.zero? || sftp.nil?
-		sftp.close_channel 
+	# or if sftp connection or session does not exist.
+	if Dir.children(local).length.zero? || !sftp || !sftp.session
+		puts closing = <<~CLOSE
+			No files in local directory.
+			Closing connection.
+		CLOSE
+		exit
 	end
 
   remote.each_with_index do |(key, value), index|
@@ -124,8 +128,8 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 			end
 		end
 
-		files_sent = "#{matches.length} #{key} files sent to #{value}\n"
-		puts (matches.length < 17 || matches.length > 19 ? files_sent.red : files_sent.green) 
+		files_sent = "#{matches.length} #{key} files copied to #{value}\n"
+		puts (matches.empty? ? files_sent.red : files_sent.green) 
 	end
 
 	puts "Done copying available files\n", "Connection terminated"
