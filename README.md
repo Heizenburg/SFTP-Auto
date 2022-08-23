@@ -15,9 +15,8 @@ In accordance with the 12 factor app cloud development methodology, you should e
 
 ```
 source 'https://rubygems.org'
-gem 'net-sftp', '~> 2.1', '>= 2.1.2'
+gem 'net-sftp', '~> 2.8', '>= 2.8.1'
 ...
-
 ```
 
 ## Run
