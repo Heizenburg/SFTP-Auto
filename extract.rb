@@ -8,7 +8,7 @@ require_relative 'helpers/terminal'
 
 # This will ultimately be for the shoprite path.
 # Remember to -- Dir.pwd -- to see the distinct file location format.
-local = '/mnt/c/Users/sello/Dropbox/PC/Documents/Testing'
+local = ENV['LOCAL_FILE_LOCATION']
 
 remote = {
   '3M'                        => '/Clients/3M/Upload/Weekly', 
