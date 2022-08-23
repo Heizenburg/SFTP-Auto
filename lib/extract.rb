@@ -1,14 +1,16 @@
+# frozen_string_literal: true
+
 require 'net/sftp'
 require 'dotenv/load'
 require 'pry'
 require 'pathname'
 require 'tty-spinner'
 
-require_relative 'helpers/terminal'
+require_relative 'terminal'
 
 # This will ultimately be for the shoprite path.
 # Remember to -- Dir.pwd -- to see the distinct file location format.
-local = ENV['LOCAL_FILE_LOCATION']
+local = ENV['LOCAL_LOCATION']
 
 remote = {
   '3M'                        => '/Clients/3M/Upload/Weekly', 
