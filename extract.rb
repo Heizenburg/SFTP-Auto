@@ -85,7 +85,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 	OPEN
 
 	# Close connection if there are no file in local directory,
-	# if sftp connection or session does not exist.
+	# if sftp connection nor its session does not exist.
 	if Dir.children(local).size.zero? || !sftp || !sftp.session
 		puts closing = <<~CLOSE
 			No files in local directory.
@@ -112,23 +112,23 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 		if matches.any?
 			puts "Client[#{index.next}]: #{key}".yellow
 
-			matches.map do |zip_file|
+			matches.map do |file|
 				spinner = TTY::Spinner.new(
-					"[:spinner] Copying #{zip_file} to #{value}",
+					"[:spinner] Copying #{file} to #{value}",
 					success_mark: "+",
 					clear: true
 				)
 				spinner.auto_spin 
 
-				# Send the files to their respective clients folders.
-				sftp.upload!("#{local}/#{zip_file}", "#{value}/#{zip_file}")
+				# Send the clients files to its respective folders.
+				sftp.upload!("#{local}/#{file}", "#{value}/#{file}")
 				spinner.success
 			end
 		end
 
-		files_sent = "#{matches.size} #{key} files copied to #{value}\n"
-		puts (matches.empty? ? files_sent.red : files_sent.green) 
+		sent = "#{matches.size} #{key} files copied to #{value}\n"
+		puts matches.empty? ? sent.red : sent.green
 	end
 
-	puts "Done copying available files\n", "Connection terminated"
+	puts "Done copying available files\n".green, "Connection terminated"
 end
