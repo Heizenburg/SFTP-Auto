@@ -91,6 +91,7 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 			No files in local directory.
 			Closing connection.
 		CLOSE
+		
 		exit
 	end
 
