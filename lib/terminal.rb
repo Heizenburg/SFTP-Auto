@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class String
   # Colorization
   def colorize(color_code)
@@ -27,4 +29,4 @@ class String
   def light_blue
     colorize(36)
   end
-end 
+end
