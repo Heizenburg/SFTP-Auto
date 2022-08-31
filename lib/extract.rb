@@ -97,11 +97,10 @@ remote = {
   'National Pride' => '/Clients/National Pride/Upload/Weekly',
   'NaturesChoice' => '/Clients/Natures Choice Products/Upload/Weekly',
   'Normandien Farms' => '/Clients/Normandien Farms/Upload'
-
 }
 
 # Connection to the SFTP server.
-# Removing password parameter is safer as it prompts the password within terminal.
+# If no password was set, ssh-agent will be used to detect private/public key authentication.
 Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
   puts opening = <<~OPEN
     Connected to the SFTP server.
