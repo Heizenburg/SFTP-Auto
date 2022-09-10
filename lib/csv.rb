@@ -71,9 +71,6 @@ end
 
 if __FILE__ == $0
 
-  client = Extract.new(ENV['HOST'], ENV['USERNAME'])
-
-  client.upload(local_file, "#{remote_file}")
 end
 
   

@@ -7,6 +7,7 @@ require 'pathname'
 require 'tty-spinner'
 
 require_relative 'terminal'
+require_relative 'csv'
 
 # This will ultimately be for the shoprite path.
 # Remember to -- Dir.pwd -- to see the distinct file location format.
@@ -124,8 +125,8 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
     matches = []
 
     Dir.each_child(local) do |file|
-      next if File.directory?(file) || file == '.' || file == '..'
-
+			next if File.directory?(file) || file == '.' || file == '..'
+			
       # Adds client to matches if the file matches the regex.
       # Matches for respective client files.
       next unless !!(file =~ /(#{key}).*\.zip$/)
