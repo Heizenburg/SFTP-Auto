@@ -103,7 +103,7 @@ remote = {
 # Connection to the SFTP server.
 # If no password was set, ssh-agent will be used to detect private/public key authentication.
 Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
-  puts opening = <<~OPEN
+  puts <<~OPEN
     Connected to the SFTP server.
 
     Host: #{ENV['HOST']}
@@ -120,6 +120,8 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
 
     exit
   end
+
+  clients_count = 0
 
   remote.each_with_index do |(key, value), index|
     matches = []
@@ -146,14 +148,16 @@ Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
         spinner.auto_spin
 
         # Send the clients files to its respective folders.
-        sftp.upload!("#{local}/#{file}", "#{value}/#{file}")
+        # sftp.upload!("#{local}/#{file}", "#{value}/#{file}")
+        # sleep(0.25)
         spinner.success
       end
+      clients_count += 1
     end
 
-    sent = "#{matches.size} #{key} files copied to #{value}\n"
-    puts matches.empty? ? sent.red : sent.green
+    message = "#{matches.size} #{key} files copied to #{value}\n"
+    puts matches.empty? ? message.red : message.green
   end
 
-  puts "Done copying available files\n".green, 'Connection terminated'
+  puts "Client files sent (#{clients_count})\n Connection terminated"
 end
