@@ -31,6 +31,7 @@ class Extract
     @session.dir.foreach(remote_dir) do |entry|
       puts entry.longname
     end
+    puts "\n"
   end
 
   def entries(remote_dir)

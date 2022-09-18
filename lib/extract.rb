@@ -153,7 +153,7 @@ remote.each_with_index do |(client , remote_location), index|
   sftp.list_files("#{remote_location}")
 end
 
-puts "Client files sent (#{sftp.client_count})\n Connection terminated"
+puts "Client files sent (#{sftp.client_count})" , "Connection terminated"
 
 
 
