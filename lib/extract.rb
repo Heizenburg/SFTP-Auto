@@ -31,7 +31,7 @@ remote = {
   'Bliss Chemicals'	=> '/Clients/Bliss Chemicals/Upload/Raw Data/Weekly',
   'BOS'	=> '/Clients/BOS/Upload/Weekly',
   'Brands 2 Africa'	=> '/Clients/Brands 2 Africa/Upload/Weekly',
-  'Brother Bees'	=> '/Clients/Brother Bees/Upload/Weeklys',
+  'Brother Bees'	=> '/Clients/Brother Bees/Upload/Weekly',
   'ButtaNutt'	=> '/Clients/Buttanutt Tree/Uploads',
   'Caffeluxe'	=> '/Clients/Caffeluxe/Upload/Weekly',
   'CBC' => '/Clients/CBC/Upload/Weekly',
@@ -69,7 +69,7 @@ remote = {
   'Herbex' => '/Clients/Herbex/Upload/Shoprite/Weekly',
   'Himalaya' => '/Clients/Himalaya Drug Co/Upload/Shoprite',
   'Huletts' => '/Clients/Hulletts/Upload/Shoprite/Weekly',
-  'Hulley & Rice' => '/Clients/Hulley&Rice/Upload/Weekly',
+  'Hulley & Rice' => '/Clients/Hulley&Rice/Uploads',
   'Icon3sixty' => '/Clients/Icon3sixty/Upload/Weekly',
   'Jimmys Sauces' => '/Clients/Jimmys Sauces/Upload/Weekly',
   'JNJ' => '/Clients/Mentholatum/Upload/Shoprite',
@@ -101,63 +101,59 @@ remote = {
 }
 
 # Connection to the SFTP server.
-# If no password was set, ssh-agent will be used to detect private/public key authentication.
-Net::SFTP.start(ENV['HOST'], ENV['USERNAME']) do |sftp|
-  puts <<~OPEN
-    Connected to the SFTP server.
+# If no password was set, ssh-agent will be used to detect private/public key  authentication.
+sftp = Extract.new(ENV['HOST'], ENV['USERNAME'])
 
-    Host: #{ENV['HOST']}
-    Username: #{ENV['USERNAME']}\n
-  OPEN
+# Close connection if there are no file in local directory,
+# if sftp connection nor its session does not exist.
+if Dir.children(local).size.zero? || !sftp
+  puts <<~CLOSE
+    No files in local directory.
+    Closing connection.
+  CLOSE
 
-  # Close connection if there are no file in local directory,
-  # if sftp connection nor its session does not exist.
-  if Dir.children(local).size.zero? || !sftp || !sftp.session
-    puts closing = <<~CLOSE
-      No files in local directory.
-      Closing connection.
-    CLOSE
-
-    exit
-  end
-
-  clients_count = 0
-
-  remote.each_with_index do |(key, value), index|
-    matches = []
-
-    Dir.each_child(local) do |file|
-			next if File.directory?(file) || file == '.' || file == '..'
-			
-      # Adds client to matches if the file matches the regex.
-      # Matches for respective client files.
-      next unless !!(file =~ /(#{key}).*\.zip$/)
-
-      matches << file
-    end
-
-    if matches.any?
-      puts "Client[#{index.next}]: #{key}".yellow
-
-      matches.map do |file|
-        spinner = TTY::Spinner.new(
-          "[:spinner] Copying #{file} to #{value}",
-          success_mark: '+',
-          clear: true
-        )
-        spinner.auto_spin
-
-        # Send the clients files to its respective folders.
-        # sftp.upload!("#{local}/#{file}", "#{value}/#{file}")
-        # sleep(0.25)
-        spinner.success
-      end
-      clients_count += 1
-    end
-
-    message = "#{matches.size} #{key} files copied to #{value}\n"
-    puts matches.empty? ? message.red : message.green
-  end
-
-  puts "Client files sent (#{clients_count})\n Connection terminated"
+  exit
 end
+
+remote.each_with_index do |(client , remote_location), index|
+  matches = []
+
+  Dir.each_child(local) do |file|
+    next if File.directory?(file) || file == '.' || file == '..'
+    
+    # Adds client to matches if the file matches the regex.
+    # Matches for respective client files.
+    next unless !!(file =~ /(#{client}).*\.zip$/)
+
+    matches << file
+  end
+
+  puts "Client[#{index.next}]: #{client}".yellow
+
+  if matches.any?
+
+    matches.map do |file|
+      spinner = TTY::Spinner.new(
+        "[:spinner] Copying #{file} to #{remote_location}",
+        success_mark: '+',
+        clear: true
+      )
+      spinner.auto_spin
+
+      # Send the clients files to its respective folders.
+      sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+      spinner.success
+    end
+    
+    sftp.increment_client_count
+  end
+
+  sftp.files_sent(matches, client, remote_location)
+  
+  sftp.list_files("#{remote_location}")
+end
+
+puts "Client files sent (#{sftp.client_count})\n Connection terminated"
+
+
+

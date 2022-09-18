@@ -1,22 +1,20 @@
-require 'uri'
-
 class Extract
-  attr_reader :host, :username, :password
+  attr_accessor :host, :username, :password
 
-  def initialize(host, username, password)
+  def initialize(host, username)
     @host         = host
-    @user         = user
-    @port         = port || 22 
+    @user         = username
     @password     = password
 
     @session      = Net::SFTP.start(
       @host, 
       @user, 
-      port: @port,
-      password: @password,
+      password: @password
     )
 
-    puts opening = <<~OPEN
+    @client_count = 0
+
+    puts <<~OPEN
       Connected to the SFTP server.
 
       Host: #{ENV['HOST']}
@@ -30,13 +28,13 @@ class Extract
   # List all files
   # Requires remote read permissions.
   def list_files(remote_dir)
-    session.dir.foreach(remote_dir) do |entry|
+    @session.dir.foreach(remote_dir) do |entry|
       puts entry.longname
     end
   end
 
   def entries(remote_dir)
-    session.dir.foreach(remote_dir) do |entry|
+    @session.dir.foreach(remote_dir) do |entry|
       yield entry
     end
   end
@@ -51,7 +49,7 @@ class Extract
   # Requires remote read permissions.
   def open(remote_file, flags = 'r')
     # File operations
-    session.file.open(remote_file, flags) do |io|
+    @session.file.open(remote_file, flags) do |io|
       yield io
     end
   end
@@ -59,13 +57,27 @@ class Extract
   # Upload local file to remote file
   # Requires remote write permissions.
   def upload(local_file, remote_file, options = {})
-    session.upload!(local_file, remote_file, options)
+    @session.upload!(local_file, remote_file, options)
   end
 
   # Download local file to remote file
   # Requires remote read permissions.
   def download(remote_file, local_file, options = {})
-    session.download!(remote_file, local_file, options)
+    @session.download!(remote_file, local_file, options)
+  end
+
+  def increment_client_count
+    @client_count = @client_count.succ
+  end 
+
+  def client_count
+    @client_count
+  end
+  
+  def files_sent(array, client, remote_location)
+    message = "#{array.size} #{client} files copied to #{remote_location}\n"
+
+    puts matches.empty? ? message.red : message.green
   end
 end
 
