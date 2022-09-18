@@ -77,7 +77,7 @@ class Extract
   def files_sent(array, client, remote_location)
     message = "#{array.size} #{client} files copied to #{remote_location}\n"
 
-    puts matches.empty? ? message.red : message.green
+    puts array.empty? ? message.red : message.green
   end
 end
 
