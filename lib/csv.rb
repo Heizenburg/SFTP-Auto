@@ -23,7 +23,7 @@ class Extract
       Username: #{ENV['USERNAME']}\n
     OPEN
   rescue Exception => e
-    puts "Failed to parse SFTP: #{e}"
+    puts "Failed to parse SFTP: #{e}\n"
   end
 
   # List all files

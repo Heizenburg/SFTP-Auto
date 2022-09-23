@@ -120,7 +120,7 @@ remote.each_with_index do |(client, remote_location), index|
   matches = []
 
   Dir.each_child(local) do |file|
-    next if File.directory?(file) || file == '.' || file == '..'
+    next if File.directory?(file) || %w(. ..).include?(file)
 
     # Adds client to matches if the file matches the regex.
     # Matches for respective client files.
@@ -141,7 +141,7 @@ remote.each_with_index do |(client, remote_location), index|
       spinner.auto_spin
 
       # Send the clients files to its respective folders.
-      sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+      # sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end
 
