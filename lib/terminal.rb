@@ -30,3 +30,30 @@ class String
     colorize(36)
   end
 end
+
+class Integer
+  # Dates helper
+  def minutes
+    self * 60
+  end
+
+  def hours
+    self * 60.minutes
+  end
+
+  def days
+    self * 24.hours
+  end
+
+  def weeks
+    self * 7.days
+  end
+
+  def months
+    self * 30.days
+  end
+
+  def years
+    self * 12.months
+  end
+end

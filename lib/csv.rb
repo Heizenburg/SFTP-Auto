@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Extract
   attr_accessor :host, :username, :password
 
@@ -7,12 +9,12 @@ class Extract
     @password     = password
 
     @session      = Net::SFTP.start(
-      @host, 
-      @user, 
+      @host,
+      @user,
       password: @password
     )
 
-    @client_count = 0
+    @clients = 0
 
     puts <<~OPEN
       Connected to the SFTP server.
@@ -20,7 +22,6 @@ class Extract
       Host: #{ENV['HOST']}
       Username: #{ENV['USERNAME']}\n
     OPEN
-
   rescue Exception => e
     puts "Failed to parse SFTP: #{e}"
   end
@@ -29,15 +30,13 @@ class Extract
   # Requires remote read permissions.
   def list_files(remote_dir)
     @session.dir.foreach(remote_dir) do |entry|
-      puts entry.longname
+      puts recent_file?(entry) ? entry.longname.yellow : entry.longname
     end
     puts "\n"
   end
 
-  def entries(remote_dir)
-    @session.dir.foreach(remote_dir) do |entry|
-      yield entry
-    end
+  def entries(remote_dir, &block)
+    @session.dir.foreach(remote_dir, &block)
   end
 
   # Get remote file directly to a buffer
@@ -48,11 +47,8 @@ class Extract
 
   # Open a remote file to a pseudo-IO with the given mode (r - read, w - write)
   # Requires remote read permissions.
-  def open(remote_file, flags = 'r')
-    # File operations
-    @session.file.open(remote_file, flags) do |io|
-      yield io
-    end
+  def open(remote_file, flags = 'r', &block)
+    @session.file.open(remote_file, flags, &block)
   end
 
   # Upload local file to remote file
@@ -67,18 +63,25 @@ class Extract
     @session.download!(remote_file, local_file, options)
   end
 
-  def increment_client_count
-    @client_count = @client_count.succ
-  end 
-
-  def client_count
-    @client_count
+  # Returns true if the file is not older than 7 days.
+  def recent_file?(file)
+    Time.at(file.attributes.mtime) > (Time.now - 7.days)
   end
-  
-  def files_sent(array, client, remote_location)
-    message = "#{array.size} #{client} files copied to #{remote_location}\n"
 
-    puts array.empty? ? message.red : message.green
+  def increment_clients
+    @clients += 1
+  end
+
+  attr_reader :clients
+
+  # List all remote files  copied.
+  def files_sent(array, client, remote_location)
+    message = if array.empty?
+                "0 #{client} files copied. Remote Location: #{remote_location}\n".red
+              else
+                "#{array.size} #{client} files copied to #{remote_location}\n".green
+              end
+
+    puts message
   end
 end
-

@@ -3,7 +3,8 @@
 require 'net/sftp'
 require 'dotenv/load'
 require 'pry'
-require 'pathname'
+require 'pry-nav'
+require 'pry-remote'
 require 'tty-spinner'
 
 require_relative 'terminal'
@@ -115,15 +116,15 @@ if Dir.children(local).size.zero? || !sftp
   exit
 end
 
-remote.each_with_index do |(client , remote_location), index|
+remote.each_with_index do |(client, remote_location), index|
   matches = []
 
   Dir.each_child(local) do |file|
     next if File.directory?(file) || file == '.' || file == '..'
-    
+
     # Adds client to matches if the file matches the regex.
     # Matches for respective client files.
-    next unless !!(file =~ /(#{client}).*\.zip$/)
+    next if (file =~ /(#{client}).*\.zip$/).nil?
 
     matches << file
   end
@@ -131,7 +132,6 @@ remote.each_with_index do |(client , remote_location), index|
   puts "Client[#{index.next}]: #{client}".yellow
 
   if matches.any?
-
     matches.map do |file|
       spinner = TTY::Spinner.new(
         "[:spinner] Copying #{file} to #{remote_location}",
@@ -144,16 +144,12 @@ remote.each_with_index do |(client , remote_location), index|
       sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end
-    
-    sftp.increment_client_count
+
+    sftp.increment_clients
   end
 
   sftp.files_sent(matches, client, remote_location)
-  
-  sftp.list_files("#{remote_location}")
+  sftp.list_files(remote_location.to_s)
 end
 
-puts "Client files sent (#{sftp.client_count})" , "Connection terminated"
-
-
-
+puts "Clients copied: #{sftp.clients}", 'Connection terminated'
