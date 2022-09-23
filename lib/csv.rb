@@ -72,6 +72,7 @@ class Extract
     @clients += 1
   end
 
+  # Returns clients count.
   attr_reader :clients
 
   # List all remote files  copied.

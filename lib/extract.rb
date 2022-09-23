@@ -73,13 +73,13 @@ remote = {
   'Hulley & Rice' => '/Clients/Hulley&Rice/Uploads',
   'Icon3sixty' => '/Clients/Icon3sixty/Upload/Weekly',
   'Jimmys Sauces' => '/Clients/Jimmys Sauces/Upload/Weekly',
-  'JNJ' => '/Clients/Mentholatum/Upload/Shoprite',
+  'JnJ' => '/Clients/Mentholatum/Upload/Shoprite',
   'KD Foods' => '/Clients/KD Foods/Upload/Weekly',
   'Koni' => '/Clients/Koni/Upload/Weekly',
   'Kunye Services' => '/Clients/KunyeServices/Upload/Weekly',
   'KWV' => '/Clients/KWV/Upload',
   'L & D Bakeries' => '/Clients/L&D Bakeries/Upload/Weekly',
-  'Libster' => '/Clients/Libstar/Upload/Weekly',
+  'Libstar' => '/Clients/Libstar/Upload/Weekly',
   'Lion' => '/Clients/Lion/Upload/Weekly',
   'Lopac Tissue' => '/Clients/Lopac/Upload/Weekly',
   'Lucky Star' => '/Clients/Lucky Star/Upload/Weekly',
@@ -141,7 +141,7 @@ remote.each_with_index do |(client, remote_location), index|
       spinner.auto_spin
 
       # Send the clients files to its respective folders.
-      # sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+      sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end
 
