@@ -23,6 +23,7 @@ remote = {
   'African Extracts'	=> '/Clients/African Extracts/Upload/Shoprite/Weekly',
   'AJ Products'	=> '/Clients/AJ Products/Upload/Weekly',
   'All Joy'	=> '/Clients/All Joy/Upload/Weekly',
+  'ALTAS TUISGEBAK' => '/Clients/Altas Tuisgebak/Upload/Weekly',
   'Aquelle'	=> '/Clients/aQuelle/Upload',
   'B M FOODS'	=> '/Clients/B M Foods/Uploads/Weekly',
   'Bavaria'	=> '/Clients/Bavaria/Upload/Weekly',
@@ -98,7 +99,17 @@ remote = {
   'Nandos' => '/Clients/Nando\'s/Upload/Weekly',
   'National Pride' => '/Clients/National Pride/Upload/Weekly',
   'NaturesChoice' => '/Clients/Natures Choice Products/Upload/Weekly',
-  'Normandien Farms' => '/Clients/Normandien Farms/Upload'
+  'Normandien Farms' => '/Clients/Normandien Farms/Upload',
+  'NSP Unsgaard' => '/Clients/Nsp Unsgaard/Upload/Weekly',
+  'Okin' => '/Clients/Okin/Upload',
+  'Omnings' => '/Clients/Omnings/Upload/Weekly',
+  'Paarman Foods' => '/Clients/Paarman/Upload/Weekly',
+  'PB Liquor' => '/Clients/PB Liquor/Upload/Weekly',
+  'Permark' => '/Clients/Permark/Upload/Shoprite/Weekly',
+  'Pernod Ricard' => '/Clients/Pernod Ricard/Upload',
+  'Pioneer' => '/Clients/Pioneer Foods/Upload',
+  'Plush' => '/Clients/Plush/Upload/Weekly',
+  'Pouyoukas Foods' => '/Clients/Pouyoukas/Upload/Weekly'
 }
 
 # Connection to the SFTP server.
@@ -144,10 +155,8 @@ remote.each_with_index do |(client, remote_location), index|
       sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end
-
     sftp.increment_clients
   end
-
   sftp.files_sent(matches, client, remote_location)
   sftp.list_files(remote_location.to_s)
 end
