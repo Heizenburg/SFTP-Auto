@@ -143,15 +143,14 @@ remote.each_with_index do |(client, remote_location), index|
   puts "Client[#{index.next}]: #{client}".yellow
 
   if matches.any?
-    matches.map do |file|
+    matches.each_with_index do |file, index|
       spinner = TTY::Spinner.new(
-        "[:spinner] Copying #{file} to #{remote_location}",
+        "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
         success_mark: '+',
         clear: true
       )
       spinner.auto_spin
-
-      # Send the clients files to its respective folders.
+      
       sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end

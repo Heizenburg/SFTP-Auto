@@ -30,7 +30,7 @@ class Extract
   # Requires remote read permissions.
   def list_files(remote_dir)
     @session.dir.foreach(remote_dir) do |entry|
-      puts recent_file?(entry) ? entry.longname.yellow : entry.longname
+      puts recent_file?(entry) ? entry.longname.green : entry.longname
     end
     puts "\n"
   end
@@ -69,7 +69,7 @@ class Extract
   end
 
   def increment_clients
-    @clients += 1
+    @clients = @clients.succ
   end
 
   # Returns clients count.
