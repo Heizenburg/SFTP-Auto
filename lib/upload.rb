@@ -1,14 +1,7 @@
 # frozen_string_literal: true
 
-require 'net/sftp'
-require 'dotenv/load'
-require 'pry'
-require 'pry-nav'
-require 'pry-remote'
-require 'tty-spinner'
-
 require_relative 'terminal'
-require_relative 'csv'
+require_relative 'session'
 
 # This will ultimately be for the shoprite path.
 # Remember to -- Dir.pwd -- to see the distinct file location format.
@@ -114,11 +107,11 @@ remote = {
 
 # Connection to the SFTP server.
 # If no password was set, ssh-agent will be used to detect private/public key  authentication.
-sftp = Extract.new(ENV['HOST'], ENV['USERNAME'])
+session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
 
 # Close connection if there are no file in local directory,
-# if sftp connection nor its session does not exist.
-if Dir.children(local).size.zero? || !sftp
+# if session connection nor its session does not exist.
+if Dir.children(local).size.zero? || !session
   puts <<~CLOSE
     No files in local directory.
     Closing connection.
@@ -151,13 +144,13 @@ remote.each_with_index do |(client, remote_location), index|
       )
       spinner.auto_spin
       
-      sftp.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+      session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end
-    sftp.increment_clients
+    session.increment_clients
   end
-  sftp.files_sent(matches, client, remote_location)
-  sftp.list_files(remote_location.to_s)
+  session.uploaded_files(matches, client, remote_location)
+  session.remote_files(remote_location.to_s)
 end
 
-puts "Clients copied: #{sftp.clients}", 'Connection terminated'
+puts "Clients copied: #{session.clients}", 'Connection terminated'

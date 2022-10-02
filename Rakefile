@@ -4,12 +4,16 @@
 # for example lib/tasks/capistrano.rake, and they will automatically
 # be available to Rake.
 
-task default: %w[run]
+task default: %w[upload]
 
-task :run do
-  ruby 'lib/extract.rb'
+task :upload do
+  ruby 'lib/upload.rb'
+end
+
+task :download do 
+  ruby 'lib/download.rb'
 end
 
 task :test do
-  ruby 'test/extract_test.rb'
+  ruby 'test/upload_test.rb'
 end

@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
-class Extract
+require 'net/sftp'
+require 'dotenv/load'
+require 'pry'
+require 'pry-nav'
+require 'pry-remote'
+require 'tty-spinner'
+
+class SFTP
   attr_accessor :host, :username, :password
 
   def initialize(host, username)
@@ -19,8 +26,8 @@ class Extract
     puts <<~OPEN
       Connected to the SFTP server.
 
-      Host: #{ENV['HOST']}
-      Username: #{ENV['USERNAME']}\n
+      Host: #{@host}
+      Username: #{@username}\n
     OPEN
   rescue Exception => e
     puts "Failed to parse SFTP: #{e}\n"
@@ -28,7 +35,7 @@ class Extract
 
   # List all files
   # Requires remote read permissions.
-  def list_files(remote_dir)
+  def remote_files(remote_dir)
     @session.dir.foreach(remote_dir) do |entry|
       puts recent_file?(entry) ? entry.longname.green : entry.longname
     end
@@ -76,7 +83,7 @@ class Extract
   attr_reader :clients
 
   # List all remote files  copied.
-  def files_sent(array, client, remote_location)
+  def uploaded_files(array, client, remote_location)
     message = if array.empty?
                 "0 #{client} files copied. Remote Location: #{remote_location}\n".red
               else
