@@ -33,5 +33,5 @@ $ rake
 Or 
 
 ```
-$ rake run 
+$ rake upload
 ```
