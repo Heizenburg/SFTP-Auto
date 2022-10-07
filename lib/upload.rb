@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'terminal'
-require_relative 'session'
+require_relative 'sftp'
 
 # This will ultimately be for the shoprite path.
 # Remember to -- Dir.pwd -- to see the distinct file location format.
@@ -124,7 +124,7 @@ remote.each_with_index do |(client, remote_location), index|
   matches = []
 
   Dir.each_child(local) do |file|
-    next if File.directory?(file) || %w(. ..).include?(file)
+    next if File.directory?(file) || %w[. ..].include?(file)
 
     # Adds client to matches if the file matches the regex.
     # Matches for respective client files.
@@ -143,7 +143,7 @@ remote.each_with_index do |(client, remote_location), index|
         clear: true
       )
       spinner.auto_spin
-      
+
       session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end

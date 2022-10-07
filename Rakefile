@@ -10,7 +10,7 @@ task :upload do
   ruby 'lib/upload.rb'
 end
 
-task :download do 
+task :download do
   ruby 'lib/download.rb'
 end
 
