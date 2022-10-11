@@ -155,7 +155,7 @@ remote.each_with_index do |(client, remote_location), index|
       )
       spinner.auto_spin
 
-      # session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+      session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end
     session.increment_clients
