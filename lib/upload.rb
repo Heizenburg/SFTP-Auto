@@ -102,7 +102,18 @@ remote = {
   'Pernod Ricard' => '/Clients/Pernod Ricard/Upload',
   'Pioneer' => '/Clients/Pioneer Foods/Upload',
   'Plush' => '/Clients/Plush/Upload/Weekly',
-  'Pouyoukas Foods' => '/Clients/Pouyoukas/Upload/Weekly'
+  'Pouyoukas Foods' => '/Clients/Pouyoukas/Upload/Weekly',
+  'Premier Foods' => '/Clients/Premier Foods/Uploads',
+  'Prima Pasta' => '/Clients/Prima Pasta/Upload/Weekly',
+  'Quantum' => '/Clients/Quantum Foods/Uploads/Weekly',
+  'RCL Food Customers' => '/Clients/RCL Foods/Upload/Raw Data Extracts/Shoprite Extracts/Latest Data',
+  'RCLFood Customers' => '/Clients/RCL Foods/Upload/Raw Data Extracts/Shoprite Extracts/Latest Data',
+  'RGBC' => '/Clients/RGBC/Uploads/Weekly',
+  'Rymco' => '/Clients/Rymco/Upload/Weekly',
+  'Sally Williams' => '/Clients/SallyWilliams/Upload/Weekly',
+  'SALPURA' => '/Clients/Salpura/Upload/Weekly',
+  'Serfie' => '/Clients/Serfie/Uploads/Weekly',
+  'Sams Tissue Products' => '/Clients/Sams Tissue/Upload/Weekly'
 }
 
 # Connection to the SFTP server.
@@ -124,7 +135,7 @@ remote.each_with_index do |(client, remote_location), index|
   matches = []
 
   Dir.each_child(local) do |file|
-    next if File.directory?(file) || %w[. ..].include?(file)
+    next if File.directory?(file) || %w(. ..).include?(file)
 
     # Adds client to matches if the file matches the regex.
     # Matches for respective client files.
@@ -144,13 +155,13 @@ remote.each_with_index do |(client, remote_location), index|
       )
       spinner.auto_spin
 
-      session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+      # session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end
     session.increment_clients
   end
   session.uploaded_files(matches, client, remote_location)
-  session.remote_files(remote_location.to_s)
+  session.remote_files(remote_location.to_s, client)
 end
 
 puts "Clients copied: #{session.clients}", 'Connection terminated'

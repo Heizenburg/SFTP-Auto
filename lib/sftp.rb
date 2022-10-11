@@ -26,8 +26,8 @@ class SFTP
     puts <<~OPEN
       Connected to the SFTP server.
 
-      Host: #{@host}
-      Username: #{@username}\n
+      Host: #{ENV['HOST']}
+      Username: #{ENV['USERNAME']}\n
     OPEN
   rescue Exception => e
     puts "Failed to parse SFTP: #{e}\n"
@@ -35,9 +35,13 @@ class SFTP
 
   # List all files
   # Requires remote read permissions.
-  def remote_files(remote_dir)
+  def remote_files(remote_dir, client)
     @session.dir.foreach(remote_dir) do |entry|
       puts recent_file?(entry) ? entry.longname.green : entry.longname
+      
+      if (entry.name =~ /(#{client}).*\.zip$/).nil? && !File.extname(entry.name) == '.csv'
+        puts entry.longname.red
+      end  
     end
     puts "\n"
   end
@@ -79,7 +83,7 @@ class SFTP
     @clients = @clients.succ
   end
 
-  # Returns clients count.
+  # Getter count for clients
   attr_reader :clients
 
   # List all remote files  copied.
