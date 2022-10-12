@@ -106,8 +106,8 @@ remote = {
   'Premier Foods' => '/Clients/Premier Foods/Uploads',
   'Prima Pasta' => '/Clients/Prima Pasta/Upload/Weekly',
   'Quantum' => '/Clients/Quantum Foods/Uploads/Weekly',
-  'RCL Food Customers' => '/Clients/RCL Foods/Upload/Raw Data Extracts/Shoprite Extracts/Latest Data',
-  'RCLFood Customers' => '/Clients/RCL Foods/Upload/Raw Data Extracts/Shoprite Extracts/Latest Data',
+  'RCL Food Consumers' => '/Clients/RCL Foods/Upload/Raw Data Extracts/Shoprite Extracts/Latest Data',
+  'RCLFood Consumers' => '/Clients/RCL Foods/Upload/Raw Data Extracts/Shoprite Extracts/Latest Data',
   'RGBC' => '/Clients/RGBC/Uploads/Weekly',
   'Rymco' => '/Clients/Rymco/Upload/Weekly',
   'Sally Williams' => '/Clients/SallyWilliams/Upload/Weekly',
@@ -117,8 +117,22 @@ remote = {
 }
 
 # Connection to the SFTP server.
-# If no password was set, ssh-agent will be used to detect private/public key  authentication.
+# If no password was set, ssh-agent will be used to detect private/public key authentication.
 session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+
+# Checks if arguments are passed to script.
+def arguments?
+  ARGV.any?
+end
+
+# Returns the number of clients that will be looped through in remote.
+def clients_to_cycle(array)
+  if arguments? && ARGV.length == 1
+    array.cycle.take(ARGV.at(0).to_i)
+  end
+
+  array
+end
 
 # Close connection if there are no file in local directory,
 # if session connection nor its session does not exist.
@@ -131,14 +145,13 @@ if Dir.children(local).size.zero? || !session
   exit
 end
 
-remote.each_with_index do |(client, remote_location), index|
+clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
   matches = []
 
   Dir.each_child(local) do |file|
-    next if File.directory?(file) || %w(. ..).include?(file)
+    next if File.directory?(file) || %w[. ..].include?(file)
 
-    # Adds client to matches if the file matches the regex.
-    # Matches for respective client files.
+    # Skip clients files that do not match client file name.
     next if (file =~ /(#{client}).*\.zip$/).nil?
 
     matches << file
@@ -146,7 +159,7 @@ remote.each_with_index do |(client, remote_location), index|
 
   puts "Client[#{index.next}]: #{client}".yellow
 
-  if matches.any?
+  unless matches.compact.empty?
     matches.each_with_index do |file, index|
       spinner = TTY::Spinner.new(
         "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
@@ -161,7 +174,8 @@ remote.each_with_index do |(client, remote_location), index|
     session.increment_clients
   end
   session.uploaded_files(matches, client, remote_location)
-  session.remote_files(remote_location.to_s, client)
+  session.list_remote_files(remote_location.to_s, client)
 end
+
 
 puts "Clients copied: #{session.clients}", 'Connection terminated'

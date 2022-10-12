@@ -8,7 +8,7 @@ require 'pry-remote'
 require 'tty-spinner'
 
 class SFTP
-  attr_accessor :host, :username, :password
+  attr_reader :host, :username, :password
 
   def initialize(host, username)
     @host         = host
@@ -35,13 +35,12 @@ class SFTP
 
   # List all files
   # Requires remote read permissions.
-  def remote_files(remote_dir, client)
+  def list_remote_files(remote_dir, client)
     @session.dir.foreach(remote_dir) do |entry|
       puts recent_file?(entry) ? entry.longname.green : entry.longname
-      
       if (entry.name =~ /(#{client}).*\.zip$/).nil? && !File.extname(entry.name) == '.csv'
-        puts entry.longname.red
-      end  
+        puts entry.longname.red 
+      end
     end
     puts "\n"
   end
@@ -83,10 +82,10 @@ class SFTP
     @clients = @clients.succ
   end
 
-  # Getter count for clients
+  # Getter for clients count
   attr_reader :clients
 
-  # List all remote files  copied.
+  # List all remote files copied.
   def uploaded_files(array, client, remote_location)
     message = if array.empty?
                 "0 #{client} files copied. Remote Location: #{remote_location}\n".red
