@@ -127,11 +127,11 @@ end
 
 # Returns the number of clients that will be looped through in remote.
 def clients_to_cycle(array)
-  if arguments? && ARGV.length == 1
+  if arguments? 
     array.cycle.take(ARGV.at(0).to_i)
+  else 
+    array
   end
-
-  array
 end
 
 # Close connection if there are no file in local directory,

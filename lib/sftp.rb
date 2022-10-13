@@ -33,13 +33,16 @@ class SFTP
     puts "Failed to parse SFTP: #{e}\n"
   end
 
-  # List all files
+  # List all remote files
   # Requires remote read permissions.
   def list_remote_files(remote_dir, client)
-    @session.dir.foreach(remote_dir) do |entry|
-      puts recent_file?(entry) ? entry.longname.green : entry.longname
-      if (entry.name =~ /(#{client}).*\.zip$/).nil? && !File.extname(entry.name) == '.csv'
-        puts entry.longname.red 
+    entries(remote_dir) do |entry|
+      if recent_file?(entry)
+        puts entry.longname.green
+      elsif (entry.name =~ /(#{client}).*\.zip$/).nil? && !File.extname(entry.name) == '.csv'
+        puts "#{entry.longname} ----- FILE DOES NOT BELONG HERE".red 
+      else
+        puts entry.longname
       end
     end
     puts "\n"
@@ -73,9 +76,9 @@ class SFTP
     @session.download!(remote_file, local_file, options)
   end
 
-  # Returns true if the file is not older than 7 days.
+  # Returns true if the file is not older than 6 days.
   def recent_file?(file)
-    Time.at(file.attributes.mtime) > (Time.now - 7.days)
+    Time.at(file.attributes.mtime) > (Time.now - 6.days)
   end
 
   def increment_clients
