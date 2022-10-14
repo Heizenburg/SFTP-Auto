@@ -39,8 +39,12 @@ class SFTP
     entries(remote_dir) do |entry|
       if recent_file?(entry)
         puts entry.longname.green
-      elsif (entry.name =~ /(#{client}).*\.zip$/).nil? && !File.extname(entry.name) == '.csv'
+      elsif (entry.name =~ /(#{client}).*\.zip$/).nil? && !csv?(entry.name) && !entry.attributes.directory? 
         puts "#{entry.longname}" + " ----- FILE DOES NOT BELONG HERE".red 
+      elsif csv?(entry.name)
+        puts "#{entry.longname} ----- MANUAL EXTRACTION"
+      elsif entry.attributes.directory?
+        puts "#{entry.longname} ----- FOLDER"
       else
         puts entry.longname
       end
@@ -48,6 +52,12 @@ class SFTP
     puts "\n"
   end
 
+  # Returns true if its a csv file.
+  def csv?(file)
+    File.extname(file) == '.csv'
+  end
+
+  # List all remote files.
   def entries(remote_dir, &block)
     @session.dir.foreach(remote_dir, &block)
   end
