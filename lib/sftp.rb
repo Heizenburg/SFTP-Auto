@@ -35,7 +35,7 @@ class SFTP
 
   # List all remote files
   # Requires remote read permissions.
-  def list_remote_files(remote_dir, client)
+  def remote_entries(remote_dir, client)
     entries(remote_dir) do |entry|
       if recent_file?(entry)
         puts entry.longname.green

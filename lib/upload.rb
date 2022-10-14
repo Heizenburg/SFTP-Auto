@@ -178,7 +178,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     session.increment_clients
   end
   session.uploaded_files(matches, client, remote_location)
-  session.list_remote_files(remote_location.to_s, client)
+  session.remote_entries(remote_location.to_s, client)
 end
 
 
