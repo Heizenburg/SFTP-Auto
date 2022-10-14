@@ -129,7 +129,7 @@ end
 def clients_to_cycle(array)
   if arguments? && ARGV.at(0) != 'analyze'
     array.cycle.take(ARGV.at(0).to_i)
-  else 
+  else
     array
   end
 end
@@ -170,9 +170,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
       # Upload files only when you are in upload mode
       # otherwise analyzes remote files.
-      unless ARGV.at(0) == 'analyze'
-        session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
-      end 
+      session.upload("#{local}/#{file}", "#{remote_location}/#{file}") unless ARGV.at(0) == 'analyze'
       spinner.success
     end
     session.increment_clients
@@ -180,6 +178,5 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
   session.uploaded_files(matches, client, remote_location)
   session.remote_entries(remote_location.to_s, client)
 end
-
 
 puts "Clients copied: #{session.clients}", 'Connection terminated'

@@ -39,8 +39,8 @@ class SFTP
     entries(remote_dir) do |entry|
       if recent_file?(entry)
         puts entry.longname.green
-      elsif (entry.name =~ /(#{client}).*\.zip$/).nil? && !csv?(entry.name) && !entry.attributes.directory? 
-        puts "#{entry.longname}" + " ----- FILE DOES NOT BELONG HERE".red 
+      elsif (entry.name =~ /(#{client}).*\.zip$/).nil? && !csv?(entry.name) && !entry.attributes.directory?
+        puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
       elsif csv?(entry.name)
         puts "#{entry.longname} ----- MANUAL EXTRACTION"
       elsif entry.attributes.directory?

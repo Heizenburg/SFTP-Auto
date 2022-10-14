@@ -14,9 +14,9 @@ task :download do
   ruby 'lib/download.rb'
 end
 
-task :analyze do 
+task :analyze do
   ruby 'lib/upload.rb analyze'
-end 
+end
 
 task :test do
   ruby 'test/upload_test.rb'
