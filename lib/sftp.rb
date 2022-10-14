@@ -40,7 +40,7 @@ class SFTP
       if recent_file?(entry)
         puts entry.longname.green
       elsif (entry.name =~ /(#{client}).*\.zip$/).nil? && !File.extname(entry.name) == '.csv'
-        puts "#{entry.longname} ----- FILE DOES NOT BELONG HERE".red 
+        puts "#{entry.longname}" + " ----- FILE DOES NOT BELONG HERE".red 
       else
         puts entry.longname
       end

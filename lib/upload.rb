@@ -127,7 +127,7 @@ end
 
 # Returns the number of clients that will be looped through in remote.
 def clients_to_cycle(array)
-  if arguments? 
+  if arguments? && ARGV.at(0) != 'analyze'
     array.cycle.take(ARGV.at(0).to_i)
   else 
     array
@@ -168,7 +168,11 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
       )
       spinner.auto_spin
 
-      session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+      # Upload files only when you are in upload mode
+      # otherwise analyzes remote files.
+      unless ARGV.at(0) == 'analyze'
+        session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+      end 
       spinner.success
     end
     session.increment_clients
