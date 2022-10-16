@@ -125,10 +125,16 @@ def arguments?
   ARGV.any?
 end
 
+def analysis_mode?
+  ARGV.at(0) == 'analyze'
+end
+
 # Returns the number of clients that will be looped through in remote.
 def clients_to_cycle(array)
-  if arguments? && ARGV.at(0) != 'analyze'
-    array.cycle.take(ARGV.at(0).to_i)
+  if arguments? && !analysis_mode?
+    array.cycle.take(ARGV[0].to_i)
+  elsif arguments? && analysis_mode? && !ARGV[1].nil?
+    array.cycle.take(ARGV[1].to_i)
   else
     array
   end
@@ -149,16 +155,13 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
   matches = []
 
   Dir.each_child(local) do |file|
-    next if File.directory?(file) || %w[. ..].include?(file)
-
-    # Skip clients files that do not match client file name.
-    next if (file =~ /(#{client}).*\.zip$/).nil?
+    # Skip clients files that do not match client file name or folders
+    next if (file =~ /(#{client}).*\.zip$/).nil? || File.directory?(file) || %w[. ..].include?(file)
 
     matches << file
   end
 
   puts "Client[#{index.next}]: #{client}".yellow
-
   unless matches.compact.empty?
     matches.each_with_index do |file, index|
       spinner = TTY::Spinner.new(
@@ -170,9 +173,10 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
       # Upload files only when you are in upload mode
       # otherwise analyzes remote files.
-      session.upload("#{local}/#{file}", "#{remote_location}/#{file}") unless ARGV.at(0) == 'analyze'
+      session.upload("#{local}/#{file}", "#{remote_location}/#{file}") unless analysis_mode?
       spinner.success
     end
+
     session.increment_clients
   end
   session.uploaded_files(matches, client, remote_location)
