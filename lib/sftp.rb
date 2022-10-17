@@ -2,6 +2,7 @@
 
 require 'net/sftp'
 require 'dotenv/load'
+require 'logger'
 require 'pry'
 require 'pry-nav'
 require 'pry-remote'
@@ -30,16 +31,21 @@ class SFTP
       Username: #{ENV['USERNAME']}\n
     OPEN
   rescue Exception => e
-    puts "Failed to parse SFTP: #{e}\n"
+    logger = Logger.new(STDOUT)
+    logger.error("Failed to parse SFTP: #{e}\n".red)
   end
 
   # List all remote files
   # Requires remote read permissions.
   def remote_entries(remote_dir, client)
     entries(remote_dir) do |entry|
-      if recent_file?(entry) && !csv?(entry.name)
-        puts entry.longname.green + " " + bytes_to_megabytes(entry.attributes.size)
-      elsif (entry.name =~ /(#{client}).*\.zip$/).nil? && !csv?(entry.name) && !entry.attributes.directory?
+      if recent_file?(entry) && !csv?(entry.name) && !(%w[. ..].include?(entry.name))
+        if client_file?(entry.name, client)
+          puts "#{entry.longname.green} #{bytes_to_megabytes(entry.attributes.size)}"
+        else 
+          puts entry.longname.green + ' ----- FILE DOES NOT BELONG HERE'.red
+        end
+      elsif !client_file?(entry.name, client) && !csv?(entry.name) && !entry.attributes.directory?
         puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
       elsif csv?(entry.name)
         puts "#{entry.longname} ----- MANUAL EXTRACTION"
@@ -59,9 +65,14 @@ class SFTP
 
   def bytes_to_megabytes(bytes)
     kb = (((bytes.to_f / 1024 / 1024) * 100) / 100).round(2) 
-    return "#{bytes} B" if kb < 0.01 
+    return "#{bytes}B" if kb < 0.01 
 
-    "#{kb} KB"    
+    "#{kb}KB"    
+  end
+
+  # Returns true if file is of a specific client.
+  def client_file?(file, client) 
+    file.match(/(#{client}).*\.zip$/)
   end
 
   # List all remote files.
@@ -106,9 +117,9 @@ class SFTP
   attr_reader :clients
 
   # List all remote files copied.
-  def uploaded_files(array, client, remote_location)
+  def copied_files(array, client, remote_location)
     message = if array.empty?
-                "0 #{client} files copied. Remote Location: #{remote_location}\n".red
+                "0 #{client} files copied. Location: #{remote_location}\n".red
               else
                 "#{array.size} #{client} files copied to #{remote_location}\n".green
               end

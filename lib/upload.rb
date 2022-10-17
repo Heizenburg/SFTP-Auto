@@ -155,7 +155,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
   matches = []
 
   Dir.each_child(local) do |file|
-    # Skip clients files that do not match client file name or folders
+    # Skip clients files that do not match client file name or folders.
     next if (file =~ /(#{client}).*\.zip$/).nil? || File.directory?(file) || %w[. ..].include?(file)
 
     matches << file
@@ -179,7 +179,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
     session.increment_clients
   end
-  session.uploaded_files(matches, client, remote_location)
+  session.copied_files(matches, client, remote_location)
   session.remote_entries(remote_location.to_s, client)
 end
 
