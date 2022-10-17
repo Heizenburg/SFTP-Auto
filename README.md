@@ -25,7 +25,7 @@ We'll use the environment variables LOCAL_LOCATION, USERNAME and HOST to obtain 
 
 Running the example will do the following:
 
- +Analyze+ remote files in remote location.
+ `Analyze` remote files in remote location.
 
 ```
 $ rake 
@@ -36,7 +36,7 @@ Or
 $ ruby lib/upload.rb analyze 
 ```
 
- +Upload+ local files to remote location.
+ `Upload` local files to remote location.
 
 ```
 $ rake upload
