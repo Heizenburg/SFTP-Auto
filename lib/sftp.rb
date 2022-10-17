@@ -38,7 +38,7 @@ class SFTP
   def remote_entries(remote_dir, client)
     entries(remote_dir) do |entry|
       if recent_file?(entry) && !csv?(entry.name)
-        puts entry.longname.green + " " + bytes_to_megabytes(entry.attributes.size).to_s + "KB"
+        puts entry.longname.green + " " + bytes_to_megabytes(entry.attributes.size)
       elsif (entry.name =~ /(#{client}).*\.zip$/).nil? && !csv?(entry.name) && !entry.attributes.directory?
         puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
       elsif csv?(entry.name)
@@ -58,7 +58,10 @@ class SFTP
   end
 
   def bytes_to_megabytes(bytes)
-    (((bytes.to_f / 1024 / 1024) * 100) / 100).round(2)
+    kb = (((bytes.to_f / 1024 / 1024) * 100) / 100).round(2) 
+    return "#{bytes} B" if kb < 0.01 
+
+    "#{kb} KB"    
   end
 
   # List all remote files.
