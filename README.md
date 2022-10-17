@@ -21,11 +21,11 @@ gem 'net-sftp', '~> 2.8', '>= 2.8.1'
 
 ## Run
 
-We'll use the environment variable LOCAL_LOCATION, USERNAME and HOST to obtain all the required information for connecting to an SFTP server in a URI format: `sftp://user:password@host`.
+We'll use the environment variables LOCAL_LOCATION, USERNAME and HOST to obtain all the required information for connecting to an SFTP server in a URI format: `sftp://user:password@host`.
 
 Running the example will do the following:
 
- **Upload** the downloaded file to another remote copy.
+ +Analyze+ remote files in remote location.
 
 ```
 $ rake 
@@ -33,5 +33,16 @@ $ rake
 Or 
 
 ```
+$ ruby lib/upload.rb analyze 
+```
+
+ +Upload+ local files to remote location.
+
+```
 $ rake upload
+```
+Or
+
+```
+$ ruby lib/upload.rb
 ```
