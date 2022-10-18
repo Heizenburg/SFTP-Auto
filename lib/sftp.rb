@@ -41,7 +41,7 @@ class SFTP
     entries(remote_dir) do |entry|
       if recent_file?(entry) && !csv?(entry.name) && !(%w[. ..].include?(entry.name))
         if client_file?(entry.name, client)
-          puts "#{entry.longname.green} #{bytes_to_megabytes(entry.attributes.size)}"
+          puts "#{entry.longname.green} #{bytes_to_kilobytes(entry.attributes.size)}"
         else 
           puts entry.longname.green + ' ----- FILE DOES NOT BELONG HERE'.red
         end
@@ -63,7 +63,7 @@ class SFTP
     File.extname(file) == '.csv'
   end
 
-  def bytes_to_megabytes(bytes)
+  def bytes_to_kilobytes(bytes)
     kb = (((bytes.to_f / 1024 / 1024) * 100) / 100).round(2) 
     return "#{bytes}B" if kb < 0.01 
 
