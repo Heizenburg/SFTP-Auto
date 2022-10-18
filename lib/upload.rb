@@ -142,7 +142,7 @@ remote = {
   'Woodlands Dairy' => '/Clients/Woodlands Dairy/Upload/Weekly',
   'Woodys' => '/Clients/Woodys/Upload/Weekly',
   'Yellow Fern' => '/Clients/Yellow Fern Trading/Upload/Weekly',
-  'Urenholt Co' => '/Clients/Urenholt/Uploads/Weekly'
+  'Uhrenholt Co' => '/Clients/Urenholt/Uploads/Weekly'
 }
 
 # Connection to the SFTP server.
