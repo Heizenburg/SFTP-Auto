@@ -39,18 +39,18 @@ class SFTP
   # Requires remote read permissions.
   def remote_entries(remote_dir, client)
     entries(remote_dir) do |entry|
-      if recent_file?(entry) && !csv?(entry.name) && !%w[. ..].include?(entry.name)
+      if entry.attributes.directory?
+        puts "#{entry.longname} ----- FOLDER"
+      elsif csv?(entry.name)
+        puts "#{entry.longname} ----- MANUAL EXTRACTION"
+      elsif recent_file?(entry)
         if client_file?(entry.name, client)
           puts "#{entry.longname.green} #{bytes_to_kilobytes(entry.attributes.size)}"
         else
           puts entry.longname.green + ' ----- FILE DOES NOT BELONG HERE'.red
         end
-      elsif !client_file?(entry.name, client) && !csv?(entry.name) && !entry.attributes.directory?
+      elsif !client_file?(entry.name, client)
         puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
-      elsif csv?(entry.name)
-        puts "#{entry.longname} ----- MANUAL EXTRACTION"
-      elsif entry.attributes.directory?
-        puts "#{entry.longname} ----- FOLDER"
       else
         puts entry.longname
       end
