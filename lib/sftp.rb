@@ -45,7 +45,7 @@ class SFTP
         puts "#{entry.longname} ----- MANUAL EXTRACTION"
       elsif recent_file?(entry)
         if client_file?(entry.name, client)
-          puts "#{entry.longname.green} #{bytes_to_kilobytes(entry.attributes.size)}"
+          puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
         else
           puts entry.longname.green + ' ----- FILE DOES NOT BELONG HERE'.red
         end
@@ -63,7 +63,7 @@ class SFTP
     File.extname(file) == '.csv'
   end
 
-  def bytes_to_kilobytes(bytes)
+  def convert_bytes_to_kilobytes(bytes)
     kb = (((bytes.to_f / 1024 / 1024) * 100) / 100).round(2)
     return "#{bytes}B" if kb < 0.01
 
