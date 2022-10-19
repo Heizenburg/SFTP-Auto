@@ -64,7 +64,8 @@ class SFTP
   end
 
   def convert_bytes_to_kilobytes(bytes)
-    (bytes.to_f / 1024).ceil
+    kb = (bytes.to_f / 1024).ceil
+    "#{kb}KB"
   end
 
   # Returns true if file is of a specific client.
