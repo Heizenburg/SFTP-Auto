@@ -64,10 +64,7 @@ class SFTP
   end
 
   def convert_bytes_to_kilobytes(bytes)
-    kb = (((bytes.to_f / 1024 / 1024) * 100) / 100).round(2)
-    return "#{bytes}B" if kb < 0.01
-
-    "#{kb}KB"
+    (bytes.to_f / 1024).ceil
   end
 
   # Returns true if file is of a specific client.

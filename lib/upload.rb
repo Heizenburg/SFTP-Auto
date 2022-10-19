@@ -164,12 +164,12 @@ end
 # Returns the number of clients that will be looped through in remote.
 def clients_to_cycle(array)
   if arguments? && !analysis_mode?
-    array.cycle.take(ARGV[0].to_i)
+    return array.cycle.take(ARGV[0].to_i)
   elsif arguments? && analysis_mode? && !ARGV[1].nil?
-    array.cycle.take(ARGV[1].to_i)
-  else
-    array
+    return array.cycle.take(ARGV[1].to_i)
   end
+    
+  array
 end
 
 # Close connection if there are no file in local directory,
