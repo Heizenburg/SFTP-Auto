@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require "net/sftp"
-require "dotenv/load"
-require "logger"
-require "pry"
-require "pry-nav"
-require "pry-remote"
-require "tty-spinner"
+require 'net/sftp'
+require 'dotenv/load'
+require 'logger'
+require 'pry'
+require 'pry-nav'
+require 'pry-remote'
+require 'tty-spinner'
 
 class SFTP
   attr_reader :host, :username, :password
@@ -19,17 +19,17 @@ class SFTP
     @session = Net::SFTP.start(
       @host,
       @user,
-      password: @password,
+      password: @password
     )
 
     @clients = 0
 
     puts <<~OPEN
-           Connected to the SFTP server.
+      Connected to the SFTP server.
 
-           Host: #{ENV["HOST"]}
-           Username: #{ENV["USERNAME"]}\n
-         OPEN
+      Host: #{ENV['HOST']}
+      Username: #{ENV['USERNAME']}\n
+    OPEN
   rescue StandardError => e
     logger = Logger.new($stdout)
     logger.error("Failed to parse SFTP: #{e}\n".red)
@@ -47,10 +47,10 @@ class SFTP
         if client_file?(entry.name, client)
           puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
         else
-          puts entry.longname.green + " ----- FILE DOES NOT BELONG HERE".red
+          puts entry.longname.green + ' ----- FILE DOES NOT BELONG HERE'.red
         end
       elsif !client_file?(entry.name, client)
-        puts entry.longname.to_s + " ----- FILE DOES NOT BELONG HERE".red
+        puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
       else
         puts entry.longname
       end
@@ -60,7 +60,7 @@ class SFTP
 
   # Returns true if its a csv file.
   def csv?(file)
-    File.extname(file) == ".csv"
+    File.extname(file) == '.csv'
   end
 
   def convert_bytes_to_kilobytes(bytes)
@@ -86,7 +86,7 @@ class SFTP
 
   # Open a remote file to a pseudo-IO with the given mode (r - read, w - write)
   # Requires remote read permissions.
-  def open(remote_file, flags = "r", &block)
+  def open(remote_file, flags = 'r', &block)
     @session.file.open(remote_file, flags, &block)
   end
 
@@ -107,20 +107,20 @@ class SFTP
     Time.at(file.attributes.mtime) > (Time.now - 6.days)
   end
 
-  def increment_clients
+  def increment_client
     @clients = @clients.succ
   end
 
   # Getter for clients count
   attr_reader :clients
 
-  # List all remote files copied.
+  # Prints count of files copied.
   def copied_files(array, client, remote_location)
     message = if array.empty?
-        "0 #{client} files copied. Location: #{remote_location}\n".red
-      else
-        "#{array.size} #{client} files copied to #{remote_location}\n".green
-      end
+                "0 #{client} files copied. Location: #{remote_location}\n".red
+              else
+                "#{array.size} #{client} files copied to #{remote_location}\n".green
+              end
 
     puts message
   end
