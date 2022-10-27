@@ -157,11 +157,17 @@ def arguments?
   ARGV.any?
 end
 
+# Returns true if its on analysis mode.
 def analysis_mode?
   ARGV.at(0) == 'analyze'
 end
 
-# Returns the number of clients that will be looped through in remote.
+# Counts files on local dir.
+def local_file_count(dir)
+  Dir.glob(dir + '/*.zip').length 
+end 
+
+# Returns the number of clients that will be looped through in remote hash.
 def clients_to_cycle(array)
   return array.cycle.take(ARGV[0].to_i) if arguments? && !analysis_mode?
   return array.cycle.take(ARGV[1].to_i) if arguments? && analysis_mode? && !ARGV[1].nil?
@@ -171,7 +177,7 @@ end
 
 # Close connection if there are no file in local directory,
 # if session connection nor its session does not exist.
-if Dir.children(local).size.zero? || !session
+if local_file_count(local).zero? && !analysis_mode?
   puts <<~CLOSE
     No files in local directory.
     Closing connection.
@@ -190,7 +196,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     matches << file
   end
 
-  puts "Client[#{index.next}]: #{client}".yellow
+  puts "Client[#{index.next}]: #{client}\n".yellow
   unless matches.compact.empty?
     matches.each_with_index do |file, index|
       spinner = TTY::Spinner.new(
@@ -201,15 +207,19 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
       spinner.auto_spin
 
       # Upload files only when you are in upload mode
-      # otherwise analyzes remote files.
+      # otherwise will only analyze remote files.
       session.upload("#{local}/#{file}", "#{remote_location}/#{file}") unless analysis_mode?
       spinner.success
     end
 
     session.increment_client
   end
-  session.copied_files(matches, client, remote_location)
+  session.copied_files(matches, client, remote_location) unless analysis_mode?
   session.remote_entries(remote_location, client)
 end
 
-puts "Clients copied: #{session.clients}", 'Connection terminated'
+if analysis_mode?
+  puts !ARGV[1].nil? ? "Clients remote DIR analyzed - #{ARGV[1]}" : "Clients remote DIR analyzed - #{remote.size}"
+else 
+  puts "Clients copied: #{session.clients}", 'Connection terminated' 
+end
