@@ -162,7 +162,7 @@ def analysis_mode?
   ARGV.at(0) == 'analyze'
 end
 
-# Counts files on local dir.
+# Counts zip files on local dir.
 def local_file_count(dir)
   Dir.glob(dir + '/*.zip').length 
 end 
@@ -175,8 +175,8 @@ def clients_to_cycle(array)
   array
 end
 
-# Close connection if there are no file in local directory,
-# if session connection nor its session does not exist.
+# Terminates procedure if there are no files in local directory 
+# and if it's not on analysis mode.
 if local_file_count(local).zero? && !analysis_mode?
   puts <<~CLOSE
     No files in local directory.
