@@ -124,6 +124,7 @@ remote = {
   'Siqalo' => '/Clients/RCL Foods/Upload/Raw Data Extracts/Shoprite Extracts/Siqalo',
   'Sir Juice' => '/Clients/Sir Juice/Upload/Weekly',
   'Southern Oil' => '/Clients/Southern Oil/Uploads',
+  'Spice Mecca' => '/Clients/Spice Mecca/Upload',
   'Stetson Butter' => '/Clients/Stetson Butter/Upload',
   'Strawberry Shortcake' => '/Clients/Strawberry Shortcake/Upload',
   'Sunnyfield' => '/Clients/Sunnyfield Group/Upload',
@@ -214,7 +215,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
     session.increment_client
   end
-  session.copied_files(matches, client, remote_location) unless analysis_mode?
+  session.copied_files(matches, client, remote_location)
   session.remote_entries(remote_location, client)
 end
 
