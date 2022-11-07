@@ -171,7 +171,15 @@ end
 # Returns the number of clients that will be looped through in remote hash.
 def clients_to_cycle(array)
   return array.cycle.take(ARGV[0].to_i) if arguments? && !analysis_mode?
-  return array.cycle.take(ARGV[1].to_i) if arguments? && analysis_mode? && !ARGV[1].nil?
+  return array.cycle.take(ARGV[1].to_i) if arguments? && analysis_mode? && !ARGV[1].nil? && ARGV[2].nil?
+  
+  if arguments? && analysis_mode? && !ARGV[1].nil? && !ARGV[2].nil?
+    first  = ARGV[1].to_i - 1
+    second = ARGV[2].to_i - 1
+
+    cycle = array.to_a[first..second]
+    return cycle 
+  end
 
   array
 end
@@ -219,8 +227,10 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
   session.remote_entries(remote_location, client)
 end
 
-if analysis_mode?
+if analysis_mode? && ARGV[2].nil?
   puts !ARGV[1].nil? ? "Clients remote DIR analyzed - #{ARGV[1]}" : "Clients remote DIR analyzed - #{remote.size}"
-else 
-  puts "Clients copied: #{session.clients}", 'Connection terminated' 
+elsif analysis_mode? && !ARGV[1].nil? && !ARGV[2].nil?
+  puts "Clients remote DIR analyzed - #{(ARGV[2].to_i)}"  
 end
+
+puts 'Connection terminated' 
