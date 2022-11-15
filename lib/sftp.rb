@@ -107,21 +107,10 @@ class SFTP
     Time.at(file.attributes.mtime) > (Time.now - 6.days)
   end
 
-  def increment_client
-    @clients = @clients.succ
-  end
-
   # Getter for clients count
   attr_reader :clients
 
-  # Prints count of files copied.
-  def copied_files(array, client, remote_location)
-    message = if array.empty?
-                "0 #{client} files copied. Location: #{remote_location}\n".red
-              else
-                "#{array.size} #{client} files copied to #{remote_location}\n".green
-              end
-
-    puts message
+  def increment_client
+    @clients = @clients.succ
   end
 end
