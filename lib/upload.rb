@@ -174,10 +174,10 @@ def clients_to_cycle(array)
   return array.cycle.take(ARGV[1].to_i) if arguments? && analysis_mode? && !ARGV[1].nil? && ARGV[2].nil?
   
   if arguments? && analysis_mode? && !ARGV[1].nil? && !ARGV[2].nil?
-    first  = ARGV[1].to_i - 1
-    second = ARGV[2].to_i - 1
+    first  = ARGV[1].to_i.pred
+    second = ARGV[2].to_i
 
-    cycle = array.to_a[first..second]
+    cycle = array.to_a[first...second]
     return cycle 
   end
 
