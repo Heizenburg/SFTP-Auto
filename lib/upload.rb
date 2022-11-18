@@ -223,7 +223,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
     session.increment_client
   end
-  puts "#{matches.size} #{client} files copied to #{remote_location}\n" unless matches.emtpy?
+  puts "#{matches.size} #{client} files copied to #{remote_location}\n\n" unless matches.empty?
   session.remote_entries(remote_location, client)
 end
 
