@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'uri'
 
 require_relative 'terminal'
 require_relative 'sftp'
@@ -28,8 +29,6 @@ require_relative 'sftp'
 #   newline="\r\n"
 #   vendor-id=0x000000114A4144415054495645204C696D697465640000000D4D6176657269636B205353484400000006312E372E33310000000000000000
 
-host = 'ftp.dataorbis.com'
-
 massmart_clients_credentials = {
   'adcock' => 'ZkAp3kST8NMqdVpwMO3n',
   'alpenfoods' => 'c34GbE76XsJ7j6bIDdLD',
@@ -39,6 +38,8 @@ massmart_clients_credentials = {
 
 # Loop through clients credentials hash and start a session for each one.
 massmart_clients_credentials.each do |(username, password)|
-  session = SFTP.new(host, username, 2222, password)
-  return session 
+  uri = URI("sftp://#{username}:#{password}@ftp.dataorbis.com:2222/")
+
+  session = SFTP.new(uri.host, uri.user, uri.password, uri.port)
+  exit unless session
 end

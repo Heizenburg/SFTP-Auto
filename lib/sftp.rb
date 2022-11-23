@@ -11,7 +11,7 @@ require 'tty-spinner'
 class SFTP
   attr_reader :host, :username, :password
 
-  def initialize(host, username, port = 22, password = nil)
+  def initialize(host, username, password = nil, port = 22)
     @host = host
     @user = username
     @port = port
@@ -20,8 +20,8 @@ class SFTP
     @session = Net::SFTP.start(
       @host,
       @user,
-      port: @port,
-      password: @password
+      password: @password,
+      port: @port
     )
 
     @clients = 0
