@@ -54,7 +54,7 @@ class SFTP
       elsif !client_file?(entry.name, client)
         puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
       else
-        puts entry.longname
+        puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
       end
     end
     puts "\n"
