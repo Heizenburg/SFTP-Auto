@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require_relative 'terminal'
+require_relative 'file_helpers'
 require_relative 'sftp'
+
 
 # This will ultimately be for the shoprite path.
 # Remember to -- Dir.pwd -- to see the distinct file location format.
@@ -152,7 +154,6 @@ remote = {
 }
 
 # Connection to the SFTP server.
-# If no password was set, ssh-agent will be used to detect private/public key authentication.
 session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
 
 # Checks if arguments are passed to script.
@@ -169,6 +170,17 @@ end
 def local_file_count(dir)
   Dir.glob(dir + '/*.zip').length 
 end 
+
+# Terminates procedure if there are no files in local directory 
+# and if it's not on analysis mode.
+if local_file_count(local).zero? && !analysis_mode?
+  puts <<~CLOSE
+    No files in local directory.
+    Closing connection.
+  CLOSE
+
+  exit
+end
 
 # Returns the number of clients that will be looped through in remote hash.
 def clients_to_cycle(array)
@@ -188,15 +200,28 @@ def clients_to_cycle(array)
   array
 end
 
-# Terminates procedure if there are no files in local directory 
-# and if it's not on analysis mode.
-if local_file_count(local).zero? && !analysis_mode?
-  puts <<~CLOSE
-    No files in local directory.
-    Closing connection.
-  CLOSE
+# Print files in remote directory.
+def print_remote_entries(session, remote_location, client)
+  session.entries(remote_location) do |entry|
+    next if %w[. ..].include?(entry.name)
+    
+    puts "#{entry.longname} ----- FOLDER" if entry.attributes.directory?
+    puts "#{entry.longname} ----- MANUAL EXTRACTION" if csv?(entry.name)
+    
+    if recent_file?(entry) && client_file?(entry.name, client)
+      puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+    elsif recent_file?(entry) && !client_file?(entry.name, client)
+      puts entry.longname.green + ' ----- FILE DOES NOT BELONG HERE'.red
+    end
 
-  exit
+    if !recent_file?(entry) && !client_file?(entry.name, client) && !entry.attributes.directory?
+      puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
+    elsif client_file?(entry.name, client) && !recent_file?(entry)
+      puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+    end 
+  end
+
+  puts "\n" 
 end
 
 clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
@@ -204,6 +229,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
   Dir.each_child(local) do |file|
     # Skip clients files that do not match client file name or folders.
+    # Otherwise push them into an array.
     next if (file =~ /(#{client}).*\.zip$/).nil? || File.directory?(file) || %w[. ..].include?(file)
 
     matches << file
@@ -221,21 +247,15 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
       spinner.auto_spin
 
       # Upload files only when you are in upload mode
-      # otherwise will only analyze remote files.
       session.upload("#{local}/#{file}", "#{remote_location}/#{file}") unless analysis_mode?
       spinner.success
     end
-
     session.increment_client
   end
   puts "#{matches.size} #{client} files copied to #{remote_location}\n\n" unless matches.empty?
-  session.remote_entries(remote_location, client)
-end
-
-if analysis_mode? && ARGV[2].nil?
-  puts !ARGV[1].nil? ? "Clients remote DIR analyzed - #{ARGV[1]}" : "Clients remote DIR analyzed - #{remote.size}"
-elsif analysis_mode? && !ARGV[1].nil? && !ARGV[2].nil?
-  puts "Clients remote DIR analyzed - #{(ARGV[2].to_i)}"  
+  print_remote_entries(session, remote_location, client)
 end
 
 puts 'Connection terminated' 
+
+

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'awesome_print'
 require 'net/sftp'
 require 'dotenv/load'
 require 'logger'
@@ -37,44 +37,6 @@ class SFTP
     logger.error("Failed to parse SFTP: #{e}\n".red)
   end
 
-  # List all remote files
-  # Requires remote read permissions.
-  def remote_entries(remote_dir, client)
-    entries(remote_dir) do |entry|
-      if entry.attributes.directory?
-        puts "#{entry.longname} ----- FOLDER"
-      elsif csv?(entry.name)
-        puts "#{entry.longname} ----- MANUAL EXTRACTION"
-      elsif recent_file?(entry)
-        if client_file?(entry.name, client)
-          puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
-        else
-          puts entry.longname.green + ' ----- FILE DOES NOT BELONG HERE'.red
-        end
-      elsif !client_file?(entry.name, client)
-        puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
-      else
-        puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
-      end
-    end
-    puts "\n"
-  end
-
-  # Returns true if its a csv file.
-  def csv?(file)
-    File.extname(file) == '.csv'
-  end
-
-  def convert_bytes_to_kilobytes(bytes)
-    kb = (bytes.to_f / 1024).ceil
-    "#{kb}KB"
-  end
-
-  # Returns true if file is of a specific client.
-  def client_file?(file, client)
-    file.match(/(#{client}).*\.zip$/)
-  end
-
   # List all remote files.
   def entries(remote_dir, &block)
     @session.dir.foreach(remote_dir, &block)
@@ -102,11 +64,6 @@ class SFTP
   # Requires remote read permissions.
   def download(remote_file, local_file, options = {})
     @session.download!(remote_file, local_file, options)
-  end
-
-  # Returns true if the file is not older than 6 days.
-  def recent_file?(file)
-    Time.at(file.attributes.mtime) > (Time.now - 6.days)
   end
 
   # Getter for clients count
