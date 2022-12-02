@@ -205,16 +205,15 @@ def print_remote_entries(session, remote_location, client)
   session.entries(remote_location) do |entry|
     next if %w[. ..].include?(entry.name)
     
-    puts "#{entry.longname} ----- FOLDER" if entry.attributes.directory?
-    puts "#{entry.longname} ----- MANUAL EXTRACTION" if csv?(entry.name)
-    
-    if recent_file?(entry) && client_file?(entry.name, client)
+    if entry.attributes.directory?
+      puts "#{entry.longname} ----- FOLDER"
+    elsif file_extention?(entry.name, '.csv')
+      puts "#{entry.longname} ----- MANUAL EXTRACTION" 
+    elsif recent_file?(entry) && client_file?(entry.name, client)
       puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
     elsif recent_file?(entry) && !client_file?(entry.name, client)
-      puts entry.longname.green + ' ----- FILE DOES NOT BELONG HERE'.red
-    end
-
-    if !recent_file?(entry) && !client_file?(entry.name, client) && !entry.attributes.directory?
+      puts entry.longname.green + ' ----- NEW FILE DOES NOT BELONG HERE'.red
+    elsif !recent_file?(entry) && !client_file?(entry.name, client)
       puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
     elsif client_file?(entry.name, client) && !recent_file?(entry)
       puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
@@ -256,6 +255,4 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
   print_remote_entries(session, remote_location, client)
 end
 
-puts 'Connection terminated' 
-
-
+puts 'Connection terminated'
