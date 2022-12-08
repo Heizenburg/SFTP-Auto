@@ -189,7 +189,7 @@ def clients_to_cycle(array)
   return array.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
   return array.cycle.take(second_arg.to_i) if arguments? && analysis_mode? && !second_arg.nil? && third_arg.nil?
   
-  if arguments? && analysis_mode? && !first_arg.nil? && !second_arg.nil?
+  if arguments? && analysis_mode? && !second_arg.nil? && !third_arg.nil?
     first = second_arg.to_i.pred
     second = third_arg.to_i
 
@@ -243,11 +243,13 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
         success_mark: '+',
         clear: true
       )
-      spinner.auto_spin
+      unless analysis_mode?
+        spinner.auto_spin
 
-      # Upload files only when you are in upload mode
-      session.upload("#{local}/#{file}", "#{remote_location}/#{file}") unless analysis_mode?
-      spinner.success
+        # Upload files only when you are in upload mode
+        session.upload("#{local}/#{file}", "#{remote_location}/#{file}") 
+        spinner.success
+      end
     end
     session.increment_client
   end
