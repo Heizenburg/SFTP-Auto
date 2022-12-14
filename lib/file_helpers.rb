@@ -17,3 +17,7 @@ end
 def recent_file?(file)
   Time.at(file.attributes.mtime) > (Time.now - 6.days)
 end
+
+def hidden_file?(file)
+  %w[. ..].include?(file)
+end

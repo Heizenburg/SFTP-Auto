@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'uri'
 
 require_relative 'terminal'
@@ -35,11 +36,20 @@ massmart_clients_credentials = {
   'bic' => 'L39WH3Q1fedCJMyJM3YL'
 }
 
+# Print files in remote directory.
+def remote_entries(session, remote_location)
+  session.entries(remote_location) do |entry|
+    next if hidden_file?(entry.name)
+    
+    puts "#{entry.longname}"
+  end
+end
 
 # Loop through clients credentials hash and start a session for each one.
 massmart_clients_credentials.each do |(username, password)|
   uri = URI("sftp://#{username}:#{password}@ftp.dataorbis.com:2222/")
 
-  session = SFTP.new(uri.host, uri.user, uri.password, uri.port)
-  exit unless session
+  Net::SFTP.start(uri.host, uri.user, password: uri.password, port: uri.port) do |sftp|
+    remote_entries(sftp, '/Makro')
+  end
 end
