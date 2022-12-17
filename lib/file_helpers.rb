@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Returns true for a file extention input.
 def file_extention?(file, ext)
   File.extname(file) == ext

@@ -40,8 +40,8 @@ massmart_clients_credentials = {
 def remote_entries(session, remote_location)
   session.entries(remote_location) do |entry|
     next if hidden_file?(entry.name)
-    
-    puts "#{entry.longname}"
+
+    puts entry.longname.to_s
   end
 end
 
