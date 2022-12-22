@@ -167,10 +167,10 @@ end
 
 # Counts zip files on local dir.
 def local_file_count(dir)
-  Dir.glob("#{dir}/*.zip").length
-end
+  Dir.glob(dir + '/*.zip').length 
+end 
 
-# Terminates procedure if there are no files in local directory
+# Terminates procedure if there are no files in local directory 
 # and if it's not on analysis mode.
 if local_file_count(local).zero? && !analysis_mode?
   puts <<~CLOSE
@@ -187,13 +187,13 @@ def clients_to_cycle(array)
 
   return array.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
   return array.cycle.take(second_arg.to_i) if arguments? && analysis_mode? && !second_arg.nil? && third_arg.nil?
-
+  
   if arguments? && analysis_mode? && !second_arg.nil? && !third_arg.nil?
     first = second_arg.to_i.pred
     second = third_arg.to_i
 
     cycle = array.to_a[first...second]
-    return cycle
+    return cycle 
   end
 
   array
@@ -203,11 +203,11 @@ end
 def print_remote_entries(session, remote_location, client)
   session.entries(remote_location) do |entry|
     next if hidden_file?(entry.name)
-
+    
     if entry.attributes.directory?
       puts "#{entry.longname} ----- FOLDER"
     elsif file_extention?(entry.name, '.csv')
-      puts "#{entry.longname} ----- MANUAL EXTRACTION"
+      puts "#{entry.longname} ----- MANUAL EXTRACTION" 
     elsif recent_file?(entry) && client_file?(entry.name, client)
       puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
     elsif recent_file?(entry) && !client_file?(entry.name, client)
@@ -216,10 +216,10 @@ def print_remote_entries(session, remote_location, client)
       puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
     elsif client_file?(entry.name, client) && !recent_file?(entry)
       puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
-    end
+    end 
   end
 
-  puts "\n"
+  puts "\n" 
 end
 
 clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
@@ -237,21 +237,22 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
   unless matches.compact.empty?
     matches.each_with_index do |file, index|
-      next if analysis_mode?
-
       spinner = TTY::Spinner.new(
         "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
         success_mark: '+',
         clear: true
       )
-      spinner.auto_spin
-      
-      # Upload files only when you are in upload mode
-      session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
-      spinner.success
+      unless analysis_mode?
+        spinner.auto_spin
+
+        # Upload files only when you are in upload mode
+        session.upload("#{local}/#{file}", "#{remote_location}/#{file}") 
+        spinner.success
+      end
     end
     session.increment_client
   end
+  puts "#{matches.size} #{client} files copied to #{remote_location}\n\n" unless analysis_mode?
   print_remote_entries(session, remote_location, client)
 end
 
