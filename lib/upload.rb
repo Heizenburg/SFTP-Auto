@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'terminal'
+require_relative 'terminal_helpers'
 require_relative 'file_helpers'
 require_relative 'sftp'
 
@@ -235,7 +235,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
   puts "Client[#{index.next}]: #{client}\n".yellow
 
-  if !matches.compact.empty? || !analysis_mode?
+  if !matches.compact.empty? && !analysis_mode?
     matches.each_with_index do |file, index|
       spinner = TTY::Spinner.new(
         "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
