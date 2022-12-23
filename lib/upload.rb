@@ -233,7 +233,8 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     matches << file
   end
 
-  puts "Client[#{index.next}]: #{client}\n".yellow
+  index = index + ARGV.at(1).to_i
+  puts "Client[#{index}]: #{client}\n".yellow
 
   if !matches.compact.empty? && !analysis_mode?
     matches.each_with_index do |file, index|
