@@ -235,18 +235,14 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
 
   puts "Client[#{index.next}]: #{client}\n".yellow
 
-  unless matches.compact.empty?
+  if !matches.compact.empty? || !analysis_mode?
     matches.each_with_index do |file, index|
-      next if analysis_mode?
-
       spinner = TTY::Spinner.new(
         "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
         success_mark: '+',
         clear: true
       )
       spinner.auto_spin
-
-      # Upload files only when you are in upload mode
       session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     end
