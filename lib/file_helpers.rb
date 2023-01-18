@@ -17,7 +17,12 @@ end
 
 # Returns true if the file is not older than 6 days.
 def recent_file?(file)
-  Time.at(file.attributes.mtime) > (Time.now - 6.days)
+  Time.at(file.attributes.mtime) > (Time.now - 1.days)
+end
+
+# Counts zip files on local dir.
+def local_file_count(dir)
+  Dir.glob("#{dir}/*.zip").length
 end
 
 def hidden_file?(file)
