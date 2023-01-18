@@ -169,13 +169,14 @@ end
 # Returns the number of clients that will be looped through in remote hash.
 def clients_to_cycle(array)
   first_arg, second_arg, third_arg = ARGV
-  
+
   return array.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
   return array.cycle.take(second_arg.to_i) if arguments? && analysis_mode? && !second_arg.nil? && third_arg.nil?
 
   if arguments? && analysis_mode? && !second_arg.nil? && !third_arg.nil?
-    first, second = second_arg.to_i.pred, third_arg.to_i
-    
+    first = second_arg.to_i.pred
+    second = third_arg.to_i
+
     cycle = array.to_a[first...second]
     return cycle
   end
@@ -217,7 +218,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     matches << file
   end
 
-  index = ARGV.at(2) ? index + ARGV.at(1).to_i : index.succ 
+  index = ARGV.at(2) ? index + ARGV.at(1).to_i : index.succ
   puts "Client[#{index}]: #{client}\n".yellow
 
   if !matches.compact.empty? && !analysis_mode?
