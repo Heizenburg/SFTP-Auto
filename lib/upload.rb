@@ -213,7 +213,7 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
   Dir.each_child(local) do |file|
     # Skip clients files that do not match client file name or folders.
     # Otherwise push them into an array.
-    next if (file =~ /(#{client}).*\.zip$/).nil? || File.directory?(file) || hidden_file?(file)
+    next if (file =~ /(#{client}).*\.zip$/i).nil? || File.directory?(file) || hidden_file?(file)
 
     matches << file
   end

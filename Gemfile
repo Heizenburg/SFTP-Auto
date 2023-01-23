@@ -12,4 +12,3 @@ gem 'pry-remote'
 gem 'rake'
 gem 'rubocop', require: false
 gem 'tty-spinner', '~> 0.9.3'
-gem 'uri'
