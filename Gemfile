@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 
 gem 'awesome_print'
 gem 'dotenv', '~> 2.8', '>= 2.8.1'
+gem 'fileutils'
 gem 'minitest'
 gem 'net-sftp', '~> 3.0'
 gem 'pry'

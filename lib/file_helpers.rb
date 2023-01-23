@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'fileutils'
+
 # Returns true for a file extention input.
 def file_extention?(file, ext)
   File.extname(file) == ext
@@ -18,6 +20,10 @@ end
 # Returns true if the file is not older than 6 days.
 def recent_file?(file)
   Time.at(file.attributes.mtime) > (Time.now - 6.days)
+end
+
+def compare_local_to_remote(local_path, remote_path, local_file, remote_file)
+  FileUtils.compare_file("#{local_path}/#{local_file}", "#{remote}/#{remote_file}")
 end
 
 # Counts zip files on local dir.
