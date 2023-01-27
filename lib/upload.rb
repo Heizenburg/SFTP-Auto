@@ -235,5 +235,4 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     session.increment_client
   end
   print_remote_entries(session, remote_location, client)
-  matches.map { |file| p file + ' => ' + "#{convert_bytes_to_kilobytes(File.size("#{local}/#{file}"))}" }
 end

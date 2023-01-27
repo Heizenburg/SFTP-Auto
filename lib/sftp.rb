@@ -10,7 +10,7 @@ require 'pry-remote'
 require 'tty-spinner'
 
 class SFTP
-  attr_reader :host, :username, :password
+  attr_reader :host, :username, :password, :clients
 
   def initialize(host, username, password = nil, port = 22)
     @host = host
@@ -67,10 +67,7 @@ class SFTP
     @session.download!(remote_file, local_file, options)
   end
 
-  # Getter for clients count
-  attr_reader :clients
-
   def increment_client
-    @clients = @clients.succ
+    @clients += 1
   end
 end

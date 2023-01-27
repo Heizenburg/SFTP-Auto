@@ -9,6 +9,8 @@ GEM
     json (2.6.2)
     method_source (1.0.0)
     minitest (5.16.3)
+    mocha (2.0.2)
+      ruby2_keywords (>= 0.0.5)
     net-sftp (3.0.0)
       net-ssh (>= 5.0.0, < 7.0.0)
     net-ssh (6.1.0)
@@ -40,6 +42,7 @@ GEM
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
     ruby-progressbar (1.11.0)
+    ruby2_keywords (0.0.5)
     slop (3.6.0)
     tty-cursor (0.7.1)
     tty-spinner (0.9.3)
@@ -55,6 +58,7 @@ DEPENDENCIES
   dotenv (~> 2.8, >= 2.8.1)
   fileutils
   minitest
+  mocha
   net-sftp (~> 3.0)
   pry
   pry-nav
