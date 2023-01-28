@@ -47,6 +47,11 @@ You can also pass the number of clients to analyze (IE, below will analyze the f
 ```
 $ ruby lib/upload.rb analyze 10
 ``` 
+You can pass in a range of clients to analyze (IE, below will analyze files from the 10th the 100th clients remote locations)
+
+```
+$ ruby lib/upload.rb analyze 10 100
+``` 
 <br />
 
  To `Upload` local files to remote location.
