@@ -4,10 +4,6 @@ require_relative 'terminal_helpers'
 require_relative 'file_helpers'
 require_relative 'sftp'
 
-# This will ultimately be for the Shoprite path.
-# Remember to -- Dir.pwd -- to see the distinct file location format.
-local = ENV['LOCAL_LOCATION']
-
 remote = {
   '3M' => '/Clients/3M/Upload/Weekly',
   'Abbotts Lab' => '/Clients/Abbott Lab/Upload/Weekly',
@@ -153,76 +149,68 @@ remote = {
   'Uhrenholt Co' => '/Clients/Urenholt/Uploads/Weekly'
 }
 
-# Connection to the SFTP server.
-session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+def main(local, remote)
+  session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
 
-# Checks if arguments are passed to script.
-def arguments?
-  ARGV.any?
-end
-
-# Returns true if its on analysis mode.
-def analysis_mode?
-  ARGV.at(0) == 'analyze'
-end
-
-# Returns the number of clients that will be looped through in remote hash.
-def clients_to_cycle(array)
-  first_arg, second_arg, third_arg = ARGV
-
-  return array.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
-  return array.cycle.take(second_arg.to_i) if arguments? && analysis_mode? && !second_arg.nil? && third_arg.nil?
-
-  if arguments? && analysis_mode? && !second_arg.nil? && !third_arg.nil?
-    first = second_arg.to_i.pred
-    second = third_arg.to_i
-
-    cycle = array.to_a[first...second]
-    return cycle
+  def arguments?
+    ARGV.any?
   end
 
-  array
-end
+  def analysis_mode?
+    ARGV.at(0) == 'analyze'
+  end
 
-# Print files in remote directory.
-def print_remote_entries(session, remote_location, client)
-  session.entries(remote_location) do |entry|
-    next if hidden_file?(entry.name)
+  def clients_to_cycle(array)
+    first_arg, second_arg, third_arg = ARGV
 
-    if entry.attributes.directory?
-      puts "#{entry.longname} ----- FOLDER"
-    elsif file_extention?(entry.name, '.csv')
-      puts "#{entry.longname} ----- MANUAL EXTRACTION".light_blue
-    elsif recent_file?(entry) && client_file?(entry.name, client)
-      puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
-    elsif recent_file?(entry) && !client_file?(entry.name, client)
-      puts entry.longname.green + ' ----- NEW FILE DOES NOT BELONG HERE'.red
-    elsif !recent_file?(entry) && !client_file?(entry.name, client)
-      puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
-    elsif client_file?(entry.name, client) && !recent_file?(entry)
-      puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+    return array.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
+    return array.cycle.take(second_arg.to_i) if arguments? && analysis_mode? && !second_arg.nil? && third_arg.nil?
+
+    if arguments? && analysis_mode? && !second_arg.nil? && !third_arg.nil?
+      first = second_arg.to_i.pred
+      second = third_arg.to_i
+
+      cycle = array.to_a[first...second]
+      return cycle
     end
+
+    array
   end
 
-  puts "\n"
-end
+  # Print files in remote directory.
+  def print_remote_entries(session, remote_location, client)
+    session.entries(remote_location) do |entry|
+      next if hidden_file?(entry.name)
 
-clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
-  matches = []
+      if entry.attributes.directory?
+        puts "#{entry.longname} ----- FOLDER"
+      elsif file_extention?(entry.name, '.csv')
+        puts "#{entry.longname} ----- MANUAL EXTRACTION".light_blue
+      elsif recent_file?(entry) && client_file?(entry.name, client)
+        puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+      elsif recent_file?(entry) && !client_file?(entry.name, client)
+        puts entry.longname.green + ' ----- NEW FILE DOES NOT BELONG HERE'.red
+      elsif !recent_file?(entry) && !client_file?(entry.name, client)
+        puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
+      elsif client_file?(entry.name, client) && !recent_file?(entry)
+        puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+      end
+    end
 
-  Dir.each_child(local) do |file|
-    # Skip clients files that do not match client file name or folders.
-    # Otherwise push them into an array.
-    next if (file =~ /(#{client}).*\.zip$/i).nil? || File.directory?(file) || hidden_file?(file)
-
-    matches << file
+    puts "\n"
   end
 
-  index = ARGV.at(2) ? index + ARGV.at(1).to_i : index.succ
-  puts "Client[#{index}]: #{client}\n".yellow
+  clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
+    matches = Dir.children(local).select do |file|
+      (file =~ /(#{client}).*.zip$/i) && !hidden_file?(file)
+    end
 
-  if !matches.compact.empty? && !analysis_mode?
-    matches.each_with_index do |file, index|
+    index = ARGV.at(2) ? index + ARGV.at(1).to_i : index.succ
+    puts "[#{index}]: #{client}\n".yellow
+
+    matches.compact.each_with_index do |file, index|
+      next if analysis_mode?
+
       spinner = TTY::Spinner.new(
         "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
         success_mark: '+',
@@ -233,6 +221,9 @@ clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
       spinner.success
     end
     session.increment_client
+    print_remote_entries(session, remote_location, client)
   end
-  print_remote_entries(session, remote_location, client)
 end
+
+local = ENV['LOCAL_LOCATION']
+main(local, remote)
