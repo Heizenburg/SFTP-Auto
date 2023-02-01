@@ -149,56 +149,56 @@ remote = {
   'Uhrenholt Co' => '/Clients/Urenholt/Uploads/Weekly'
 }
 
+def arguments?
+  ARGV.any?
+end
+
+def analysis_mode?
+  ARGV.at(0) == 'analyze'
+end
+
+def clients_to_cycle(array)
+  first_arg, second_arg, third_arg = ARGV
+
+  return array.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
+  return array.cycle.take(second_arg.to_i) if arguments? && analysis_mode? && !second_arg.nil? && third_arg.nil?
+
+  if arguments? && analysis_mode? && !second_arg.nil? && !third_arg.nil?
+    first = second_arg.to_i.pred
+    second = third_arg.to_i
+
+    cycle = array.to_a[first...second]
+    return cycle
+  end
+
+  array
+end
+
+# Print files in remote directory.
+def print_remote_entries(session, remote_location, client)
+  session.entries(remote_location) do |entry|
+    next if hidden_file?(entry.name)
+
+    if entry.attributes.directory?
+      puts "#{entry.longname} ----- FOLDER"
+    elsif file_extention?(entry.name, '.csv')
+      puts "#{entry.longname} ----- MANUAL EXTRACTION".light_blue
+    elsif recent_file?(entry) && client_file?(entry.name, client)
+      puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+    elsif recent_file?(entry) && !client_file?(entry.name, client)
+      puts entry.longname.green + ' ----- NEW FILE DOES NOT BELONG HERE'.red
+    elsif !recent_file?(entry) && !client_file?(entry.name, client)
+      puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
+    elsif client_file?(entry.name, client) && !recent_file?(entry)
+      puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+    end
+  end
+
+  puts "\n"
+end
+
 def main(local, remote)
   session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
-
-  def arguments?
-    ARGV.any?
-  end
-
-  def analysis_mode?
-    ARGV.at(0) == 'analyze'
-  end
-
-  def clients_to_cycle(array)
-    first_arg, second_arg, third_arg = ARGV
-
-    return array.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
-    return array.cycle.take(second_arg.to_i) if arguments? && analysis_mode? && !second_arg.nil? && third_arg.nil?
-
-    if arguments? && analysis_mode? && !second_arg.nil? && !third_arg.nil?
-      first = second_arg.to_i.pred
-      second = third_arg.to_i
-
-      cycle = array.to_a[first...second]
-      return cycle
-    end
-
-    array
-  end
-
-  # Print files in remote directory.
-  def print_remote_entries(session, remote_location, client)
-    session.entries(remote_location) do |entry|
-      next if hidden_file?(entry.name)
-
-      if entry.attributes.directory?
-        puts "#{entry.longname} ----- FOLDER"
-      elsif file_extention?(entry.name, '.csv')
-        puts "#{entry.longname} ----- MANUAL EXTRACTION".light_blue
-      elsif recent_file?(entry) && client_file?(entry.name, client)
-        puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
-      elsif recent_file?(entry) && !client_file?(entry.name, client)
-        puts entry.longname.green + ' ----- NEW FILE DOES NOT BELONG HERE'.red
-      elsif !recent_file?(entry) && !client_file?(entry.name, client)
-        puts entry.longname.to_s + ' ----- FILE DOES NOT BELONG HERE'.red
-      elsif client_file?(entry.name, client) && !recent_file?(entry)
-        puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
-      end
-    end
-
-    puts "\n"
-  end
 
   clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     matches = Dir.children(local).select do |file|

@@ -9,12 +9,25 @@ require 'pry-nav'
 require 'pry-remote'
 require 'tty-spinner'
 
-LOG_LEVELS = {
-  error: :error,
-  message: :info
-}
+module LogMethods
+  LOG_LEVELS = {
+    error: :error,
+    message: :info
+  }.freeze
+
+  LOG_LEVELS.each do |level, method_name|
+    define_method("log_#{level}") do |message|
+      logger = Logger.new($stdout)
+      logger.send(method_name, "#{message}\n")
+    end
+
+    private "log_#{level}"
+  end
+end
 
 class SFTP
+  include LogMethods
+
   attr_reader :host, :username, :password, :clients
 
   def initialize(host, username, password = nil, port = 22)
@@ -36,18 +49,11 @@ class SFTP
 
     @clients = 0
 
-    log_message("Connected to the SFTP server.\nHost: #{@host}\nUsername: #{@username}\n")
+    log_message("Connected to the SFTP server.\nHost: #{@host}\nUsername: #{@username}\n".light_blue)
   rescue Net::SSH::ConnectionTimeout => e
-    log_error("Timed out while trying to connect to the SFTP server: #{e}")
+    log_error("Timed out while trying to connect to the SFTP server: #{e}".red)
   rescue StandardError => e
-    log_error("Failed to connect to the SFTP server: #{e}")
-  end
-
-  LOG_LEVELS.each do |level, method_name|
-    define_method("log_#{level}") do |message|
-      logger = Logger.new($stdout)
-      logger.send("#{method_name}", "#{message}\n".red)
-    end
+    log_error("Failed to connect to the SFTP server: #{e}".red)
   end
 
   # List all remote files.

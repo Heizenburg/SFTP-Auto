@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 
 require_relative '../lib/upload'
@@ -17,7 +19,7 @@ class TestClientsToCycle < Minitest::Test
     result = clients_to_cycle(@remote)
     assert_equal @remote, result
   end
-  
+
   def test_clients_to_cycle_with_analyze_argument
     ARGV.clear
     ARGV << 'analyze'
