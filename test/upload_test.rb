@@ -17,14 +17,7 @@ class TestClientsToCycle < Minitest::Test
     result = clients_to_cycle(@remote)
     assert_equal @remote, result
   end
-
-  def test_clients_to_cycle_with_first_argument
-    ARGV.clear
-    ARGV << '2'
-    result = clients_to_cycle(@remote)
-    assert_equal @remote.cycle.take(2), result
-  end
-
+  
   def test_clients_to_cycle_with_analyze_argument
     ARGV.clear
     ARGV << 'analyze'

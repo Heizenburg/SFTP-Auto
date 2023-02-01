@@ -17,6 +17,7 @@ GEM
     parallel (1.22.1)
     parser (3.1.2.1)
       ast (~> 2.4.1)
+    pathname (0.2.1)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -60,6 +61,7 @@ DEPENDENCIES
   minitest
   mocha
   net-sftp (~> 3.0)
+  pathname
   pry
   pry-nav
   pry-remote

@@ -9,6 +9,11 @@ require 'pry-nav'
 require 'pry-remote'
 require 'tty-spinner'
 
+LOG_LEVELS = {
+  error: :error,
+  message: :info
+}
+
 class SFTP
   attr_reader :host, :username, :password, :clients
 
@@ -18,6 +23,10 @@ class SFTP
     @port = port
     @password = password
 
+    connect
+  end
+
+  def connect
     @session = Net::SFTP.start(
       @host,
       @user,
@@ -27,15 +36,18 @@ class SFTP
 
     @clients = 0
 
-    puts <<~OPEN
-      Connected to the SFTP server.
-
-      Host: #{ENV['HOST']}
-      Username: #{ENV['USERNAME']}\n
-    OPEN
+    log_message("Connected to the SFTP server.\nHost: #{@host}\nUsername: #{@username}\n")
+  rescue Net::SSH::ConnectionTimeout => e
+    log_error("Timed out while trying to connect to the SFTP server: #{e}")
   rescue StandardError => e
-    logger = Logger.new($stdout)
-    logger.error("Failed to parse SFTP: #{e}\n".red)
+    log_error("Failed to connect to the SFTP server: #{e}")
+  end
+
+  LOG_LEVELS.each do |level, method_name|
+    define_method("log_#{level}") do |message|
+      logger = Logger.new($stdout)
+      logger.send("#{method_name}", "#{message}\n".red)
+    end
   end
 
   # List all remote files.

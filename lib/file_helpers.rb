@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'fileutils'
+require 'pathname'
 
 # Returns true for a file extention input.
 def file_extention?(file, ext)
@@ -27,9 +28,8 @@ def compare_local_to_remote(local_path, remote_path, local_file, remote_file)
   FileUtils.compare_file("#{local_path}/#{local_file}", "#{remote_path}/#{remote_file}")
 end
 
-# Counts zip files on local dir.
 def local_file_count(dir)
-  Dir.glob("#{dir}/*.zip").length
+  Pathname.new(dir).children.count { |child| child.extname == '.zip' }
 end
 
 def hidden_file?(file)
