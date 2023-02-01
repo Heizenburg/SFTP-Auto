@@ -1,38 +1,36 @@
 # frozen_string_literal: true
 
-class String
-  # Colorization
-  def colorize(color_code)
-    "\e[#{color_code}m#{self}\e[0m"
+module ConsoleColors
+  def self.colorize(color_code, text)
+    "\e[#{color_code}m#{text}\e[0m"
   end
 
-  def red
-    colorize(31)
+  def self.red(text)
+    colorize(31, text)
   end
 
-  def green
-    colorize(32)
+  def self.green(text)
+    colorize(32, text)
   end
 
-  def yellow
-    colorize(33)
+  def self.yellow(text)
+    colorize(33, text)
   end
 
-  def blue
-    colorize(34)
+  def self.blue(text)
+    colorize(34, text)
   end
 
-  def pink
-    colorize(35)
+  def self.pink(text)
+    colorize(35, text)
   end
 
-  def light_blue
-    colorize(36)
+  def self.light_blue(text)
+    colorize(36, text)
   end
 end
 
-class Integer
-  # Dates helper
+module TimeHelper
   def minutes
     self * 60
   end
@@ -56,4 +54,16 @@ class Integer
   def years
     self * 12.months
   end
+end
+
+class String
+  include ConsoleColors
+
+  def colorize(color_code)
+    ConsoleColors.colorize(color_code, self)
+  end
+end
+
+class Integer
+  include TimeHelper
 end

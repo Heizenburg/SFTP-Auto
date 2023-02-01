@@ -9,7 +9,7 @@ require 'pry-nav'
 require 'pry-remote'
 require 'tty-spinner'
 
-module LogMethods
+module InternalLogMethods 
   LOG_LEVELS = {
     error: :error,
     message: :info
@@ -26,7 +26,7 @@ module LogMethods
 end
 
 class SFTP
-  include LogMethods
+  include InternalLogMethods 
 
   attr_reader :host, :username, :password, :clients
 
