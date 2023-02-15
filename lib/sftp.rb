@@ -9,7 +9,7 @@ require 'pry-nav'
 require 'pry-remote'
 require 'tty-spinner'
 
-module InternalLogMethods 
+module InternalLogMethods
   LOG_LEVELS = {
     error: :error,
     message: :info
@@ -26,7 +26,7 @@ module InternalLogMethods
 end
 
 class SFTP
-  include InternalLogMethods 
+  include InternalLogMethods
 
   attr_reader :host, :username, :password, :clients
 
@@ -51,7 +51,7 @@ class SFTP
 
     log_message("Connected to the SFTP server.\nHost: #{ENV['HOST']}\nUsername: #{ENV['USERNAME']}\n")
   rescue Net::SSH::ConnectionTimeout => e
-    log_error("Timed out while trying to connect to the SFTP server: #{e}")
+    log_error("Timed out while trying to connect to the SFTP server: #{e}".red)
   rescue StandardError => e
     log_error("Failed to connect to the SFTP server: #{e}".red)
   end

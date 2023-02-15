@@ -4,6 +4,8 @@ require_relative 'terminal_helpers'
 require_relative 'file_helpers'
 require_relative 'sftp'
 
+include InternalLogMethods
+
 remote = {
   '3M' => '/eu3mabn1ftp/Down',
   # 'Abbotts Lab' => '/Clients/Abbott Lab/Upload/Weekly',
@@ -198,17 +200,14 @@ def print_remote_entries(session, remote_location, client)
 end
 
 def main(local, remote)
-  session = SFTP.new(ENV['HOST'], ENV['USERNAME'], '@Cellz911@#$')
+  session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
   clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
-
     if local.nil?
-      puts "Error: local directory is not specified.".red
-      # Handle the error appropriately, e.g. by exiting the program or returning an error message.
+      log_error('Error: local directory is not specified.'.red)
     else
       matches = Dir.children(local).select do |file|
         (file =~ /(#{client}).*.zip$/i) && !hidden_file?(file)
       end
-      # continue with the rest of your code
     end
 
     index = ARGV.at(2) ? index + ARGV.at(1).to_i : index.succ
@@ -223,9 +222,15 @@ def main(local, remote)
         clear: true
       )
       spinner.auto_spin
-      session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
-      spinner.success
+
+      begin
+        session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+        spinner.success
+      rescue Exception => e
+        log_error("Error while uploading #{file}: #{e}".red)
+      end
     end
+
     session.increment_client
     print_remote_entries(session, remote_location, client)
   end
