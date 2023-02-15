@@ -49,9 +49,9 @@ class SFTP
 
     @clients = 0
 
-    log_message("Connected to the SFTP server.\nHost: #{@host}\nUsername: #{@username}\n".light_blue)
+    log_message("Connected to the SFTP server.\nHost: #{ENV['HOST']}\nUsername: #{ENV['USERNAME']}\n")
   rescue Net::SSH::ConnectionTimeout => e
-    log_error("Timed out while trying to connect to the SFTP server: #{e}".red)
+    log_error("Timed out while trying to connect to the SFTP server: #{e}")
   rescue StandardError => e
     log_error("Failed to connect to the SFTP server: #{e}".red)
   end
