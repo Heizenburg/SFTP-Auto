@@ -1,7 +1,7 @@
 {
     "html.format.indentInnerHtml": true,
     "editor.fontLigatures": true,
-    "editor.cursorSmoothCaretAnimation": true,
+    "editor.cursorSmoothCaretAnimation": "on",
     "editor.tabSize": 2,
     "editor.fontFamily": "Consolas",
     "editor.fontWeight": "100",
