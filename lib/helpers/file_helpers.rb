@@ -21,7 +21,7 @@ end
 
 # Returns true if the file is not older than 6 days.
 def recent_file?(file)
-  Time.at(file.attributes.mtime) > (Time.now - 6.days)
+  Time.at(file.attributes.mtime) > (Time.now - 8.days)
 end
 
 def compare_local_to_remote(local_path, remote_path, local_file, remote_file)
