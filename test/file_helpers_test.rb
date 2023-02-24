@@ -2,8 +2,8 @@
 
 require 'minitest/autorun'
 
-require_relative '../lib/file_helpers'
-require_relative '../lib/terminal_helpers'
+require_relative '../lib/helpers/file_helpers'
+require_relative '../lib/helpers/terminal_helpers'
 
 class FileMethodsTest < Minitest::Test
   def test_file_extension

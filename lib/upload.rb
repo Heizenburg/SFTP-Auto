@@ -44,7 +44,7 @@ def print_remote_entries(session, remote_location, client)
     if entry.attributes.directory?
       puts "#{entry.longname} ----- FOLDER"
     elsif file_extention?(entry.name, '.csv')
-      puts "#{entry.longname} ----- MANUAL EXTRACTION".light_blue
+      puts "#{entry.longname} ----- MANUAL EXTRACTION"
     elsif recent_file?(entry) && client_file?(entry.name, client)
       puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
     elsif recent_file?(entry) && !client_file?(entry.name, client)
