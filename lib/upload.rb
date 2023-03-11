@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
+require 'yaml'
+
 require_relative 'helpers/terminal_helpers'
 require_relative 'helpers/file_helpers'
 require_relative 'sftp'
 
-require 'yaml'
-
 include InternalLogMethods
 
-remote = YAML.load_file('lib/clients.yml')
+remote = YAML.load_file('lib/shoprite_clients.yml')
 
 def arguments?
   ARGV.any?
@@ -42,7 +42,7 @@ def print_remote_entries(session, remote_location, client)
     next if hidden_file?(entry.name)
 
     if entry.attributes.directory?
-      puts "#{entry.longname} ----- FOLDER"
+      puts "#{entry.longname} ----- FOLDER".blue
     elsif file_extention?(entry.name, '.csv')
       puts "#{entry.longname} ----- MANUAL EXTRACTION"
     elsif recent_file?(entry) && client_file?(entry.name, client)
@@ -60,7 +60,7 @@ def print_remote_entries(session, remote_location, client)
 end
 
 def main(local, remote)
-  session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+  session = SFTP.new(ENV['HOST'], ENV['USERNAME'], '@Cellz911@#$')
   clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     if local.nil?
       log_error('Error: local directory is not specified.'.red)
@@ -71,7 +71,7 @@ def main(local, remote)
     end
 
     index = ARGV.at(2) ? index + ARGV.at(1).to_i : index.succ
-    puts "[#{index}]: #{client}".yellow
+    puts "[#{index}: #{client}] #{remote_location}\n".yellow
 
     matches.compact.each_with_index do |file, index|
       next if analysis_mode?
