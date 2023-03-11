@@ -60,7 +60,7 @@ def print_remote_entries(session, remote_location, client)
 end
 
 def main(local, remote)
-  session = SFTP.new(ENV['HOST'], ENV['USERNAME'], '@Cellz911@#$')
+  session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
   clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     if local.nil?
       log_error('Error: local directory is not specified.'.red)
