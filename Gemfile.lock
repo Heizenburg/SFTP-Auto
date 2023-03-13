@@ -4,6 +4,7 @@ GEM
     ast (2.4.2)
     awesome_print (1.9.2)
     coderay (1.1.3)
+    date (3.3.3)
     dotenv (2.8.1)
     fileutils (1.7.0)
     json (2.6.2)
@@ -57,6 +58,7 @@ PLATFORMS
 
 DEPENDENCIES
   awesome_print
+  date
   dotenv (~> 2.8, >= 2.8.1)
   fileutils
   minitest

@@ -39,7 +39,7 @@ end
 # Print files in remote directory.
 def print_remote_entries(session, remote_location, client)
   session.entries(remote_location) do |entry|
-    next if hidden_file?(entry.name)
+    next unless not_hidden_file?(entry.name)
 
     if entry.attributes.directory?
       puts "#{entry.longname} ----- FOLDER".blue
@@ -66,7 +66,7 @@ def main(local, remote)
       log_error('Error: local directory is not specified.'.red)
     else
       matches = Dir.children(local).select do |file|
-        (file =~ /(#{client}).*.zip$/i) && !hidden_file?(file)
+        (file =~ /(#{client}).*.zip$/i) && not_hidden_file?(file)
       end
     end
 

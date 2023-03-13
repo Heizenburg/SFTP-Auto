@@ -2,6 +2,8 @@
 
 require 'fileutils'
 require 'pathname'
+require 'date'
+require 'net/sftp'
 
 # Returns true for a file extention input.
 def file_extention?(file, ext)
@@ -24,14 +26,35 @@ def recent_file?(file)
   Time.at(file.attributes.mtime) > (Time.now - 6.days)
 end
 
-def compare_local_to_remote(local_path, remote_path, local_file, remote_file)
-  FileUtils.compare_file("#{local_path}/#{local_file}", "#{remote_path}/#{remote_file}")
+def delete_old_files(sftp, remote_location)
+  sftp.entries(remote_location) do |file|
+    if file.file? && Time.at(file.attributes.mtime) < (Time.now - 20.days)
+      file_path = file.name
+      spinner = TTY::Spinner.new(
+        "[:spinner] Deleting #{file.longname} from #{remote_location}",
+        success_mark: '+',
+        clear: true
+      )
+      spinner.auto_spin
+      sftp.remove(file_path)
+      spinner.success
+      puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
+    end
+  end
+  puts "\n"
+end
+
+def compare_local_to_remote(local_path, remote_path, local_file, remote_file, session)
+  remote_file_size = session.stat("#{remote_path}/#{remote_file}").size
+  local_file_size = File.size("#{local_path}/#{local_file}")
+  
+  remote_file_size == local_file_size
 end
 
 def local_file_count(dir)
   Pathname.new(dir).children.count { |child| child.extname == '.zip' }
 end
 
-def hidden_file?(file)
-  file.start_with?('.')
+def not_hidden_file?(file)
+  !file.start_with?('.')
 end
