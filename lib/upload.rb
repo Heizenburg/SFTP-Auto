@@ -59,15 +59,36 @@ def print_remote_entries(session, remote_location, client)
   puts ''
 end
 
+def get_matching_files(local, client)
+  Dir.children(local).select do |file|
+    (file =~ /(#{client}).*.zip$/i) && not_hidden_file?(file)
+  end
+end
+
+def upload_file(session, file, local, remote_location, index, matches)
+  spinner = TTY::Spinner.new(
+    "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
+    success_mark: '+',
+    clear: true
+  )
+  spinner.auto_spin
+
+  begin
+    session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
+    spinner.success
+  rescue StandardError => e
+    log_error("Error while uploading #{file}: #{e}".red)
+  end
+end
+
 def main(local, remote)
   session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+  
   clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     if local.nil?
       log_error('Error: local directory is not specified.'.red)
     else
-      matches = Dir.children(local).select do |file|
-        (file =~ /(#{client}).*.zip$/i) && not_hidden_file?(file)
-      end
+      matches = get_matching_files(local, client)
     end
 
     index = ARGV.at(2) ? index + ARGV.at(1).to_i : index.succ
@@ -75,20 +96,7 @@ def main(local, remote)
 
     matches.compact.each_with_index do |file, index|
       next if analysis_mode?
-
-      spinner = TTY::Spinner.new(
-        "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
-        success_mark: '+',
-        clear: true
-      )
-      spinner.auto_spin
-
-      begin
-        session.upload("#{local}/#{file}", "#{remote_location}/#{file}")
-        spinner.success
-      rescue StandardError => e
-        log_error("Error while uploading #{file}: #{e}".red)
-      end
+      upload_file(session, file, local, remote_location, index, matches)
     end
 
     session.increment_client

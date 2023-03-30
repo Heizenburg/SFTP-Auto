@@ -32,15 +32,16 @@ def delete_old_files(sftp, remote_location)
       file_path = file.name
       spinner = TTY::Spinner.new(
         "[:spinner] Deleting #{file.longname} from #{remote_location}",
-        success_mark: '+',
+        success_mark: '-',
         clear: true
       )
       spinner.auto_spin
-      sftp.remove(file_path)
+      sftp.remove!(remote_location + file_path)
       spinner.success
       puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
     end
   end
+
   puts "\n"
 end
 
