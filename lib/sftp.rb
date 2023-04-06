@@ -85,7 +85,7 @@ class SFTP
     @session.download!(remote_file, local_file, options)
   end
 
-  def increment_client
+  def increment_clients_count
     @clients += 1
   end
 end

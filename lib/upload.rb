@@ -65,6 +65,16 @@ def get_matching_files(local, client)
   end
 end
 
+def track_index(index, client, remote_location)
+  if ARGV.at(2) 
+    ARGV.at(1).to_i
+  else 
+    index += 1
+  end
+
+  puts "[#{index}: #{client}] #{remote_location}\n".yellow
+end
+
 def upload_file(session, file, local, remote_location, index, matches)
   spinner = TTY::Spinner.new(
     "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{matches.size})",
@@ -91,15 +101,14 @@ def main(local, remote)
       matches = get_matching_files(local, client)
     end
 
-    index = ARGV.at(2) ? index + ARGV.at(1).to_i : index.succ
-    puts "[#{index}: #{client}] #{remote_location}\n".yellow
+    track_index(index, client, remote_location)
 
     matches.compact.each_with_index do |file, index|
       next if analysis_mode?
       upload_file(session, file, local, remote_location, index, matches)
     end
 
-    session.increment_client
+    session.increment_clients_count
     print_remote_entries(session, remote_location, client) unless remote_location.empty?
   end
 end

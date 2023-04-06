@@ -24,7 +24,6 @@ class FileMethodsTest < Minitest::Test
     FileUtils.touch('local_file.txt')
     FileUtils.touch('remote_file.txt')
     assert compare_local_to_remote('.', '.', 'local_file.txt', 'remote_file.txt')
-    # File.open('local_file.txt', 'w') { |f| f.write('test') }
     refute compare_local_to_remote('.', '.', 'local_file.txt', 'remote_file.txt')
     File.delete('local_file.txt')
     File.delete('remote_file.txt')

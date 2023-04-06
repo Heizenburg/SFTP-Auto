@@ -23,20 +23,26 @@ end
 
 # Returns true if the file is not older than 6 days.
 def recent_file?(file)
-  Time.at(file.attributes.mtime) > (Time.now - 6.days)
+  if file.respond_to?(:attributes) && file.attributes.respond_to?(:mtime)
+    Time.at(file.attributes.mtime) > (Time.now - 6.days)
+  else
+    File.mtime(file) > (Time.now - 6.days)
+  end
 end
 
-def delete_old_files(sftp, remote_location)
+# Deletes files older than 20 days.
+def delete_files(sftp, remote_location)
   sftp.entries(remote_location) do |file|
     if file.file? && Time.at(file.attributes.mtime) < (Time.now - 20.days)
       file_path = file.name
       spinner = TTY::Spinner.new(
-        "[:spinner] Deleting #{file.longname} from #{remote_location}",
+        "[:spinner] Deleting #{file.name} from #{remote_location}",
         success_mark: '-',
         clear: true
       )
-      spinner.auto_spin
-      sftp.remove!(remote_location + file_path)
+      # spinner.auto_spin
+      file_to_delete = remote_location[1..-1] + file_path
+      sftp.unlink(file_to_delete)
       spinner.success
       puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
     end

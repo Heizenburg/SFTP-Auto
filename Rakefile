@@ -14,6 +14,10 @@ task :download do
   ruby 'lib/download.rb'
 end
 
+task :pnp do
+  ruby 'lib/pnp.rb'
+end
+
 task :analyze do
   ruby 'lib/upload.rb analyze'
 end
