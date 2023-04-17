@@ -84,6 +84,11 @@ class SFTP
   def download(remote_file, local_file, options = {})
     @session.download!(remote_file, local_file, options)
   end
+  
+  # Deletes files from remote location.
+  def remove(remote_file)
+    @session.remove!(remote_file)
+  end
 
   def increment_clients_count
     @clients += 1

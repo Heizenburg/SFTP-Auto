@@ -34,15 +34,14 @@ end
 def delete_files(sftp, remote_location)
   sftp.entries(remote_location) do |file|
     if file.file? && Time.at(file.attributes.mtime) < (Time.now - 20.days)
-      file_path = file.name
+      file_to_delete = remote_location[1..-1] + '/' + file.name
       spinner = TTY::Spinner.new(
         "[:spinner] Deleting #{file.name} from #{remote_location}",
         success_mark: '-',
         clear: true
       )
-      # spinner.auto_spin
-      file_to_delete = remote_location[1..-1] + file_path
-      sftp.unlink(file_to_delete)
+      spinner.auto_spin
+      sftp.remove(file_to_delete)
       spinner.success
       puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
     end

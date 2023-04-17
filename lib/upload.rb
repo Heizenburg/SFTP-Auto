@@ -67,7 +67,7 @@ end
 
 def track_index(index, client, remote_location)
   if ARGV.at(2) 
-    ARGV.at(1).to_i
+    index += ARGV.at(1).to_i
   else 
     index += 1
   end
@@ -109,7 +109,10 @@ def main(local, remote)
     end
 
     session.increment_clients_count
-    print_remote_entries(session, remote_location, client) unless remote_location.empty?
+    delete_files(session, remote_location)
+    unless remote_location.empty?
+      print_remote_entries(session, remote_location, client)
+    end
   end
 end
 
