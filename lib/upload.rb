@@ -92,7 +92,7 @@ def upload_file(session, file, local, remote_location, index, matches)
 end
 
 def main(local, remote)
-  session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+  session = SFTP.new(ENV['HOST'], ENV['USERNAME'], '@Cellz911@#$')
   
   clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
     if local.nil?
@@ -110,7 +110,9 @@ def main(local, remote)
 
     session.increment_clients_count
     delete_files(session, remote_location)
-    unless remote_location.empty?
+
+    binding.pry
+    unless remote_location.empty? 
       print_remote_entries(session, remote_location, client)
     end
   end

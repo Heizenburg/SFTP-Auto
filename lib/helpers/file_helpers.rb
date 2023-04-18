@@ -41,20 +41,13 @@ def delete_files(sftp, remote_location)
         clear: true
       )
       spinner.auto_spin
-      sftp.remove(file_to_delete)
+      sftp.remove!(file_to_delete)
       spinner.success
       puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
     end
   end
 
   puts "\n"
-end
-
-def compare_local_to_remote(local_path, remote_path, local_file, remote_file, session)
-  remote_file_size = session.stat("#{remote_path}/#{remote_file}").size
-  local_file_size = File.size("#{local_path}/#{local_file}")
-  
-  remote_file_size == local_file_size
 end
 
 def local_file_count(dir)
