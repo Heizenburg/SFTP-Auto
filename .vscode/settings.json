@@ -11,4 +11,5 @@
     "editor.fontSize": 13.5,
     "editor.letterSpacing": 0.08,
     "editor.wordWrap": "on",
+    "docwriter.style": "Auto-detect",
 }

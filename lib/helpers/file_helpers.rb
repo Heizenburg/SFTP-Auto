@@ -46,7 +46,6 @@ def delete_files(sftp, remote_location)
       puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
     end
   end
-
   puts "\n"
 end
 
