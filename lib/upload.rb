@@ -105,7 +105,7 @@ def main(local, remote)
 
     matches.compact.each_with_index do |file, index|
       next if analysis_mode?
-      upload_file(session, file, local, remote_location, index, matches)
+      upload_file(session, file, local, remote_location, index, matches) unless remote_location.empty? 
     end
 
     session.increment_clients_count

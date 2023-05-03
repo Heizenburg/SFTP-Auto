@@ -30,10 +30,10 @@ def recent_file?(file)
   end
 end
 
-# Deletes files older than 20 days.
+# Deletes files older than 30 days.
 def delete_files(sftp, remote_location)
   sftp.entries(remote_location) do |file|
-    if file.file? && Time.at(file.attributes.mtime) < (Time.now - 20.days)
+    if file.file? && Time.at(file.attributes.mtime) < (Time.now - 30.days)
       file_to_delete = remote_location[1..-1] + '/' + file.name
       spinner = TTY::Spinner.new(
         "[:spinner] Deleting #{file.name} from #{remote_location}",
