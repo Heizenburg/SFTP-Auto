@@ -12,7 +12,7 @@ end
 
 def convert_bytes_to_kilobytes(bytes)
   kb = (bytes.to_f / 1024).ceil
-  "#{kb}KB"
+  "#{kb}KB".yellow
 end
 
 # Returns true if file is of a specific client.
@@ -31,9 +31,9 @@ def recent_file?(file)
 end
 
 # Deletes files older than 30 days.
-def delete_files(sftp, remote_location)
+def delete_files(sftp, remote_location, number_of_days: 30)
   sftp.entries(remote_location) do |file|
-    if file.file? && Time.at(file.attributes.mtime) < (Time.now - 30.days)
+    if file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
       file_to_delete = remote_location[1..-1] + '/' + file.name
       spinner = TTY::Spinner.new(
         "[:spinner] Deleting #{file.name} from #{remote_location}",
@@ -41,9 +41,14 @@ def delete_files(sftp, remote_location)
         clear: true
       )
       spinner.auto_spin
-      sftp.remove!(file_to_delete)
-      spinner.success
-      puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
+
+      begin
+        sftp.remove!(file_to_delete)
+        spinner.success
+        logger.info("Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red)
+      rescue StandardError => e
+        logger.error("Error deleting file #{file_to_delete}: #{e}")
+      end
     end
   end
   puts "\n"

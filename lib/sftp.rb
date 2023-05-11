@@ -8,6 +8,7 @@ require 'pry'
 require 'pry-nav'
 require 'pry-remote'
 require 'tty-spinner'
+require 'tty-prompt'
 
 module InternalLogMethods
   LOG_LEVELS = {
@@ -56,7 +57,7 @@ class SFTP
     log_error("Failed to connect to the SFTP server: #{e}".red)
   end
 
-  # List all remote files.
+  # Loops through all remote files.
   def entries(remote_dir, &block)
     @session.dir.foreach(remote_dir, &block)
   end
