@@ -40,32 +40,17 @@ $ rake
 Or 
 
 ```
-$ ruby lib/upload.rb analyze 
+$ rake analyze 
 ```
-You can also pass the number of clients to analyze (IE, below will analyze the first 10 clients remote locations):
+You can also pass the number of clients to analyze by either providing a range. 
+For instance a range seperated with a hyphen or a space like `10-20` or `10 20` respectively will loop through clients 10 to 20. 
 
-```
-$ ruby lib/upload.rb analyze 10
-``` 
-You can pass in a range of clients to analyze (IE, below will analyze files from the 10th the 100th clients remote locations)
+In order to analyze client 1 to n you will need to pass in any number from 1 up to client list length. 
 
-```
-$ ruby lib/upload.rb analyze 10 100
-``` 
 <br />
 
  To `Upload` local files to remote location.
 
 ```
 $ rake upload
-```
-Or
-
-```
-$ ruby lib/upload.rb
-```
-You can also pass the number of clients to upload (IE, below will upload files for the first 10 clients remote locations):
-
-```
-$ ruby lib/upload.rb 10
 ``` 
