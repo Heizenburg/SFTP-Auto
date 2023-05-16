@@ -45,7 +45,7 @@ $ rake analyze
 You can also pass the number of clients to analyze by either providing a range, 
 for instance a range seperated with a hyphen or a space like `10-20` or `10 20` respectively will loop through clients 10 to 20. 
 
-In order to analyze clients 1 to `n` you will need to pass in any number from 1 up to client list length. 
+In order to analyze 1 to `n` clients you will need to pass in any number that does not exceed the client list length.
 
 <br />
 
