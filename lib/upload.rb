@@ -25,10 +25,10 @@ def clients_to_cycle(client_list)
   first_arg, second_arg, third_arg = ARGV
 
   return client_list.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
-  return client_list.take(second_arg.to_i) if arguments? && analysis_mode? && !second_arg.nil? && third_arg.nil?
+  return client_list.take(second_arg.to_i) if arguments? && analysis_mode? && second_arg && third_arg.nil?
 
   # Range when you are not on upload mode.
-  if arguments? && analysis_mode? && !second_arg.nil? && !third_arg.nil?
+  if arguments? && analysis_mode? && second_arg && third_arg
     first = second_arg.to_i.pred
     second = third_arg.to_i
 
@@ -71,14 +71,15 @@ end
 # Ask user to specify range and files to delete. The former applies to analysis mode only.
 def get_prompt_information(prompt, remote, default_days = 30)
   days = default_days 
+  range = nil
 
   if analysis_mode?
     range_answer = prompt.yes?("Do you want to provide a range?")
 
     if range_answer
       range = prompt.ask("Provide a range of clients between 1 and #{remote.size}:") { |q| q.in("1-#{remote.size}") }
-      # Add the range elements to ARGV. ARGV modification is considered bad practice.
-      ARGV.concat(range.split(/[\s\-]/))
+      # Split range by either space or a hyphen. 
+      range_array = range.split(/[\s\-]/) 
     end
   end
 
@@ -91,7 +92,7 @@ def get_prompt_information(prompt, remote, default_days = 30)
 
   puts "\n"
 
-  return days
+  return days, range_array
 end
 
 def track_index(index, client, remote_location)
@@ -127,7 +128,8 @@ def main(local_directory, clients)
   # Get the user's input.
   prompt = TTY::Prompt.new
 
-  days = get_prompt_information(prompt, clients)
+  days, range = get_prompt_information(prompt, clients)
+  ARGV.concat(range) if range
 
   clients_to_cycle(clients).each_with_index do |(client, remote_location), index|
     matches = get_matching_files(local_directory, client)
