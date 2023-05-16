@@ -9,7 +9,9 @@ require_relative 'sftp'
 include InternalLogMethods
 
 NUMBER_OF_DAYS = 30
-remote = YAML.load_file('lib/shoprite_clients.yml')
+
+# Load the list of clients from a YAML file.
+clients = YAML.load_file('lib/shoprite_clients.yml')
 
 def arguments?
   ARGV.any?
@@ -56,8 +58,7 @@ def print_remote_entries(session, remote_location, client)
       puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
     end
   end
-
-  puts ''
+  puts "\n"
 end
 
 # Get all files with the client name (prefix).
@@ -68,25 +69,29 @@ def get_matching_files(local, client)
 end
 
 # Ask user to specify range and files to delete. The former applies to analysis mode only.
-def get_prompt_information(prompt, remote)
+def get_prompt_information(prompt, remote, default_days = 30)
+  days = default_days 
+
   if analysis_mode?
     range_answer = prompt.yes?("Do you want to provide a range?")
 
     if range_answer
-      range = prompt.ask("Provide a range of clients between 1 and #{remote.size}:") { |q| q.in('1-142') }
-      # Add the range elements to ARGV.
-      range.split(/[\s\-]/).each { |e| ARGV << e }
+      range = prompt.ask("Provide a range of clients between 1 and #{remote.size}:") { |q| q.in("1-#{remote.size}") }
+      # Add the range elements to ARGV. ARGV modification is considered bad practice.
+      ARGV.concat(range.split(/[\s\-]/))
     end
   end
 
   # Ask for a delete number of days regardless of the mode.
-  delete_answer = prompt.yes?("Do you want to specify the number of days for a file to be deleted? (default: 30 days)?")
+  delete_answer = prompt.yes?("Do you want to specify the number of days for a file to be deleted? (default: #{default_days} days)")
 
   if delete_answer
     days = prompt.ask("Enter the amount of days?") { |q| q.in('1-60') }.to_i
   end
 
   puts "\n"
+
+  return days
 end
 
 def track_index(index, client, remote_location)
@@ -112,27 +117,31 @@ def upload_file(session, file, local, remote_location, index, matches)
   end
 end
 
-def main(local, remote)
-  log_error('Error: local directory is not specified.'.red) if local.nil?
+def main(local_directory, clients)
+  # Check if the user has specified a local directory.
+  log_error('Error: local directory is not specified.'.red) if local_directory.nil?
 
+  # Create a new SFTP session.
   session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
-  prompt  = TTY::Prompt.new
 
-  get_prompt_information(prompt, remote)
-  
-  clients_to_cycle(remote).each_with_index do |(client, remote_location), index|
-    matches = get_matching_files(local, client)
+  # Get the user's input.
+  prompt = TTY::Prompt.new
+
+  days = get_prompt_information(prompt, clients)
+
+  clients_to_cycle(clients).each_with_index do |(client, remote_location), index|
+    matches = get_matching_files(local_directory, client)
     track_index(index, client, remote_location)
 
     next if matches.compact.empty? 
 
     matches.compact.each_with_index do |file, index|
       next if analysis_mode?
-      upload_file(session, file, local, remote_location, index, matches) unless remote_location.empty? 
+      upload_file(session, file, local_directory, remote_location, index, matches) unless remote_location.empty? 
     end
 
     session.increment_clients_count
-    delete_files(session, remote_location, number_of_days: defined?(days) ? days : NUMBER_OF_DAYS)
+    delete_files(session, remote_location, days)
 
     unless remote_location.empty? 
       print_remote_entries(session, remote_location, client)
@@ -141,4 +150,4 @@ def main(local, remote)
 end
 
 local = ENV['LOCAL_LOCATION']
-main(local, remote)
+main(local, clients)

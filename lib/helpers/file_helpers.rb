@@ -5,6 +5,10 @@ require 'pathname'
 require 'date'
 require 'net/sftp'
 
+require_relative '../sftp'
+
+include InternalLogMethods
+
 # Returns true for a file extention input.
 def file_extention?(file, ext)
   File.extname(file) == ext
@@ -31,24 +35,24 @@ def recent_file?(file)
 end
 
 # Deletes files older than 30 days.
-def delete_files(sftp, remote_location, number_of_days: 30)
+def delete_files(sftp, remote_location, number_of_days)
   sftp.entries(remote_location) do |file|
-    if file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
-      file_to_delete = remote_location[1..-1] + '/' + file.name
-      spinner = TTY::Spinner.new(
-        "[:spinner] Deleting #{file.name} from #{remote_location}",
-        success_mark: '-',
-        clear: true
-      )
-      spinner.auto_spin
+    next unless file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
+    
+    file_to_delete = File.join(remote_location[1..-1], file.name)
+    delete_spinner = TTY::Spinner.new(
+      "[:spinner] Deleting #{file.name} from #{remote_location}",
+      success_mark: '-',
+      clear: true
+    )
+    delete_spinner.auto_spin
 
-      begin
-        sftp.remove!(file_to_delete)
-        spinner.success
-        logger.info("Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red)
-      rescue StandardError => e
-        logger.error("Error deleting file #{file_to_delete}: #{e}")
-      end
+    begin
+      sftp.remove!(file_to_delete)
+      delete_spinner.success
+      logger.info("Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red)
+    rescue StandardError => e
+      logger.error("Error deleting file #{file_to_delete}: #{e}")
     end
   end
   puts "\n"

@@ -10,12 +10,10 @@ task :upload do
   ruby 'lib/upload.rb'
 end
 
-task :download do
-  ruby 'lib/download.rb'
-end
 
-task :pnp do
-  ruby 'lib/pnp.rb'
+
+task :list do
+  ruby 'lib/clients.rb'
 end
 
 task :analyze do
