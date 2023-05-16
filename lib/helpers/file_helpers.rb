@@ -50,9 +50,9 @@ def delete_files(sftp, remote_location, number_of_days)
     begin
       sftp.remove!(file_to_delete)
       delete_spinner.success
-      logger.info("Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red)
+      puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
     rescue StandardError => e
-      logger.error("Error deleting file #{file_to_delete}: #{e}")
+      log_error("Error deleting file #{file_to_delete}: #{e}".red)
     end
   end
   puts "\n"
