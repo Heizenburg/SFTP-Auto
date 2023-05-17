@@ -8,8 +8,6 @@ require_relative 'sftp'
 
 include InternalLogMethods
 
-NUMBER_OF_DAYS = 30
-
 # Load the list of clients from a YAML file.
 clients = YAML.load_file('lib/shoprite_clients.yml')
 
@@ -68,36 +66,34 @@ def get_matching_files(local, client)
   end
 end
 
-# Ask user to specify range and files to delete. The former applies to analysis mode only.
-def get_prompt_information(prompt, remote, default_days = 30)
-  days = default_days 
-  range = nil
+def get_range(prompt, clients)
+  range_answer = prompt.yes?("Do you want to provide a range?")
+  return nil unless range_answer
 
-  if analysis_mode?
-    range_answer = prompt.yes?("Do you want to provide a range?")
-
-    if range_answer
-      range = prompt.ask("Provide a range of clients between 1 and #{remote.size}:") { |q| q.in("1-#{remote.size}") }
-      # Split range by either space or a hyphen. 
-      range_array = range.split(/[\s\-]/) 
-    end
-  end
-
-  # Ask for a delete number of days regardless of the mode.
-  delete_answer = prompt.yes?("Do you want to specify the number of days for a file to be deleted? (default: #{default_days} days)")
-
-  if delete_answer
-    days = prompt.ask("Enter the amount of days?") { |q| q.in('1-60') }.to_i
-  end
-
-  puts "\n"
-
-  return days, range_array
+  range = prompt.ask("Provide a range of clients between 1 and #{clients.size}:") { |q| q.in("1-#{clients.size}") }
+  # Split range by either space or a hyphen. 
+  range.split(/[\s\-]/) 
 end
 
-def track_index(index, client, remote_location)
-  ARGV.at(2) ? index += ARGV.at(1).to_i : index += 1
-  
+def get_delete_days(prompt, default_days)
+  delete_answer = prompt.yes?("Do you want to specify the number of days for a file to be deleted? (default: #{default_days} days)")
+  return default_days unless delete_answer
+
+  prompt.ask("Enter the amount of days?") { |q| q.in('1-60') }.to_i
+end
+
+def get_prompt_information(prompt, clients, default_days = 30)
+  range = get_range(prompt, clients)
+  days  = get_delete_days(prompt, default_days)
+
+  puts "\n"
+  [days, range]
+end
+
+def print_client_information(index, client, remote_location)
+  mode, start_point, end_point = ARGV
+  end_point ? index += start_point.to_i : index += 1 
+
   puts "[#{index}: #{client}] #{remote_location}\n".yellow
 end
 
@@ -133,7 +129,7 @@ def main(local_directory, clients)
 
   clients_to_cycle(clients).each_with_index do |(client, remote_location), index|
     matches = get_matching_files(local_directory, client)
-    track_index(index, client, remote_location)
+    print_client_information(index, client, remote_location)
 
     next if matches.compact.empty? 
 
