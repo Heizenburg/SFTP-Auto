@@ -39,7 +39,6 @@ def delete_files(sftp, remote_location, number_of_days)
   sftp.entries(remote_location) do |file|
     next unless file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
     
-    file_to_delete = File.join(remote_location[1..-1], file.name)
     delete_spinner = TTY::Spinner.new(
       "[:spinner] Deleting #{file.name} from #{remote_location}",
       success_mark: '-',
@@ -48,7 +47,7 @@ def delete_files(sftp, remote_location, number_of_days)
     delete_spinner.auto_spin
 
     begin
-      sftp.remove!(file_to_delete)
+      remove_file_from_location(sftp, remote_location, file)
       delete_spinner.success
       puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
     rescue StandardError => e
@@ -56,6 +55,10 @@ def delete_files(sftp, remote_location, number_of_days)
     end
   end
   puts "\n"
+end
+
+def remove_file_from_location(session, remote_location, file)
+  session.remove!(File.join(remote_location[1..-1], file.name))
 end
 
 def local_file_count(dir)
