@@ -20,7 +20,6 @@
   end
 
   def clients_to_cycle(client_list)
-    return client_list if ARGV.empty?
     first_arg, second_arg, third_arg = ARGV
 
     return client_list.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
@@ -47,12 +46,7 @@
         puts "#{entry.longname} ----- FOLDER".blue
         next
       end
-  
-      if file_extention?(entry.name, '.csv')
-        puts "#{entry.longname} ----- MANUAL EXTRACTION"
-        next
-      end
-  
+
       if recent_file?(entry) && client_file?(entry.name, client)
         puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
         next
@@ -61,7 +55,7 @@
       if recent_file?(entry) && !client_file?(entry.name, client)
         puts "#{entry.longname.green} ----- NEW FILE DOES NOT BELONG HERE".red
         remove_file_from_location(session, remote_location, entry)
-        puts "#{entry.longname.green} ----- DELETED".red
+        puts "#{entry.longname} ----- DELETED".red
         next
       end
   
@@ -83,7 +77,7 @@
   # Get all files with the client name (prefix).
   def get_matching_files(local, client)
     Dir.children(local).select do |file|
-      (file =~ /(#{client}).*.zip$/i) && not_hidden_file?(file)
+      (file =~ /(#{client}).*\.\w+$/i) && not_hidden_file?(file)
     end
   end
 
@@ -104,7 +98,7 @@
   end
 
   def get_prompt_information(prompt, clients, default_days = 30)
-    range = get_range(prompt, clients)
+    range = get_range(prompt, clients) if analysis_mode?
     days  = get_delete_days(prompt, default_days)
 
     puts "\n"
@@ -140,7 +134,7 @@
     log_error('Error: local directory is not specified.'.red) if local_directory.nil?
 
     # Create a new SFTP session.
-    session = SFTP.new(ENV['HOST'], ENV['USERNAME'], '@Cellz911$#@')
+    session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
 
     # Get the user's input.
     prompt = TTY::Prompt.new

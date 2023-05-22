@@ -21,7 +21,7 @@ end
 
 # Returns true if file is of a specific client.
 def client_file?(file, client)
-  client_regex = Regexp.new("#{client}.*\\.zip$", Regexp::IGNORECASE)
+  client_regex = Regexp.new("#{client}.*\\.\\w+$", Regexp::IGNORECASE)
   file.match(client_regex)
 end
 
