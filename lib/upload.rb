@@ -22,11 +22,12 @@
   def clients_to_cycle(client_list)
     first_arg, second_arg, third_arg = ARGV
 
-    return client_list.cycle.take(first_arg.to_i) if arguments? && !analysis_mode?
-    return client_list.take(second_arg.to_i) if arguments? && analysis_mode? && second_arg && third_arg.nil?
+    if arguments? && second_arg && third_arg.nil?
+      return client_list.take(second_arg.to_i) 
+    end
 
     # Range when you are not on upload mode.
-    if arguments? && analysis_mode? && second_arg && third_arg
+    if arguments? && second_arg && third_arg
       first = second_arg.to_i.pred
       second = third_arg.to_i
 
@@ -98,7 +99,7 @@
   end
 
   def get_prompt_information(prompt, clients, default_days = 30)
-    range = get_range(prompt, clients) if analysis_mode?
+    range = get_range(prompt, clients) 
     days  = get_delete_days(prompt, default_days)
 
     puts "\n"

@@ -7,17 +7,15 @@
 task default: %w[analyze]
 
 task :upload do
-  ruby 'lib/upload.rb'
-end
-
-
-
-task :list do
-  ruby 'lib/clients.rb'
+  ruby 'lib/upload.rb upload'
 end
 
 task :analyze do
   ruby 'lib/upload.rb analyze'
+end
+
+task :list do
+  ruby 'lib/clients.rb'
 end
 
 task :test do
