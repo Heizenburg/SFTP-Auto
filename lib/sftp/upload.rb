@@ -1,15 +1,10 @@
   # frozen_string_literal: true
-
-  require 'yaml'
-
-  require_relative 'helpers/terminal_helpers'
-  require_relative 'helpers/file_helpers'
+  
+  require_relative '../helpers/terminal_helpers'
+  require_relative '../helpers/file_helpers'
   require_relative 'sftp'
 
   include InternalLogMethods
-
-  # Load the list of clients from a YAML file.
-  clients = YAML.load_file('lib/shoprite_clients.yml')
 
   def arguments?
     ARGV.any?
@@ -130,38 +125,37 @@
     end
   end
 
-  def main(local_directory, clients)
-    # Check if the user has specified a local directory.
-    log_error('Error: local directory is not specified.'.red) if local_directory.nil?
+  class SFTP::Upload
+    def self.main(local_directory, clients)
+      # Check if the user has specified a local directory.
+      log_error('Error: local directory is not specified.'.red) if local_directory.nil?
 
-    # Create a new SFTP session.
-    session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+      # Create a new SFTP session.
+      session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
 
-    # Get the user's input.
-    prompt = TTY::Prompt.new
+      # Get the user's input.
+      prompt = TTY::Prompt.new
 
-    days, range = get_prompt_information(prompt, clients)
-    ARGV.concat(range) if range
+      days, range = get_prompt_information(prompt, clients)
+      ARGV.concat(range) if range
 
-    clients_to_cycle(clients).each_with_index do |(client, remote_location), index|
-      matches = get_matching_files(local_directory, client)
-      print_client_information(index, client, remote_location)
+      clients_to_cycle(clients).each_with_index do |(client, remote_location), index|
+        matches = get_matching_files(local_directory, client)
+        print_client_information(index, client, remote_location)
 
-      next if matches.compact.empty? 
+        next if matches.compact.empty? 
 
-      matches.compact.each_with_index do |file, index|
-        next if analysis_mode?
-        upload_file(session, file, local_directory, remote_location, index, matches) unless remote_location.empty? 
-      end
+        matches.compact.each_with_index do |file, index|
+          next if analysis_mode?
+          upload_file(session, file, local_directory, remote_location, index, matches) unless remote_location.empty? 
+        end
 
-      session.increment_clients_count
-      delete_files(session, remote_location, days)
+        session.increment_clients_count
+        delete_files(session, remote_location, days)
 
-      unless remote_location.empty? 
-        print_remote_entries(session, remote_location, client)
+        unless remote_location.empty? 
+          print_remote_entries(session, remote_location, client)
+        end
       end
     end
   end
-
-  local = ENV['LOCAL_LOCATION']
-  main(local, clients)

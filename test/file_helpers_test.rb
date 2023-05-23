@@ -7,8 +7,8 @@ require_relative '../lib/helpers/terminal_helpers'
 
 class FileMethodsTest < Minitest::Test
   def test_file_extension
-    assert file_extention?('file.zip', '.zip')
-    refute file_extention?('file.txt', '.zip')
+    assert file_extension?('file.zip', '.zip')
+    refute file_extension?('file.txt', '.zip')
   end
 
   def test_convert_bytes_to_kilobytes

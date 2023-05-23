@@ -5,12 +5,12 @@ require 'pathname'
 require 'date'
 require 'net/sftp'
 
-require_relative '../sftp'
+require_relative '../sftp/sftp'
 
 include InternalLogMethods
 
 # Returns true for a file extention input.
-def file_extention?(file, ext)
+def file_extension?(file, ext)
   File.extname(file) == ext
 end
 
