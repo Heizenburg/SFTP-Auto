@@ -1,5 +1,5 @@
   # frozen_string_literal: true
-  
+
   require_relative '../helpers/terminal_helpers'
   require_relative '../helpers/file_helpers'
   require_relative 'sftp'
@@ -48,15 +48,8 @@
         next
       end
   
-      if recent_file?(entry) && !client_file?(entry.name, client)
-        puts "#{entry.longname.green} ----- NEW FILE DOES NOT BELONG HERE".red
-        remove_file_from_location(session, remote_location, entry)
-        puts "#{entry.longname} ----- DELETED".red
-        next
-      end
-  
-      if !recent_file?(entry) && !client_file?(entry.name, client)
-        puts "#{entry.longname.to_s} ----- FILE DOES NOT BELONG HERE\n".red
+      if !client_file?(entry.name, client)
+        puts "#{entry.longname} ----- FILE DOES NOT BELONG HERE\n"
         remove_file_from_location(session, remote_location, entry)
         puts "#{entry.longname} ----- DELETED".red
         next
@@ -72,8 +65,8 @@
 
   # Get all files with the client name (prefix).
   def get_matching_files(local, client)
-    Dir.children(local).select do |file|
-      (file =~ /(#{client}).*\.\w+$/i) && not_hidden_file?(file)
+    Find.find(local).select do |file|
+      File.file?(file) && (file =~ /(#{client}).*\.\w+$/i) && not_hidden_file?(file)
     end
   end
 
@@ -130,23 +123,25 @@
       # Check if the user has specified a local directory.
       log_error('Error: local directory is not specified.'.red) if local_directory.nil?
 
-      # Create a new SFTP session.
       session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
-
-      # Get the user's input.
-      prompt = TTY::Prompt.new
+      prompt  = TTY::Prompt.new
 
       days, range = get_prompt_information(prompt, clients)
       ARGV.concat(range) if range
 
       clients_to_cycle(clients).each_with_index do |(client, remote_location), index|
+        if analysis_mode?
+          print_client_information(index, client, remote_location)
+          print_remote_entries(session, remote_location, client) unless remote_location.empty?
+          next
+        end
+        
         matches = get_matching_files(local_directory, client)
         print_client_information(index, client, remote_location)
 
         next if matches.compact.empty? 
 
         matches.compact.each_with_index do |file, index|
-          next if analysis_mode?
           upload_file(session, file, local_directory, remote_location, index, matches) unless remote_location.empty? 
         end
 

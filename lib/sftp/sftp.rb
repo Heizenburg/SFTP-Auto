@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'awesome_print'
+require 'find'
 require 'net/sftp'
 require 'dotenv/load'
 require 'logger'

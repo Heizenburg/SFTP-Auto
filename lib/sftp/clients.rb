@@ -1,6 +1,6 @@
 require 'yaml'
 
-require_relative 'helpers/terminal_helpers'
+require_relative '../helpers/terminal_helpers'
 
 client_list = YAML.load_file('lib/shoprite_clients.yml')
 

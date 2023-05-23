@@ -7,6 +7,7 @@ GEM
     date (3.3.3)
     dotenv (2.8.1)
     fileutils (1.7.0)
+    find (0.1.1)
     json (2.6.2)
     method_source (1.0.0)
     minitest (5.16.3)
@@ -73,6 +74,7 @@ DEPENDENCIES
   date
   dotenv (~> 2.8, >= 2.8.1)
   fileutils
+  find
   minitest
   mocha
   net-sftp (~> 3.0)
