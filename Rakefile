@@ -18,6 +18,10 @@ task :list do
   ruby 'lib/sftp/clients.rb'
 end
 
+task :benchmark do 
+  ruby 'benchmarks.rb'
+end
+
 task :test do
   ruby 'test/upload_test.rb analyze'
 end

@@ -2,6 +2,7 @@
 
   require_relative '../helpers/terminal_helpers'
   require_relative '../helpers/file_helpers'
+  require_relative 'prompt'
   require_relative 'sftp'
 
   include InternalLogMethods
@@ -65,33 +66,9 @@
 
   # Get all files with the client name (prefix).
   def get_matching_files(local, client)
-    Find.find(local).select do |file|
-      File.file?(file) && (file =~ /(#{client}).*\.\w+$/i) && not_hidden_file?(file)
+    Dir.children(local).select do |file|
+      (file =~ /(#{client}).*\.\w+$/i)
     end
-  end
-
-  def get_range(prompt, clients)
-    range_answer = prompt.yes?("Do you want to provide a range?")
-    return nil unless range_answer
-
-    range = prompt.ask("Provide a range of clients between 1 and #{clients.size}:") { |q| q.in("1-#{clients.size}") }
-    # Split range by either space or a hyphen. 
-    range.split(/[\s\-]/) 
-  end
-
-  def get_delete_days(prompt, default_days)
-    delete_answer = prompt.yes?("Do you want to specify the number of days for a file to be deleted? (default: #{default_days} days)")
-    return default_days unless delete_answer
-
-    prompt.ask("Enter the amount of days?") { |q| q.in('1-60') }.to_i
-  end
-
-  def get_prompt_information(prompt, clients, default_days = 30)
-    range = get_range(prompt, clients) 
-    days  = get_delete_days(prompt, default_days)
-
-    puts "\n"
-    [days, range]
   end
 
   def print_client_information(index, client, remote_location)
@@ -138,19 +115,15 @@
         
         matches = get_matching_files(local_directory, client)
         print_client_information(index, client, remote_location)
-
-        next if matches.compact.empty? 
+        next if remote_location.empty?
 
         matches.compact.each_with_index do |file, index|
-          upload_file(session, file, local_directory, remote_location, index, matches) unless remote_location.empty? 
+          upload_file(session, file, local_directory, remote_location, index, matches)
         end
 
         session.increment_clients_count
         delete_files(session, remote_location, days)
-
-        unless remote_location.empty? 
-          print_remote_entries(session, remote_location, client)
-        end
+        print_remote_entries(session, remote_location, client)
       end
     end
   end
