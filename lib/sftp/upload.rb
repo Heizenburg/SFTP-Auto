@@ -49,7 +49,7 @@
         next
       end
   
-      if !client_file?(entry.name, client)
+      if !client_file?(entry.name, client) && !entry.name.end_with?('.csv')
         puts "#{entry.longname} ----- FILE DOES NOT BELONG HERE\n"
         remove_file_from_location(session, remote_location, entry)
         puts "#{entry.longname} ----- DELETED".red
