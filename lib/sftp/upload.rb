@@ -22,7 +22,7 @@
       return client_list.take(second_arg.to_i) 
     end
 
-    # Range when you are not on upload mode.
+    # Range for both analysis and upload mode.
     if arguments? && second_arg && third_arg
       first = second_arg.to_i.pred
       second = third_arg.to_i
