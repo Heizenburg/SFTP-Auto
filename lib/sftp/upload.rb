@@ -72,7 +72,7 @@
   end
 
   def print_client_information(index, client, remote_location)
-    _, start_point, end_point = ARGV
+    mode, start_point, end_point = ARGV
     end_point ? index += start_point.to_i : index += 1 
 
     puts "[#{index}: #{client}] #{remote_location}\n".yellow
