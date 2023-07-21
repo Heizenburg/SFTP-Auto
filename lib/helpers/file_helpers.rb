@@ -9,13 +9,15 @@ require_relative '../sftp/sftp'
 
 include InternalLogMethods
 
+DAYS_LIMIT = 6
+
 # Returns true for a file extention input.
 def file_extension?(file, ext)
   File.extname(file) == ext
 end
 
 def convert_bytes_to_kilobytes(bytes)
-  kb = (bytes.to_f / 1024).ceil
+  kb = (bytes / 1024.0).ceil
   "#{kb}KB".yellow
 end
 
@@ -28,9 +30,9 @@ end
 # Returns true if the file is not older than 6 days.
 def recent_file?(file)
   if file.respond_to?(:attributes) && file.attributes.respond_to?(:mtime)
-    Time.at(file.attributes.mtime) > (Time.now - 6.days)
+    Time.at(file.attributes.mtime) > (Time.now - DAYS_LIMIT.days)
   else
-    File.mtime(file) > (Time.now - 6.days)
+    File.mtime(file) > (Time.now - DAYS_LIMIT.days)
   end
 end
 

@@ -26,6 +26,7 @@ CBC: /eucbcvw1ftp/Down/CBC/Weekly/Shoprite
 Cerebos: /euceryx2ftp/Down/Cerebos/Weekly/Shoprite
 Chet: /euchegd4ftp/Down/Chet/Weekly/Shoprite
 Chill Beverages: /euchikj5ftp/Down/Chill Beverages/Weekly/Shoprite
+Cipla: /eucipgh1ftp/Down
 Cleopatra Tissue: /euclelm6ftp/Down/Cleopatra Tissue/Weekly/Shoprite
 Continental Biscuits: /euconqp7ftp/Down/Continental Biscuits/Weekly/Shoprite
 CTP: /euflemp5ftp/Down/CTP/Weekly/Shoprite
@@ -77,7 +78,7 @@ Lion: /euliovt7ftp/Down/Lion/Weekly/Shoprite
 Lopac Tissue: /eulopkm8ftp/Down/Lopac/Weekly/Shoprite
 Lucky Star: /eulucno9ftp/Down/Lucky Star/Weekly/Shoprite
 Marico: /eumarqp1ftp/Down/Marico/Weekly/Shoprite
-Marltons Pet: /eumarts2ftp/Down/Marltons Pet/Weekly/Shoprite
+Marltons Pet: /eumarts2ftp/Up
 Mars: /eumargf1ftp/Down/Mars/Weekly/Shoprite
 Martiq: /eumarms1ftp/Down/
 Masterton: /eumasrm8ftp/Down/
@@ -135,11 +136,10 @@ Tacoma: /eutacjv8ftp/Down/Tacoma/Weekly/Shoprite
 Thokoman Foods: /eutkfcd1ftp/Down/Thokoman Foods/Weekly/Shoprite
 Trade Model Seven: /eutraih9ftp/Down/Trade Model Seven/Weekly/Shoprite
 Transem: /eutravr4ftp/Down/Transem/Weekly/Shoprite
-Tuffy: /eutufrm5ftp/Down/Tuffy/Weekly/Shoprite
+Tuffy: /eutufrm5ftp/Up
 Unilever: /euunijg6ftp/Down/Unilever/Weekly/Shoprite
 Universal Paper: /euuvpcm7ftp/Down/Universal Paper/Weekly/Shoprite
 Urban Labs International: ''
-Vegeworth: /euvegmp8ftp/Down/Vegeworth/Weekly/Shoprite
 Willow Creek: /euwilkj1ftp/Down/Willow Creek/Weekly/Shoprite
 Willowton: /euwilnm2ftp/Down/Willowton/Weekly/Shoprite
 Woodlands Dairy: /euwldop3ftp/Down/Woodlands Dairy/Weekly/Shoprite
@@ -147,4 +147,4 @@ Woodys: /euwooqr4ftp/Down/Woodys/Weekly/Shoprite
 Yellow Fern: /euyefsv6ftp/Down/
 Uhrenholt Co: /euuhltd1ftp/Down/Uhrenholt/Weekly/Shoprite
 
-#  3M, Campari, Diplomat, Mastertons, Du toitskloof, Gentle Magic, Kellogs, Quantum, RCL, SunnyField, Yellow Fern
+# 3M, Campari, Diplomat, Mastertons, Du toitskloof, Gentle Magic, Kellogs, Quantum, RCL, SunnyField, Yellow Fern

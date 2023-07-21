@@ -38,6 +38,9 @@ class SFTP
     @port = port
     @password = password
 
+    @logger = Logger.new($stdout)
+    @clients = 0
+
     connect
   end
 
@@ -48,8 +51,6 @@ class SFTP
       password: @password,
       port: @port
     )
-
-    @clients = 0
 
     log_message("Connected to the SFTP server.\nHost: #{@host}\nUsername: #{@user}\n")
   rescue Net::SSH::ConnectionTimeout => e
@@ -87,15 +88,17 @@ class SFTP
     @session.download!(remote_file, local_file, options)
   end
 
+  def increment_clients_count
+    @clients += 1
+  end
+
+  private 
+
   def method_missing(method_name, *args, &block)
     if @session.respond_to?(method_name)
       @session.send(method_name, *args, &block)
     else
       super
     end
-  end
-
-  def increment_clients_count
-    @clients += 1
   end
 end

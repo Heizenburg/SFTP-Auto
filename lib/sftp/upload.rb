@@ -14,24 +14,21 @@
   def analysis_mode?
     ARGV.at(0) == 'analyze'
   end
-
+  
   def clients_to_cycle(client_list)
     first_arg, second_arg, third_arg = ARGV
 
-    if arguments? && second_arg && third_arg.nil?
+    return client_list if !arguments? || !second_arg
+
+    if third_arg.nil?
       return client_list.take(second_arg.to_i) 
     end
 
     # Range for both analysis and upload mode.
-    if arguments? && second_arg && third_arg
-      first = second_arg.to_i.pred
-      second = third_arg.to_i
+    first = second_arg.to_i.pred
+    second = third_arg.to_i
 
-      cycle = client_list.to_a[first...second]
-      return cycle
-    end
-
-    client_list
+    client_list.to_a[first...second]
   end
 
   # Print files in remote directory.
@@ -107,16 +104,15 @@
       ARGV.concat(range) if range
 
       clients_to_cycle(clients).each_with_index do |(client, remote_location), index|
+        print_client_information(index, client, remote_location)
+        next if remote_location.empty?
+
         if analysis_mode?
-          print_client_information(index, client, remote_location)
-          print_remote_entries(session, remote_location, client) unless remote_location.empty?
+          print_remote_entries(session, remote_location, client)
           next
         end
         
         matches = get_matching_files(local_directory, client)
-        print_client_information(index, client, remote_location)
-        next if remote_location.empty?
-
         matches.compact.each_with_index do |file, index|
           upload_file(session, file, local_directory, remote_location, index, matches)
         end

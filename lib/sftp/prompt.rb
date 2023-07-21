@@ -14,7 +14,7 @@ def get_delete_days(prompt, default_days)
   prompt.ask("Enter the amount of days?") { |q| q.in('1-60') }.to_i
 end
 
-def get_prompt_information(prompt, clients, default_days = 30)
+def get_prompt_information(prompt, clients, default_days = 60)
   range = get_range(prompt, clients) 
   days  = get_delete_days(prompt, default_days)
 
