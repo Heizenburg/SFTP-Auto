@@ -61,14 +61,14 @@
     puts "\n"
   end
 
-  # Get all files with the client name (prefix).
+  # Get all files with the client name.
   def get_matching_files(local, client)
     Dir.children(local).select do |file|
       (file =~ /^.*#{client}.*\..+$/i)
     end
   end
 
-  def print_client_information(index, client, remote_location)
+  def print_client_details(index, client, remote_location)
     mode, start_point, end_point = ARGV
     end_point ? index += start_point.to_i : index += 1 
 
@@ -104,7 +104,7 @@
       ARGV.concat(range) if range
 
       clients_to_cycle(clients).each_with_index do |(client, remote_location), index|
-        print_client_information(index, client, remote_location)
+        print_client_details(index, client, remote_location)
         next if remote_location.empty?
 
         if analysis_mode?
