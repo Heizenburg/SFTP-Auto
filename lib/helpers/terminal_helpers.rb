@@ -25,7 +25,7 @@ module ConsoleColors
     colorize(35, text)
   end
 
-  def self.light_blue(text)
+  def self.cyan(text)
     colorize(36, text)
   end
 end

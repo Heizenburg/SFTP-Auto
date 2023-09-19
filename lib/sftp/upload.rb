@@ -13,7 +13,7 @@ class SFTPUploader
   def initialize(local_directory, clients)
     @local_directory = local_directory
     @clients         = clients
-    @session         = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+    @session         = SFTP.new(ENV['HOST'], ENV['USERNAME'], "@Cellz911$@#")
     @prompt          = TTY::Prompt.new
     @argv            = ARGV
   end
@@ -132,7 +132,7 @@ class SFTPUploader
 
   def upload_file(file, remote_location, index, total_files)
     spinner = TTY::Spinner.new(
-      "[:spinner] Copying #{file} to #{remote_location} -- (#{index.next}/#{total_files})",
+      "[:spinner] Copying #{file.yellow} to #{remote_location.cyan} -- (#{index.next}/#{total_files})",
       success_mark: '+',
       clear: true
     )
