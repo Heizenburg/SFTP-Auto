@@ -12,10 +12,10 @@ class SFTPUploader
 
   def initialize(local_directory, clients)
     @local_directory = local_directory
-    @clients = clients
-    @session = SFTP.new(ENV['HOST'], ENV['USERNAME'])
-    @prompt = TTY::Prompt.new
-    @argv = ARGV
+    @clients         = clients
+    @session         = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+    @prompt          = TTY::Prompt.new
+    @argv            = ARGV
   end
 
   def run
@@ -41,12 +41,11 @@ class SFTPUploader
         print_remote_entries(remote_location, client)
       else
         upload_files(remote_location, client)
+        # Delete files that are older than days specified.
+        delete_files(@session, remote_location, days)
         print_remote_entries(remote_location, client)
         @session.increment_clients_count
       end
-      
-      # Delete files that are older than days specified.
-      delete_files(@session, remote_location, days)
     end
   end
 
@@ -56,17 +55,14 @@ class SFTPUploader
 
   def clients_to_cycle(client_list)
     first_arg, second_arg, third_arg = @argv
-
-    return client_list if !arguments? || !second_arg
-
-    if third_arg.nil?
-      return client_list.take(second_arg.to_i) 
-    end
-
+  
+    return client_list unless arguments? && second_arg
+    return client_list.take(second_arg.to_i) if third_arg.nil?
+  
     # Range for both analysis and upload mode.
     first = second_arg.to_i.pred
     second = third_arg.to_i
-
+  
     client_list.to_a[first...second]
   end
 
@@ -108,16 +104,23 @@ class SFTPUploader
   end
 
   def print_client_details(index, client, remote_location)
-    mode, *args = @argv
-  
-    if args.size == 2
-      start_point, end_point = args
-      index += start_point.to_i if end_point
+    start_point, end_point = @argv[1..2]
+
+    if end_point 
+      index += start_point.to_i 
     else
-      index += 1
+      index += 1 
     end
+
+    print_formatted_details(format_client_details(index, client, remote_location))
+  end
+
+  def format_client_details(index, client, remote_location)
+    "[#{index}: #{client}] #{remote_location}\n".yellow
+  end
   
-    puts "[#{index}: #{client}] #{remote_location}\n".yellow
+  def print_formatted_details(formatted_details)
+    puts formatted_details
   end
 
   def upload_files(remote_location, client)
