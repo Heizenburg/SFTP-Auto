@@ -13,7 +13,7 @@ class SFTPUploader
   def initialize(local_directory, clients)
     @local_directory = local_directory
     @clients         = clients
-    @session         = SFTP.new(ENV['HOST'], ENV['USERNAME'], "@Cellz911$@#")
+    @session         = SFTP.new(ENV['HOST'], ENV['USERNAME'])
     @prompt          = TTY::Prompt.new
     @argv            = ARGV
   end
@@ -75,7 +75,7 @@ class SFTPUploader
       next unless not_hidden_file?(entry.name)
 
       if entry.attributes.directory?
-        puts "#{entry.longname} ----- FOLDER".blue
+        puts "#{entry.longname} ----- FOLDER".cyan
         next
       end
 
