@@ -17,14 +17,12 @@ def file_extension?(file, ext)
 end
 
 def convert_bytes_to_kilobytes(bytes)
-  kb = (bytes / 1024.0).ceil
-  "#{kb}KB".yellow
+  "#{(bytes / 1024.0).ceil}KB".yellow
 end
 
 # Returns true if file is of a specific client.
 def client_file?(file, client)
-  client_regex = Regexp.new("^.*#{client}.*\\..+$", Regexp::IGNORECASE)
-  file.match(client_regex)
+  file.match?(Regexp.new("^.*#{client}.*\\..+$", Regexp::IGNORECASE))
 end
 
 # Returns true if the file is not older than 6 days.
@@ -60,11 +58,11 @@ def delete_files(sftp, remote_location, number_of_days)
 end
 
 def remove_file_from_location(session, remote_location, file)
-  session.remove!(File.join(remote_location[1..-1], file.name))
+  session.remove!(File.join(remote_location.drop(1), file.name))
 end
 
 def local_file_count(dir)
-  Pathname.new(dir).children.count { |child| child.extname == '.zip' }
+  Dir[File.join(dir, '*.zip')].length
 end
 
 def not_hidden_file?(file)

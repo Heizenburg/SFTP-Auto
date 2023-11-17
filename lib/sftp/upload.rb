@@ -11,11 +11,14 @@ class SFTPUploader
   attr_reader :argv
 
   def initialize(local_directory, clients)
-    @local_directory = local_directory
-    @clients         = clients
-    @session         = SFTP.new(ENV['HOST'], ENV['USERNAME'])
-    @prompt          = TTY::Prompt.new
-    @argv            = ARGV
+    @directory = local_directory
+    @clients   = clients
+    @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+    @prompt    = TTY::Prompt.new
+    @argv      = ARGV
+    @logger    = Logger.new(STDOUT)
+
+    @logger.formatter = proc { |severity, datetime, progname, msg| "#{msg}\n" }
   end
 
   def run
@@ -26,7 +29,7 @@ class SFTPUploader
   private
 
   def validate_local_directory
-    raise 'Error: local directory is not specified.' unless @local_directory
+    raise 'Error: local directory is not specified.' unless @directory
   end
 
   def process_clients
@@ -41,7 +44,6 @@ class SFTPUploader
         print_remote_entries(remote_location, client)
       else
         upload_files(remote_location, client)
-        # Delete files that are older than days specified.
         delete_files(@session, remote_location, days)
         print_remote_entries(remote_location, client)
         @session.increment_clients_count
@@ -75,32 +77,32 @@ class SFTPUploader
       next unless not_hidden_file?(entry.name)
 
       if entry.attributes.directory?
-        puts "#{entry.longname} ----- FOLDER".cyan
+        @logger.info("#{entry.longname} ----- FOLDER".cyan)
         next
       end
 
       if recent_file?(entry) && client_file?(entry.name, client)
-        puts "#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+        @logger.info("#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}")
         next
       end
 
       if !client_file?(entry.name, client)
-        puts "#{entry.longname} ----- FILE DOES NOT BELONG HERE\n"
+        @logger.info("#{entry.longname} ----- FILE DOES NOT BELONG HERE\n")
         remove_file_from_location(@session, remote_location, entry)
-        puts "#{entry.longname} ----- DELETED".red
+        @logger.info("#{entry.longname} ----- DELETED".red)
         next
       end
 
       if client_file?(entry.name, client) && !recent_file?(entry)
-        puts "#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}"
+        @logger.info("#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}")
       end
     end
 
-    puts "\n"
+    @logger.info("\n")
   end
 
   def get_matching_files(client)
-    Dir.children(@local_directory).select { |file| file =~ /^.*#{client}.*\..+$/i }
+    Dir.children(@directory).select { |file| file =~ /^.*#{client}.*\..+$/i }
   end
 
   def print_client_details(index, client, remote_location)
@@ -120,7 +122,7 @@ class SFTPUploader
   end
   
   def print_formatted_details(formatted_details)
-    puts formatted_details
+    @logger.info(formatted_details)
   end
 
   def upload_files(remote_location, client)
@@ -139,11 +141,10 @@ class SFTPUploader
     spinner.auto_spin
 
     begin
-      @session.upload("#{@local_directory}/#{file}", "#{remote_location}/#{file}")
+      @session.upload("#{@directory}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     rescue StandardError => e
-      log_error("Error while uploading #{file}: #{e}".red)
+      @logger.error("Error while uploading #{file}: #{e}".red)
     end
   end
 end
-
