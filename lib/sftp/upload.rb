@@ -13,7 +13,7 @@ class SFTPUploader
   def initialize(local_directory, clients)
     @directory = local_directory
     @clients   = clients
-    @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'], '@Cellz911$@##')
+    @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'])
     @prompt    = TTY::Prompt.new
     @argv      = ARGV
     @logger    = Logger.new(STDOUT)
