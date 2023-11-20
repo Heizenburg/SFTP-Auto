@@ -13,7 +13,7 @@ class SFTPUploader
   def initialize(local_directory, clients)
     @directory = local_directory
     @clients   = clients
-    @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+    @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'], '@Cellz911$@##')
     @prompt    = TTY::Prompt.new
     @argv      = ARGV
     @logger    = Logger.new(STDOUT)
@@ -33,7 +33,7 @@ class SFTPUploader
   end
 
   def process_clients
-    days, range = get_prompt_information(@prompt, @clients)
+    days, range = get_prompt_information(@prompt, @clients, @logger)
     @argv.concat(range) if range
 
     clients_to_cycle(@clients).each_with_index do |(client, remote_location), index|
