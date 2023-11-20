@@ -12,17 +12,17 @@ def parse_range_input(range_input)
   if range_input.include?('-') || range_input.include?(':') || range_input.include?(' ')
     range_input.split(/[\s\-\:]/).map(&:to_i)
   else
-    (1..range_input.to_i).to_a
+    [1, range_input.to_i]
   end
 end
 
 def format_range_string(range_numbers, clients)
-  range_names = range_numbers.map { |num| clients.keys[num - 1] }
+  range_info = range_numbers.map { |num| "[#{num}: #{clients.keys[num - 1]}]" }
 
   if range_numbers.size == 1
-    range_names.first
+    range_info.first
   else
-    "#{range_names.first} to #{range_names.last}"
+    "#{range_info.first} to #{range_info.last}"
   end
 end
 
@@ -35,6 +35,7 @@ def get_range(prompt, clients, logger)
 
   range_str = format_range_string(range_numbers, clients)
   logger.info("Range provided: #{range_str}".yellow) # Log the range provided
+  sleep(1)
 
   range_numbers
 end
