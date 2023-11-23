@@ -58,7 +58,7 @@ def delete_files(sftp, remote_location, number_of_days)
 end
 
 def remove_file_from_location(session, remote_location, file)
-  session.remove!(File.join(remote_location.drop(1), file.name))
+  session.remove!(File.join(remote_location[1..-1], file.name))
 end
 
 def local_file_count(dir)

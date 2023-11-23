@@ -10,8 +10,8 @@ class SFTPUploader
 
   attr_reader :argv
 
-  def initialize(local_directory, clients)
-    @directory = local_directory
+  def initialize(directory, clients)
+    @directory = directory
     @clients   = clients
     @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'])
     @prompt    = TTY::Prompt.new
@@ -41,14 +41,22 @@ class SFTPUploader
       next if remote_location.empty?
 
       if analysis_mode?
-        print_remote_entries(remote_location, client)
+        analyze_remote_entries(remote_location, client)
       else
-        upload_files(remote_location, client)
-        delete_files(@session, remote_location, days)
-        print_remote_entries(remote_location, client)
-        @session.increment_clients_count
+        process_client_files(remote_location, client, days)
       end
     end
+  end
+
+  def process_client_files(remote_location, client, days)
+    upload_files(remote_location, client)
+    delete_files(@session, remote_location, days)
+    analyze_remote_entries(remote_location, client)
+    increment_client_count
+  end
+
+  def increment_client_count
+    @session.increment_clients_count
   end
 
   def arguments?
@@ -72,7 +80,7 @@ class SFTPUploader
     @argv.first == 'analyze'
   end
 
-  def print_remote_entries(remote_location, client)
+  def analyze_remote_entries(remote_location, client)
     @session.entries(remote_location) do |entry|
       next unless not_hidden_file?(entry.name)
 
@@ -86,7 +94,7 @@ class SFTPUploader
         next
       end
 
-      if !client_file?(entry.name, client)
+      unless client_file?(entry.name, client)
         @logger.info("#{entry.longname} ----- FILE DOES NOT BELONG HERE\n")
         remove_file_from_location(@session, remote_location, entry)
         @logger.info("#{entry.longname} ----- DELETED".red)
@@ -144,7 +152,12 @@ class SFTPUploader
       @session.upload("#{@directory}/#{file}", "#{remote_location}/#{file}")
       spinner.success
     rescue StandardError => e
-      @logger.error("Error while uploading #{file}: #{e}".red)
+      handle_upload_error(file, e)
     end
+  end
+
+  def handle_upload_error(file, error)
+    @logger.error("Error while uploading #{file}: #{error.message}".red)
+    @logger.error(error.backtrace.join("\n"))
   end
 end

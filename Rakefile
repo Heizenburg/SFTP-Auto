@@ -7,21 +7,22 @@
 task default: %w[analyze]
 
 task :upload do
-  ruby 'lib/sftp_upload.rb upload'
+  sh 'ruby lib/sftp_upload.rb upload', verbose: false
 end
 
 task :analyze do
-  ruby 'lib/sftp_upload.rb analyze'
+  sh 'ruby lib/sftp_upload.rb analyze', verbose: false
 end
 
 task :list do
-  ruby 'lib/sftp/clients.rb'
+  sh 'ruby lib/sftp/clients.rb', verbose: false
 end
 
 task :benchmark do 
-  ruby 'benchmarks.rb'
+  sh 'ruby benchmarks.rb', verbose: false
 end
 
 task :test do
-  ruby 'test/upload_test.rb analyze'
+  sh 'ruby test/upload_test.rb analyze', verbose: false
 end
+

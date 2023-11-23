@@ -1,16 +1,24 @@
 require 'yaml'
+require 'logger'
 
-# Load the client names from the YAML file
+LOG_FILE = 'app.log'
+
 def load_clients(file_path)
   YAML.load_file(file_path)
 rescue StandardError => e
-  puts "Error loading clients: #{e.message}"
+  log_error("Error loading clients: #{e.message}")
   {}
 end
 
+def log_error(message)
+  logger = Logger.new(LOG_FILE)
+  logger.error(message)
+end
+
 def parse_range_input(range_input)
-  if range_input.include?('-') || range_input.include?(':') || range_input.include?(' ')
-    range_input.split(/[\s\-\:]/).map(&:to_i)
+  range_delimiters = /[\s\-\:]/
+  if range_input.match?(range_delimiters)
+    range_input.split(range_delimiters).map(&:to_i)
   else
     [1, range_input.to_i]
   end
@@ -18,12 +26,7 @@ end
 
 def format_range_string(range_numbers, clients)
   range_info = range_numbers.map { |num| "[#{num}: #{clients.keys[num - 1]}]" }
-
-  if range_numbers.size == 1
-    range_info.first
-  else
-    "#{range_info.first} to #{range_info.last}"
-  end
+  range_numbers.size == 1 ? range_info.first : "#{range_info.first} to #{range_info.last}"
 end
 
 def get_range(prompt, clients, logger)
@@ -40,10 +43,13 @@ def get_range(prompt, clients, logger)
   range_numbers
 end
 
-# Get range and delete days information
-def get_prompt_information(prompt, clients, default_days = 30, logger)
+def get_default_days
+  30
+end
+
+def get_prompt_information(prompt, clients, logger)
   range = get_range(prompt, load_clients('lib/shoprite_clients.yml'), logger)
-  days = default_days
+  days = get_default_days
   
   logger.info("\n")
   [days, range]

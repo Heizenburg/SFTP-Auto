@@ -5,8 +5,37 @@ require 'pry'
 require 'pry-nav'
 require 'pry-remote'
 
+# Define the two methods
+def remove_file_from_location_v1(remote_location, file)
+  File.join(remote_location[1..-1], file.name)
+end
+
+def remove_file_from_location_v2(remote_location, file)
+  File.join(remote_location.drop(1), file.name)
+end
+
+# Create sample data
+remote_location = ['root', 'folder1', 'folder2', 'folder3']
+file = OpenStruct.new(name: 'file.txt')
+
+time_v1 = Benchmark.realtime do
+  1_000_000.times do
+    remove_file_from_location_v1(remote_location, file)
+  end
+end
+
+puts "Time taken for method with [1..-1]: #{time_v1} seconds"
+
+time_v2 = Benchmark.realtime do
+  1_000_000.times do
+    remove_file_from_location_v2(remote_location, file)
+  end
+end
+
+puts "Time taken for method with drop(1): #{time_v2} seconds"
+
 def get_matching_files_entries(local, client)
-  pattern  = Regexp.new("(#{client}).*\\.(\\w+)$", Regexp::IGNORECASE)
+  pattern = Regexp.new("(#{client}).*\\.(\\w+)$", Regexp::IGNORECASE)
   Dir.entries(local).select do |file|
     file.match(pattern)
   end
@@ -21,7 +50,7 @@ end
 
 def get_matching_files_dir(local, client)
   Dir.children(local).select do |file|
-    (file =~ /(#{client}).*\.\w+$/i) 
+    file =~ /(#{client}).*\.\w+$/i
   end
 end
 
