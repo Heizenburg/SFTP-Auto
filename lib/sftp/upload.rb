@@ -49,8 +49,8 @@ class SFTPUploader
   end
 
   def process_client_files(remote_location, client, days)
+    remove_old_files(@session, remote_location, client, days)
     upload_files(remote_location, client)
-    delete_files(@session, remote_location, days)
     analyze_remote_entries(remote_location, client)
     increment_client_count
   end

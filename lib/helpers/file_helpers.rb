@@ -35,7 +35,7 @@ def recent_file?(file)
 end
 
 # Deletes files older than X days.
-def delete_files(sftp, remote_location, number_of_days)
+def remove_old_files(sftp, remote_location, client, number_of_days)
   sftp.entries(remote_location) do |file|
     next unless file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
     
@@ -49,7 +49,7 @@ def delete_files(sftp, remote_location, number_of_days)
     begin
       remove_file_from_location(sftp, remote_location, file)
       delete_spinner.success
-      puts "Deleted: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)}".red
+      @logger.info("Removed: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)} -- OLDER THAN 30 DAYS ".red)
     rescue StandardError => e
       log_error("Error deleting file #{file_to_delete}: #{e}".red)
     end
