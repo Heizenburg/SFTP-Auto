@@ -25,7 +25,7 @@ def client_file?(file, client)
   file.match?(Regexp.new("^.*#{client}.*\\..+$", Regexp::IGNORECASE))
 end
 
-# Returns true if the file is not older than 6 days.
+# Returns true if the file is not older than DAYS_LIMIT days.
 def recent_file?(file)
   if file.respond_to?(:attributes) && file.attributes.respond_to?(:mtime)
     Time.at(file.attributes.mtime) > (Time.now - DAYS_LIMIT.days)
@@ -34,7 +34,7 @@ def recent_file?(file)
   end
 end
 
-# Deletes files older than X days.
+# Remove files older than a month.
 def remove_old_files(sftp, remote_location, client, number_of_days)
   sftp.entries(remote_location) do |file|
     next unless file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
