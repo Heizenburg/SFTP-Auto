@@ -5,34 +5,41 @@ require 'pry'
 require 'pry-nav'
 require 'pry-remote'
 
-# Define the two methods
 def remove_file_from_location_v1(remote_location, file)
   File.join(remote_location[1..-1], file.name)
 end
 
 def remove_file_from_location_v2(remote_location, file)
+  File.join(remote_location.slice(1, remote_location.size), file.name)
+end
+
+def remove_file_from_location_v3(remote_location, file)
   File.join(remote_location.drop(1), file.name)
 end
 
-# Create sample data
+# Sample data
 remote_location = ['root', 'folder1', 'folder2', 'folder3']
 file = OpenStruct.new(name: 'file.txt')
 
-time_v1 = Benchmark.realtime do
-  1_000_000.times do
-    remove_file_from_location_v1(remote_location, file)
+Benchmark.bm do |x|
+  x.report('Method with [1..-1] x 1 000 000') do
+    1_000_000.times do
+      remove_file_from_location_v1(remote_location, file)
+    end
+  end
+
+  x.report('Method with slice x 1 000 000') do
+    1_000_000.times do
+      remove_file_from_location_v2(remote_location, file)
+    end
+  end
+
+  x.report('Method with drop(1) x 1 000 000') do
+    1_000_000.times do
+      remove_file_from_location_v3(remote_location, file)
+    end
   end
 end
-
-puts "Time taken for method with [1..-1]: #{time_v1} seconds"
-
-time_v2 = Benchmark.realtime do
-  1_000_000.times do
-    remove_file_from_location_v2(remote_location, file)
-  end
-end
-
-puts "Time taken for method with drop(1): #{time_v2} seconds"
 
 def get_matching_files_entries(local, client)
   pattern = Regexp.new("(#{client}).*\\.(\\w+)$", Regexp::IGNORECASE)

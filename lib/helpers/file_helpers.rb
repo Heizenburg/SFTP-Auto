@@ -49,7 +49,7 @@ def remove_old_files(sftp, remote_location, client, number_of_days)
     begin
       remove_file_from_location(sftp, remote_location, file)
       delete_spinner.success
-      @logger.info("Removed: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)} -- OLDER THAN 30 DAYS ".red)
+      @logger.info("Removed: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)} -- OLDER THAN #{number_of_days} DAYS ".red)
     rescue StandardError => e
       log_error("Error deleting file #{file_to_delete}: #{e}".red)
     end

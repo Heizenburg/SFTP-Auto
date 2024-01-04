@@ -5,8 +5,11 @@ LOG_FILE = 'app.log'
 
 def load_clients(file_path)
   YAML.load_file(file_path)
-rescue StandardError => e
-  log_error("Error loading clients: #{e.message}")
+rescue Errno::ENOENT => e
+  log_error("File not found: #{file_path}")
+  {}
+rescue Psych::SyntaxError => e
+  log_error("YAML syntax error in file: #{file_path}, #{e.message}")
   {}
 end
 
@@ -37,8 +40,8 @@ def get_range(prompt, clients, logger)
   range_numbers = parse_range_input(range_input)
 
   range_str = format_range_string(range_numbers, clients)
-  logger.info("Range provided: #{range_str}".yellow) # Log the range provided
-  sleep(1)
+  logger.info("Range provided: #{range_str}".yellow)
+  sleep(1) # To give the user time to see the range provided.
 
   range_numbers
 end

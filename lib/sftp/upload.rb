@@ -40,17 +40,16 @@ class SFTPUploader
       print_client_details(index, client, remote_location)
       next if remote_location.empty?
 
-      if analysis_mode?
-        analyze_remote_entries(remote_location, client)
-      else
-        process_client_files(remote_location, client, days)
-      end
+      process_client_files(remote_location, client, days)
     end
   end
 
   def process_client_files(remote_location, client, days)
-    remove_old_files(@session, remote_location, client, days)
-    upload_files(remote_location, client)
+    unless analysis_mode?
+      remove_old_files(@session, remote_location, client, days)
+      upload_files(remote_location, client) 
+    end
+
     analyze_remote_entries(remote_location, client)
     increment_client_count
   end
