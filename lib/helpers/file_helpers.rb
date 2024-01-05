@@ -34,11 +34,12 @@ def recent_file?(file)
   end
 end
 
-# Remove files older than a month.
 def remove_old_files(sftp, remote_location, client, number_of_days)
-  sftp.entries(remote_location) do |file|
-    next unless file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
-    
+  files_to_delete = sftp.dir.entries(remote_location).select do |file|
+    file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
+  end
+
+  files_to_delete.each do |file|
     delete_spinner = TTY::Spinner.new(
       "[:spinner] Deleting #{file.name} from #{remote_location}",
       success_mark: '-',
@@ -53,12 +54,12 @@ def remove_old_files(sftp, remote_location, client, number_of_days)
     rescue StandardError => e
       log_error("Error deleting file #{file_to_delete}: #{e}".red)
     end
+    puts "\n"
   end
-  puts "\n"
 end
 
 def remove_file_from_location(session, remote_location, file)
-  session.remove!(File.join(remote_location[1..-1], file.name))
+  session.remove!(File.join(remote_location.slice(1, remote_location.size), file.name))
 end
 
 def local_file_count(dir)

@@ -27,9 +27,14 @@ def parse_range_input(range_input)
   end
 end
 
+# Formats the range string based on the range numbers and clients
 def format_range_string(range_numbers, clients)
-  range_info = range_numbers.map { |num| "[#{num}: #{clients.keys[num - 1]}]" }
-  range_numbers.size == 1 ? range_info.first : "#{range_info.first} to #{range_info.last}"
+  if range_numbers.uniq.length == 1
+    "[#{range_numbers.first}: #{clients.keys[range_numbers.first - 1]}] Only"
+  else
+    range_info = range_numbers.map { |num| "[#{num}: #{clients.keys[num - 1]}]" }
+    "#{range_info.first} to #{range_info.last}"
+  end
 end
 
 def get_range(prompt, clients, logger)
