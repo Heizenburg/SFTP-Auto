@@ -42,18 +42,19 @@ Or
 ```
 $ rake analyze 
 ```
-You can also pass the number of clients to analyze by either providing a range, 
-for instance a range seperated with a colon, hyphen, or a space like `10:20`, `10-20`, or `10 20` respectively will loop through clients 10 to 20. 
-
-In order to analyze 1 to `n` clients you will need to pass in any number that does not exceed the client list length.
-
-<br />
 
  To `Upload` local files to remote location.
 
 ```
 $ rake upload
-``` 
+```
+
+You can specify the number of clients to analyze/upload by providing a range using a colon, hyphen, or a space, such as `10:20`, `10-20`, or `10 20`, respectively. This will loop through clients 10 to 20.
+
+To analyze/upload clients from 1 to `n`, you can input any number that does not exceed the client list length. For example, entering `20` will analyze clients 1 to 20.
+
+If you want to analyze/upload only one client, simply add a full stop after the client number, for example, `20.`.
+<br />
 
 And, to `List` all clients 
 
