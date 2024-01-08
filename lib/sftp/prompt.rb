@@ -24,7 +24,7 @@ def parse_range_input(range_input)
     range_input.split(range_delimiters).map(&:to_i)
   else
     if range_input.end_with?('.')
-      num = range_input.split('.').first.to_i
+      num = range_input.split('.').first.strip.to_i
       [num, num]
     else
       [1, range_input.to_i]
