@@ -39,7 +39,6 @@ class SFTPUploader
     clients_to_cycle(@clients).each_with_index do |(client, remote_location), index|
       print_client_details(index, client, remote_location)
       next if remote_location.empty?
-
       process_client_files(remote_location, client, days)
     end
   end
@@ -49,7 +48,6 @@ class SFTPUploader
       remove_old_files(@session, remote_location, client, days)
       upload_files(remote_location, client) 
     end
-
     analyze_remote_entries(remote_location, client)
     increment_client_count
   end
