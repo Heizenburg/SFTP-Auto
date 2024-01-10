@@ -10,15 +10,6 @@ Ruby doesn't come bundled with the SFTP libraries from the get-go, so we’ll ne
 ```
 $ bundle install
 ```
-
-In the gemfile there are defined app's dependencies, which would make our Gemfile file look like this:
-
-```ruby
-source 'https://rubygems.org'
-gem 'net-sftp', '~> 2.8', '>= 2.8.1'
-...
-```
-
 ## Run
 
 We'll use the environment variables `LOCAL_LOCATION`, `USERNAME` and `HOST` to obtain all the required information for connecting to an SFTP server.
@@ -53,7 +44,7 @@ You can specify the number of clients to analyze/upload by providing a range usi
 
 To analyze/upload clients from 1 to `n`, you can input any number that does not exceed the client list length. For example, entering `20` will go through clients 1 to 20.
 
-If you want to analyze/upload only one client, simply add a full stop after the client number, for example, `20.`.
+If you want to analyze/upload a single client, simply add a full stop after the client number, for example, `20.`.
 <br />
 
 And, to `List` all clients 
