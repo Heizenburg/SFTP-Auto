@@ -1,4 +1,4 @@
-SFTP CSV uploads  
+SFTP CSV analysis and uploads
 ========================================
 
 The directory contains instructions on how to automate Shoprite CSV file uploads via SFTP.
@@ -13,7 +13,7 @@ $ bundle install
 
 In the gemfile there are defined app's dependencies, which would make our Gemfile file look like this:
 
-```
+```ruby
 source 'https://rubygems.org'
 gem 'net-sftp', '~> 2.8', '>= 2.8.1'
 ...
@@ -24,7 +24,7 @@ gem 'net-sftp', '~> 2.8', '>= 2.8.1'
 We'll use the environment variables `LOCAL_LOCATION`, `USERNAME` and `HOST` to obtain all the required information for connecting to an SFTP server.
 Add an `.env` file to root with the aforementioned environment variables.
 
-```
+```env
 LOCAL_LOCATION=Your local location
 USERNAME=Your username
 HOST=Host 
