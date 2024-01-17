@@ -10,15 +10,15 @@ Ruby doesn't come bundled with the SFTP libraries from the get-go, so we’ll ne
 ```
 $ bundle install
 ```
-## Run
+## Usage
 
 We'll use the environment variables `LOCAL_LOCATION`, `USERNAME` and `HOST` to obtain all the required information for connecting to an SFTP server.
 Add an `.env` file to root with the aforementioned environment variables.
 
 ```env
-LOCAL_LOCATION=Your local location
+LOCAL_LOCATION=The local location
 USERNAME=Your username
-HOST=Host 
+HOST=The host name
 ```
 
 Running the example will do the following:
