@@ -66,6 +66,6 @@ def local_file_count(dir)
   Dir[File.join(dir, '*.zip')].length
 end
 
-def not_hidden_file?(file)
-  !file.start_with?('.')
+def hidden_file?(file)
+  file.start_with?('.')
 end

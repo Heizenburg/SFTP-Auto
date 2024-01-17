@@ -79,7 +79,7 @@ class SFTPUploader
 
   def analyze_remote_entries(remote_location, client)
     @session.entries(remote_location) do |entry|
-      next unless not_hidden_file?(entry.name)
+      next if hidden_file?(entry.name)
 
       if entry.attributes.directory?
         @logger.info("#{entry.longname} ----- FOLDER".cyan)
