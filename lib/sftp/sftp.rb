@@ -34,13 +34,12 @@ class SFTP
   attr_reader :host, :username, :password, :clients
 
   def initialize(host, username, password = nil, port = 22)
-    @host = host
-    @user = username
-    @port = port
+    @host     = host
+    @user     = username
+    @port     = port
     @password = password
-
-    @logger = Logger.new($stdout)
-    @clients = 0
+    @clients  = 0
+    @logger   = Logger.new($stdout)
 
     connect
   end
