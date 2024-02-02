@@ -5,7 +5,7 @@ The directory contains instructions on how to automate Shoprite CSV file uploads
 
 ## Install
 
-Ruby doesn't come bundled with the SFTP libraries from the get-go, so we’ll need to install the required [net-sftp](https://rubygems.org/gems/net-sftp/versions/2.1.2) gem using bundler.
+Ruby doesn't come bundled with the SFTP libraries from the get-go, so we’ll need to install the required [net-sftp](https://github.com/net-ssh/net-sftp) gem using bundler.
 
 ```
 $ bundle install
