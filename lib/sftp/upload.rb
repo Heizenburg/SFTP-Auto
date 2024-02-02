@@ -13,7 +13,7 @@ class SFTPUploader
   def initialize(directory, clients)
     @directory = directory
     @clients   = clients
-    @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'])
+    @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD'])
     @prompt    = TTY::Prompt.new
     @argv      = ARGV
     @logger    = Logger.new(STDOUT)
@@ -80,6 +80,10 @@ class SFTPUploader
   def analyze_remote_entries(remote_location, client)
     @session.entries(remote_location) do |entry|
       next if hidden_file?(entry.name)
+      
+      file_size = entry.attributes.size
+      file_size_kb = convert_bytes(file_size, :KB)
+      file_size_mb = convert_bytes(file_size, :MB)
 
       if entry.attributes.directory?
         @logger.info("#{entry.longname} ----- FOLDER".cyan)
@@ -87,19 +91,28 @@ class SFTPUploader
       end
 
       if recent_file?(entry) && client_file?(entry.name, client)
-        @logger.info("#{entry.longname.green} #{convert_bytes_to_kilobytes(entry.attributes.size)}")
+        if file_size_mb
+          @logger.info("#{entry.longname.green} #{file_size_kb} (#{file_size_mb})")
+        else
+          @logger.info("#{entry.longname.green} #{file_size_kb}")
+        end
         next
       end
 
       unless client_file?(entry.name, client)
         @logger.info("#{entry.longname} ----- FILE DOES NOT BELONG HERE\n")
+        # Remove this file from FTP
         remove_file_from_location(@session, remote_location, entry)
         @logger.info("#{entry.longname} ----- DELETED".red)
         next
       end
 
       if client_file?(entry.name, client) && !recent_file?(entry)
-        @logger.info("#{entry.longname} #{convert_bytes_to_kilobytes(entry.attributes.size)}")
+        if file_size_mb
+          @logger.info("#{entry.longname} #{file_size_kb} (#{file_size_mb})")
+        else
+          @logger.info("#{entry.longname} #{file_size_kb}")
+        end
       end
     end
 

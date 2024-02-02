@@ -16,8 +16,20 @@ def file_extension?(file, ext)
   File.extname(file) == ext
 end
 
-def convert_bytes_to_kilobytes(bytes)
-  "#{(bytes / 1024.0).ceil}KB".yellow
+# Converts the given file size in bytes to the specified unit (KB or MB) and returns the formatted string.
+def convert_bytes(bytes, to_unit)
+  return "Invalid input" if bytes.nil? || bytes <= 0
+
+  if to_unit == :KB
+    "#{(bytes / 1024.0).ceil}KB".yellow
+  elsif to_unit == :MB
+    if bytes >= 1024 * 1024
+      mb = bytes / (1024.0 * 1024.0)
+      "#{sprintf('%.1f', mb)}MB".cyan
+    else
+      nil
+    end
+  end
 end
 
 # Returns true if file is of a specific client.
