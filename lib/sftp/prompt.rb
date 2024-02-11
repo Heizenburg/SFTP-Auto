@@ -18,6 +18,7 @@ def log_error(message)
   logger.error(message)
 end
 
+# Parse the given input to return the client range.  
 def parse_range_input(range_input)
   range_delimiters = /[\s\-\:]/
   if range_input.include?('.')
@@ -49,7 +50,7 @@ def get_range(prompt, clients, logger)
 
   range_str = format_range_string(range_numbers, clients)
   logger.info("Range provided: #{range_str}".yellow)
-  sleep(1) # To give the user time to see the range provided.
+  sleep(1.5) # To give the user time to see the range provided.
 
   range_numbers
 end
