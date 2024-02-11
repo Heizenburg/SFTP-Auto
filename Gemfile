@@ -19,3 +19,7 @@ gem 'rake'
 gem 'rubocop', require: false
 gem 'tty-spinner', '~> 0.9.3'
 gem 'tty-prompt'
+
+group :test do
+  gem 'rspec'
+end
