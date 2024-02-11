@@ -76,20 +76,22 @@ class SFTPUploader
   def analysis_mode?
     @argv.first == 'analyze'
   end
-
+  
   def analyze_remote_entries(remote_location, client)
+    files_to_delete = []
+  
     @session.entries(remote_location) do |entry|
       next if hidden_file?(entry.name)
       
       file_size = entry.attributes.size
       file_size_kb = convert_bytes(file_size, :KB)
       file_size_mb = convert_bytes(file_size, :MB)
-
+  
       if entry.attributes.directory?
         @logger.info("#{entry.longname} ----- FOLDER".cyan)
         next
       end
-
+  
       if recent_file?(entry) && client_file?(entry.name, client)
         if file_size_mb
           @logger.info("#{entry.longname.green} #{file_size_kb} (#{file_size_mb})")
@@ -98,15 +100,12 @@ class SFTPUploader
         end
         next
       end
-
+  
       unless client_file?(entry.name, client)
-        @logger.info("#{entry.longname} ----- FILE DOES NOT BELONG HERE\n")
-        # Remove this file from FTP
-        remove_file_from_location(@session, remote_location, entry)
-        @logger.info("#{entry.longname} ----- DELETED".red)
-        next
+        @logger.info("#{entry.longname}" << " ----- FILE DOES NOT BELONG HERE".red)
+        files_to_delete << entry
       end
-
+  
       if client_file?(entry.name, client) && !recent_file?(entry)
         if file_size_mb
           @logger.info("#{entry.longname} #{file_size_kb} (#{file_size_mb})")
@@ -115,7 +114,19 @@ class SFTPUploader
         end
       end
     end
-
+  
+    if files_to_delete.any?
+      if @prompt.yes?("\nDo you want to delete all files that do not belong to the client?")
+        files_to_delete.each do |file|
+          remove_file_from_location(@session, remote_location, file)
+          @logger.info("#{file.longname} ----- DELETED".red)
+        end
+        @logger.info("\nFiles were successfully deleted.".green)
+      else
+        @logger.info("\nNo files were deleted.".green)
+      end
+    end
+  
     @logger.info("\n")
   end
 

@@ -18,7 +18,7 @@ def log_error(message)
   logger.error(message)
 end
 
-# Parse the given input to return the client range.  
+# Parse the given input to return client to cycle.  
 def parse_range_input(range_input)
   range_delimiters = /[\s\-\:]/
   if range_input.include?('.')
