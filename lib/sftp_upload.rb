@@ -1,4 +1,5 @@
 require 'yaml'
 require_relative 'sftp/upload'
+require_relative 'sftp/prompt'
 
-SFTPUploader.new(ENV['LOCAL_LOCATION'], YAML.load_file('lib/shoprite_clients.yml')).run
+SFTPUploader.new.run

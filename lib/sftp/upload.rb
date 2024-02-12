@@ -10,15 +10,14 @@ class SFTPUploader
 
   attr_reader :argv
 
-  def initialize(directory, clients)
-    @directory = directory
-    @clients   = clients
-    @session   = SFTP.new(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD'])
-    @prompt    = TTY::Prompt.new
-    @argv      = ARGV
-    @logger    = Logger.new(STDOUT)
-
+  def initialize
+    @session = SFTP.new(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD'])
+    @prompt  = TTY::Prompt.new
+    @argv    = ARGV
+    @logger  = Logger.new(STDOUT)
     @logger.formatter = proc { |severity, datetime, progname, msg| "#{msg}\n" }
+
+    @days, @range, @clients, @directory = get_prompt_information(@prompt, @logger)
   end
 
   def run
@@ -37,13 +36,12 @@ class SFTPUploader
   end
 
   def process_clients
-    days, range = get_prompt_information(@prompt, @clients, @logger)
-    @argv.concat(range) if range
+    @argv.concat(@range) if @range
 
     clients_to_cycle(@clients).each_with_index do |(client, remote_location), index|
       print_client_details(index, client, remote_location)
       next if remote_location.empty?
-      process_client_files(remote_location, client, days)
+      process_client_files(remote_location, client, @days)
     end
   end
 

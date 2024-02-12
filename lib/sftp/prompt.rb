@@ -3,14 +3,39 @@ require 'logger'
 
 LOG_FILE = 'app.log'
 
-def load_clients(file_path)
-  YAML.load_file(file_path)
+# Add a method to prompt the user for the client type
+def get_client_type(prompt)
+  prompt.select("\nSelect Retailer:", %w(shoprite okfoods).map(&:capitalize))
+end
+
+# Modify the load_clients method to load the appropriate clients based on the user's input
+def load_clients(client_type)
+  case client_type
+  when 'Shoprite'
+    YAML.load_file('lib/shoprite_clients.yml')
+  when 'Okfoods'
+    YAML.load_file('lib/okfoods_clients.yml')
+  else
+    raise 'Invalid client type'
+  end
 rescue Errno::ENOENT => e
-  log_error("File not found: #{file_path}")
+  log_error("File not found: #{client_type}_clients.yml")
   {}
 rescue Psych::SyntaxError => e
-  log_error("YAML syntax error in file: #{file_path}, #{e.message}")
+  log_error("YAML syntax error in file: #{client_type}_clients.yml, #{e.message}")
   {}
+end
+
+# Add a method to get the source location based on the client type
+def get_source_location(client_type)
+  case client_type
+  when 'Shoprite'
+    ENV['SHOPRITE']
+  when 'Okfoods'
+    ENV['OKFOODS']
+  else
+    raise 'Invalid client type'
+  end
 end
 
 def log_error(message)
@@ -64,10 +89,15 @@ def get_default_days
   30
 end
 
-def get_prompt_information(prompt, clients, logger)
-  range = get_range(prompt, load_clients('lib/shoprite_clients.yml'), logger)
+def get_prompt_information(prompt, logger)
+  client_type = get_client_type(prompt)
+
+  clients = load_clients(client_type)
+  source_location = get_source_location(client_type)
+
+  range = get_range(prompt, clients, logger)
   days = get_default_days
-  
+
   logger.info("\n")
-  [days, range]
+  [days, range, clients, source_location]
 end
