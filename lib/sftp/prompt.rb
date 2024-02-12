@@ -55,6 +55,11 @@ def get_range(prompt, clients, logger)
   range_numbers
 end
 
+def process_clients_again?(prompt)
+  mode = analysis_mode? ? "analyze" : "upload"
+  prompt.yes?("\nDo you want to #{mode} any more clients?")
+end
+
 def get_default_days
   30
 end

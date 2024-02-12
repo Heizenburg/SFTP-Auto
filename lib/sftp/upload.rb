@@ -22,8 +22,12 @@ class SFTPUploader
   end
 
   def run
-    validate_local_directory
-    process_clients
+    loop do
+      validate_local_directory
+      process_clients
+      break unless process_clients_again?(@prompt)
+      @argv = [@argv.first] # Reset ARGV if user opts to re-run the program.
+    end
   end
 
   private

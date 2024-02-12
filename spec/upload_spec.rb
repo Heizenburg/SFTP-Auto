@@ -31,17 +31,36 @@ RSpec.describe SFTPUploader do
       end
     end
   end
-
+  
   describe '#clients_to_cycle' do
+    let(:client_list) { ['client1', 'client2', 'client3', 'client4', 'client5'] }
+
     it 'returns the entire client list when no arguments are provided' do
       expect(sftp_uploader.send(:clients_to_cycle, clients)).to eq(clients)
     end
-
+  
     it 'returns a subset of the client list based on the provided arguments' do
       allow(sftp_uploader).to receive(:arguments?).and_return(true)
       allow(sftp_uploader).to receive(:arguments?).and_return(true)
       expect(sftp_uploader.send(:clients_to_cycle, clients)).to eq(clients.take(2))
     end
-  end
 
+    context 'when no arguments are provided' do
+      it 'returns the original client list' do
+        expect(clients_to_cycle(client_list)).to eq(client_list)
+      end
+    end
+  
+    context 'when only one argument is provided' do
+      it 'returns the specified number of clients' do
+        expect(clients_to_cycle(client_list, 3)).to eq(['client1', 'client2', 'client3'])
+      end
+    end
+  
+    context 'when two arguments are provided' do
+      it 'returns a range of clients' do
+        expect(clients_to_cycle(client_list, 2, 4)).to eq(['client2', 'client3', 'client4'])
+      end
+    end
+  end
 end
