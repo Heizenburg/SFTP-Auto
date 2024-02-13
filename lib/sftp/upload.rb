@@ -28,7 +28,7 @@ class SFTPUploader
 
   def run
     loop do
-      ConsoleUtils.clear_console_screen
+      clear_console
       process_clients
       break unless process_clients_again?(@prompt)
       @argv = [@argv.first] # Reset ARGV if user opts to re-run the program.
@@ -65,6 +65,14 @@ class SFTPUploader
     @argv.any?
   end
 
+  def analysis_mode?
+    @argv.first == 'analyze'
+  end
+
+  def clear_console
+    ConsoleUtils.clear_console_screen  
+  end
+
   def clients_to_cycle(client_list)
     first_arg, second_arg, third_arg = @argv
   
@@ -78,10 +86,6 @@ class SFTPUploader
     client_list.to_a[first...second]
   end
 
-  def analysis_mode?
-    @argv.first == 'analyze'
-  end
-  
   def analyze_remote_entries(remote_location, client)
     files_to_delete = []
   
