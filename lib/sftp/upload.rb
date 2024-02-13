@@ -17,8 +17,12 @@ class SFTPUploader
     @logger  = Logger.new(STDOUT)
     @logger.formatter = proc { |severity, datetime, progname, msg| "#{msg}\n" }
 
-    @days, @range, @clients, @directory = get_prompt_information(@prompt, @logger)
+    get_user_input
   end
+
+  def get_user_input
+    @days, @range, @clients, @directory = get_prompt_information(@prompt, @logger)
+  end 
 
   def run
     loop do
@@ -26,6 +30,7 @@ class SFTPUploader
       process_clients
       break unless process_clients_again?(@prompt)
       @argv = [@argv.first] # Reset ARGV if user opts to re-run the program.
+      get_user_input
     end
   end
 

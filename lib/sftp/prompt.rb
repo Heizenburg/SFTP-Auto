@@ -10,32 +10,27 @@ end
 
 # Modify the load_clients method to load the appropriate clients based on the user's input
 def load_clients(client_type)
-  case client_type
-  when 'Shoprite'
-    YAML.load_file('lib/shoprite_clients.yml')
-  when 'Okfoods'
-    YAML.load_file('lib/okfoods_clients.yml')
-  else
-    raise 'Invalid client type'
-  end
+  retailer = client_type.downcase
+
+  # Attempt to load the specified client file
+  YAML.load_file("lib/#{retailer}_clients.yml")
 rescue Errno::ENOENT => e
+  # Log an error if the file is not found and return an empty hash
   log_error("File not found: #{client_type}_clients.yml")
   {}
 rescue Psych::SyntaxError => e
+  # Log an error if there is a YAML syntax error in the file and return an empty hash
   log_error("YAML syntax error in file: #{client_type}_clients.yml, #{e.message}")
   {}
 end
 
 # Add a method to get the source location based on the client type
 def get_source_location(client_type)
-  case client_type
-  when 'Shoprite'
-    ENV['SHOPRITE']
-  when 'Okfoods'
-    ENV['OKFOODS']
-  else
-    raise 'Invalid client type'
-  end
+  env_variable = client_type.upcase
+  ENV[env_variable]
+rescue
+  # Raise an error if the environment variable is not found
+  raise "Environment variable not found for client type: #{client_type}. Please make sure to add it to the environment configuration."
 end
 
 def log_error(message)
