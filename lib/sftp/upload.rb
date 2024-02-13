@@ -29,7 +29,6 @@ class SFTPUploader
   def run
     loop do
       ConsoleUtils.clear_console_screen
-      validate_local_directory
       process_clients
       break unless process_clients_again?(@prompt)
       @argv = [@argv.first] # Reset ARGV if user opts to re-run the program.
@@ -38,10 +37,6 @@ class SFTPUploader
   end
 
   private
-
-  def validate_local_directory
-    raise 'Error: local directory is not specified.' unless @directory
-  end
 
   def process_clients
     @argv.concat(@range) if @range

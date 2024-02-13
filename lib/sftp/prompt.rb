@@ -23,13 +23,15 @@ end
 
 # Add a method to get the source location based on the client type
 def get_source_location(client_type)
-  begin 
-    env_variable = client_type.upcase
-    ENV[env_variable]
-  rescue
-    # Raise an error if the environment variable is not found
-    raise "Environment variable not found for client type: #{client_type}. Please make sure to add it to the environment configuration."
+  env_variable = client_type.upcase
+  source_location = ENV[env_variable]
+
+  if source_location.nil? || source_location.empty?
+    raise "Environment variable not found or empty for client type: #{client_type}. " \
+          "Please make sure to set the environment variable #{env_variable} in the .env file."
   end
+
+  source_location
 end
 
 # Parse the given input to return client to cycle.  
