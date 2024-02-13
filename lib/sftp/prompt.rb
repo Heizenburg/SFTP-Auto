@@ -1,41 +1,35 @@
 require 'yaml'
 require 'logger'
 
-LOG_FILE = 'app.log'
-
 # Add a method to prompt the user for the client type
 def get_client_type(prompt)
   prompt.select("\nSelect Retailer:", %w(shoprite okfoods).map(&:capitalize))
 end
 
-# Modify the load_clients method to load the appropriate clients based on the user's input
 def load_clients(client_type)
   retailer = client_type.downcase
 
-  # Attempt to load the specified client file
-  YAML.load_file("lib/#{retailer}_clients.yml")
-rescue Errno::ENOENT => e
-  # Log an error if the file is not found and return an empty hash
-  log_error("File not found: #{client_type}_clients.yml")
-  {}
-rescue Psych::SyntaxError => e
-  # Log an error if there is a YAML syntax error in the file and return an empty hash
-  log_error("YAML syntax error in file: #{client_type}_clients.yml, #{e.message}")
-  {}
+  begin
+    # Attempt to load the specified client file
+    YAML.load_file(File.expand_path("../yaml_files/#{retailer}_clients.yml", __FILE__))
+  rescue Errno::ENOENT => e
+    # Raise a StandardError if the file is not found
+    raise StandardError, "Retailer file not found: #{client_type}_clients.yml, #{e.message}"
+  rescue Psych::SyntaxError => e
+    # Raise a StandardError if there is a YAML syntax error in the file
+    raise StandardError, "YAML syntax error in file: #{client_type}_clients.yml, #{e.message}"
+  end
 end
 
 # Add a method to get the source location based on the client type
 def get_source_location(client_type)
-  env_variable = client_type.upcase
-  ENV[env_variable]
-rescue
-  # Raise an error if the environment variable is not found
-  raise "Environment variable not found for client type: #{client_type}. Please make sure to add it to the environment configuration."
-end
-
-def log_error(message)
-  logger = Logger.new(LOG_FILE)
-  logger.error(message)
+  begin 
+    env_variable = client_type.upcase
+    ENV[env_variable]
+  rescue
+    # Raise an error if the environment variable is not found
+    raise "Environment variable not found for client type: #{client_type}. Please make sure to add it to the environment configuration."
+  end
 end
 
 # Parse the given input to return client to cycle.  

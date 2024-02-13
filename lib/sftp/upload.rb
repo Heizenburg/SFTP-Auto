@@ -5,6 +5,8 @@ require_relative '../helpers/file_helpers'
 require_relative 'prompt'
 require_relative 'sftp'
 
+require_relative '../console_utils'
+
 class SFTPUploader
   include InternalLogMethods
 
@@ -26,6 +28,7 @@ class SFTPUploader
 
   def run
     loop do
+      ConsoleUtils.clear_console_screen
       validate_local_directory
       process_clients
       break unless process_clients_again?(@prompt)
