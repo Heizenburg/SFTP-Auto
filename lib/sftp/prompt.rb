@@ -3,7 +3,7 @@ require 'logger'
 
 # Add a method to prompt the user for the client type
 def get_client_type(prompt)
-  prompt.select("\nSelect Retailer:", %w(shoprite okfoods).map(&:capitalize))
+  prompt.select("\nSelect Retailer:", %w(shoprite okfoods clicks).map(&:capitalize))
 end
 
 def load_clients(client_type)
