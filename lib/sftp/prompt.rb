@@ -28,7 +28,7 @@ def get_source_location(client_type)
 
   if source_location.nil? || source_location.empty?
     raise "Environment variable not found or empty for client type: #{client_type}. " \
-          "Please make sure to set the environment variable #{env_variable} in the .env file."
+          "Please make sure to set #{env_variable} to its local directory in the .env file."
   end
 
   source_location

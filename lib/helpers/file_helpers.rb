@@ -17,7 +17,7 @@ def file_extension?(file, ext)
 end
 
 # Converts the given file size in bytes to the specified unit (KB or MB) and returns the formatted string.
-def convert_bytes(bytes, to_unit)
+def convert_bytes(bytes, to_unit = :KB)
   return "Invalid input" if bytes.nil? || bytes <= 0
 
   if to_unit == :KB
@@ -51,6 +51,8 @@ def remove_old_files(sftp, remote_location, client, number_of_days)
     file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
   end
 
+  return if files_to_delete.empty?
+
   files_to_delete.each do |file|
     delete_spinner = TTY::Spinner.new(
       "[:spinner] Deleting #{file.name} from #{remote_location}",
@@ -62,12 +64,12 @@ def remove_old_files(sftp, remote_location, client, number_of_days)
     begin
       remove_file_from_location(sftp, remote_location, file)
       delete_spinner.success
-      @logger.info("Removed: #{file.longname} #{convert_bytes_to_kilobytes(file.attributes.size)} -- OLDER THAN #{number_of_days} DAYS ".red)
+      @logger.info("Removed: #{file.longname} #{convert_bytes(file.attributes.size)} -- OLDER THAN #{number_of_days} DAYS ".red)
     rescue StandardError => e
-      log_error("Error deleting file #{file_to_delete}: #{e}".red)
+      log_error("Error deleting file #{files_to_delete}: #{e}".red)
     end
-    puts "\n"
   end
+  @logger.info("\n")
 end
 
 def remove_file_from_location(session, remote_location, file)
