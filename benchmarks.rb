@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'benchmark'
 require 'yaml'
 require 'dotenv/load'
@@ -6,7 +8,7 @@ require 'pry-nav'
 require 'pry-remote'
 
 def remove_file_from_location_v1(remote_location, file)
-  File.join(remote_location[1..-1], file.name)
+  File.join(remote_location[1..], file.name)
 end
 
 def remove_file_from_location_v2(remote_location, file)
@@ -18,7 +20,7 @@ def remove_file_from_location_v3(remote_location, file)
 end
 
 # Sample data
-remote_location = ['root', 'folder1', 'folder2', 'folder3']
+remote_location = %w[root folder1 folder2 folder3]
 file = OpenStruct.new(name: 'file.txt')
 
 Benchmark.bm do |x|
@@ -50,7 +52,7 @@ end
 
 def get_matching_files_glob(local, client)
   pattern = Regexp.new("(#{client}).*\\.(\\w+)$", Regexp::IGNORECASE)
-  Dir.glob("#{local}").select do |file|
+  Dir.glob(local.to_s).select do |file|
     file.match(pattern)
   end
 end
@@ -63,7 +65,7 @@ end
 
 def get_matching_files_includes(local, client)
   Dir.children(local).select do |file|
-    File.file?(file) && file.downcase.include?(client.downcase) 
+    File.file?(file) && file.downcase.include?(client.downcase)
   end
 end
 

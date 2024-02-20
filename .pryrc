@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 Pry.config.windows_console_warning = false
 
 # === EDITOR ===

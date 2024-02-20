@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ConsoleUtils
   def self.clear_console_screen
     if Gem.win_platform?

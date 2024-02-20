@@ -18,11 +18,10 @@ task :list do
   sh 'ruby lib/sftp/clients.rb', verbose: false
 end
 
-task :benchmark do 
+task :benchmark do
   sh 'ruby benchmarks.rb', verbose: false
 end
 
 task :test do
   sh 'ruby test/upload_test.rb analyze', verbose: false
 end
-

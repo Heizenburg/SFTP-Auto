@@ -16,21 +16,22 @@ class SFTPUploader
     @session = SFTP.new(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD'])
     @prompt  = TTY::Prompt.new
     @argv    = ARGV
-    @logger  = Logger.new(STDOUT)
-    @logger.formatter = proc { |severity, datetime, progname, msg| "#{msg}\n" }
+    @logger  = Logger.new($stdout)
+    @logger.formatter = proc { |_severity, _datetime, _progname, msg| "#{msg}\n" }
 
     get_user_input
   end
 
   def get_user_input
     @days, @range, @clients, @directory = get_prompt_information(@prompt, @logger)
-  end 
+  end
 
   def run
     loop do
       clear_console
       process_clients
       break unless process_clients_again?(@prompt)
+
       @argv = [@argv.first] # Reset ARGV if user opts to re-run the program.
       get_user_input
     end
@@ -44,6 +45,7 @@ class SFTPUploader
     clients_to_cycle(@clients).each_with_index do |(client, remote_location), index|
       print_client_details(index, client, remote_location)
       next if remote_location.empty?
+
       process_client_files(remote_location, client, @days)
     end
   end
@@ -51,7 +53,7 @@ class SFTPUploader
   def process_client_files(remote_location, client, days)
     unless analysis_mode?
       remove_old_files(@session, remote_location, client, days)
-      upload_files(remote_location, client) 
+      upload_files(remote_location, client)
     end
     analyze_remote_entries(remote_location, client)
     increment_client_count
@@ -70,37 +72,37 @@ class SFTPUploader
   end
 
   def clear_console
-    ConsoleUtils.clear_console_screen  
+    ConsoleUtils.clear_console_screen
   end
 
   def clients_to_cycle(client_list)
     first_arg, second_arg, third_arg = @argv
-  
+
     return client_list unless arguments? && second_arg
     return client_list.take(second_arg.to_i) if third_arg.nil?
-  
+
     # Range for both analysis and upload mode.
     first = second_arg.to_i.pred
     second = third_arg.to_i
-  
+
     client_list.to_a[first...second]
   end
 
   def analyze_remote_entries(remote_location, client)
     files_to_delete = []
-  
+
     @session.entries(remote_location) do |entry|
       next if hidden_file?(entry.name)
-      
+
       file_size = entry.attributes.size
       file_size_kb = convert_bytes(file_size, :KB)
       file_size_mb = convert_bytes(file_size, :MB)
-  
+
       if entry.attributes.directory?
         @logger.info("#{entry.longname} ----- FOLDER".cyan)
         next
       end
-  
+
       if recent_file?(entry) && client_file?(entry.name, client)
         if file_size_mb
           @logger.info("#{entry.longname.green} #{file_size_kb} (#{file_size_mb})")
@@ -109,12 +111,12 @@ class SFTPUploader
         end
         next
       end
-  
+
       unless client_file?(entry.name, client)
-        @logger.info("#{entry.longname}" << " ----- FILE DOES NOT BELONG HERE".red)
+        @logger.info(entry.longname.to_s << ' ----- FILE DOES NOT BELONG HERE'.red)
         files_to_delete << entry
       end
-  
+
       if client_file?(entry.name, client) && !recent_file?(entry)
         if file_size_mb
           @logger.info("#{entry.longname} #{file_size_kb} (#{file_size_mb})")
@@ -123,9 +125,9 @@ class SFTPUploader
         end
       end
     end
-  
+
     if files_to_delete.any?
-      if @prompt.yes?("\nDo you want to delete all files that do not belong to the client?")
+      if @prompt.yes?('Do you want to delete all files that do not belong to the client?')
         files_to_delete.each do |file|
           remove_file_from_location(@session, remote_location, file)
           @logger.info("#{file.longname} ----- DELETED".red)
@@ -135,7 +137,7 @@ class SFTPUploader
         @logger.info("\nNo files were deleted.".green)
       end
     end
-  
+
     @logger.info("\n")
   end
 
@@ -146,11 +148,11 @@ class SFTPUploader
   def print_client_details(index, client, remote_location)
     start_point, end_point = @argv[1..2]
 
-    if end_point 
-      index += start_point.to_i 
-    else
-      index += 1 
-    end
+    index += if end_point
+               start_point.to_i
+             else
+               1
+             end
 
     print_formatted_details(format_client_details(index, client, remote_location))
   end
@@ -158,7 +160,7 @@ class SFTPUploader
   def format_client_details(index, client, remote_location)
     "[#{index}: #{client}] #{remote_location}\n".yellow
   end
-  
+
   def print_formatted_details(formatted_details)
     @logger.info(formatted_details)
   end

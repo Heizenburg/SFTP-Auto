@@ -20,7 +20,10 @@ module InternalLogMethods
   LOG_LEVELS.each do |level, method_name|
     define_method("log_#{level}") do |message|
       logger = Logger.new($stdout)
-      logger.formatter = proc { |severity, datetime, progname, msg| "#{msg}\n".yellow }
+      logger.formatter = proc do |_severity, datetime, _progname, msg|
+        date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
+        "[#{date_format}]\n#{msg}\n".yellow
+      end
       logger.send(method_name, "#{message}\n")
     end
 
@@ -51,7 +54,7 @@ class SFTP
       password: @password,
       port: @port
     )
-    log_message("Connected to the SFTP server".green << ".\nHost: #{@host}\nUsername: #{@user}\n")
+    log_message('Connected to the SFTP server'.green << ".\nHost: #{@host}\nUsername: #{@user}\n".yellow)
   rescue Net::SSH::ConnectionTimeout => e
     log_error("Timed out while trying to connect to the SFTP server: #{e}".red)
   rescue StandardError => e
@@ -91,7 +94,7 @@ class SFTP
     @clients += 1
   end
 
-  private 
+  private
 
   def method_missing(method_name, *args, &block)
     if @session.respond_to?(method_name)

@@ -1,16 +1,17 @@
+# frozen_string_literal: true
+
 require 'yaml'
 require 'logger'
 
 # Add a method to prompt the user for the client type
 def get_client_type(prompt)
-  prompt.select("\nSelect Retailer:", %w(shoprite okfoods clicks).map(&:capitalize))
+  prompt.select("\nSelect Retailer:", %w[shoprite okfoods clicks].map(&:capitalize))
 end
 
 def load_clients(client_type)
   retailer = client_type.downcase
 
   begin
-    # Attempt to load the specified client file
     YAML.load_file(File.expand_path("../yaml_files/#{retailer}_clients.yml", __FILE__))
   rescue Errno::ENOENT => e
     # Raise a StandardError if the file is not found
@@ -34,9 +35,9 @@ def get_source_location(client_type)
   source_location
 end
 
-# Parse the given input to return client to cycle.  
+# Parse the given input to return client to cycle.
 def parse_range_input(range_input)
-  range_delimiters = /[\s\-\:]/
+  range_delimiters = /[\s\-:]/
   if range_input.include?('.')
     num = range_input.split('.').first.strip.to_i
     [num, num]
@@ -58,10 +59,12 @@ def format_range_string(range_numbers, clients)
 end
 
 def get_range(prompt, clients, logger)
-  provide_range = prompt.yes?("Do you want to provide a range?")
+  provide_range = prompt.yes?('Do you want to provide a range?')
   return nil unless provide_range
 
-  range_input = prompt.ask("Provide a range of clients between 1 and #{clients.size}:") { |q| q.in("1-#{clients.size}") }
+  range_input = prompt.ask("Provide a range of clients between 1 and #{clients.size}:") do |q|
+    q.in("1-#{clients.size}")
+  end
   range_numbers = parse_range_input(range_input)
 
   range_str = format_range_string(range_numbers, clients)
@@ -72,8 +75,8 @@ def get_range(prompt, clients, logger)
 end
 
 def process_clients_again?(prompt)
-  mode = analysis_mode? ? "analyze" : "upload"
-  prompt.yes?("\nDo you want to #{mode} any more clients?")
+  mode = analysis_mode? ? 'analyze' : 'upload'
+  prompt.yes?("Do you want to #{mode} any more clients?")
 end
 
 def get_default_days

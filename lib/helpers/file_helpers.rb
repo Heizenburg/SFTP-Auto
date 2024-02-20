@@ -18,16 +18,15 @@ end
 
 # Converts the given file size in bytes to the specified unit (KB or MB) and returns the formatted string.
 def convert_bytes(bytes, to_unit = :KB)
-  return "Invalid input" if bytes.nil? || bytes <= 0
+  return 'Invalid input' if bytes.nil? || bytes <= 0
 
-  if to_unit == :KB
+  case to_unit
+  when :KB
     "#{(bytes / 1024.0).ceil}KB".yellow
-  elsif to_unit == :MB
+  when :MB
     if bytes >= 1024 * 1024
       mb = bytes / (1024.0 * 1024.0)
-      "#{sprintf('%.1f', mb)}MB".cyan
-    else
-      nil
+      "#{format('%.1f', mb)}MB".cyan
     end
   end
 end
@@ -46,7 +45,7 @@ def recent_file?(file)
   end
 end
 
-def remove_old_files(sftp, remote_location, client, number_of_days)
+def remove_old_files(sftp, remote_location, _client, number_of_days)
   files_to_delete = sftp.dir.entries(remote_location).select do |file|
     file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
   end

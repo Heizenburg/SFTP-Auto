@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # spec/file_helpers_spec.rb
 
 require_relative '../lib/helpers/file_helpers'
@@ -22,14 +24,14 @@ RSpec.describe 'FileHelpers' do
     it 'converts bytes to kilobytes and returns the formatted string' do
       bytes = 2048
       # Yellow color code for KB - 33
-      file_size = "2KB"
+      file_size = '2KB'
       expect(convert_bytes(bytes, :KB)).to eq("\e[1;33m#{file_size}\e[0m")
     end
 
     it 'converts bytes to megabytes and returns the formatted string' do
-      bytes = 1048576
+      bytes = 1_048_576
       # Cyan color code for MB - 36
-      file_size = "1.0MB"
+      file_size = '1.0MB'
       expect(convert_bytes(bytes, :MB)).to eq("\e[1;36m#{file_size}\e[0m")
     end
 
