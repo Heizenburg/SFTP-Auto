@@ -31,7 +31,7 @@ class SFTPUploader
       clear_console
       process_clients
       unless process_clients_again?(@prompt)
-        terminal_message(@logger, 'Goodbye!')
+        terminal_message(@logger, 'The End!')
 
         break
       end
@@ -80,7 +80,7 @@ class SFTPUploader
   end
 
   def terminal_message(logger, message)
-    Message.display_message(logger, message)
+    ConsoleUtils.display_message(logger, message)
   end
 
   def clients_to_cycle(client_list)
