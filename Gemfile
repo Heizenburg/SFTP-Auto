@@ -16,6 +16,7 @@ gem 'pry-nav'
 gem 'pry-remote'
 gem 'rake'
 gem 'rubocop', require: false
+gem 'tty-font'
 gem 'tty-prompt'
 gem 'tty-spinner', '~> 0.9.3'
 

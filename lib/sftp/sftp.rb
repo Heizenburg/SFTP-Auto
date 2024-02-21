@@ -53,6 +53,7 @@ class SFTP
       password: @password,
       port: @port
     )
+
     log_message('Connected to the SFTP server'.green << ".\nHost: #{@host}\nUsername: #{@user}\n".yellow)
   rescue Net::SSH::ConnectionTimeout => e
     log_error("Timed out while trying to connect to the SFTP server: #{e}".red)

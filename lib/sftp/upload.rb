@@ -2,10 +2,10 @@
 
 require_relative '../helpers/terminal_helpers'
 require_relative '../helpers/file_helpers'
+require_relative '../console_utils'
+require_relative 'message'
 require_relative 'prompt'
 require_relative 'sftp'
-
-require_relative '../console_utils'
 
 class SFTPUploader
   include InternalLogMethods
@@ -30,7 +30,11 @@ class SFTPUploader
     loop do
       clear_console
       process_clients
-      break unless process_clients_again?(@prompt)
+      unless process_clients_again?(@prompt)
+        terminal_message(@logger, 'Goodbye!')
+
+        break
+      end
 
       @argv = [@argv.first] # Reset ARGV if user opts to re-run the program.
       get_user_input
@@ -75,8 +79,12 @@ class SFTPUploader
     ConsoleUtils.clear_console_screen
   end
 
+  def terminal_message(logger, message)
+    Message.display_message(logger, message)
+  end
+
   def clients_to_cycle(client_list)
-    first_arg, second_arg, third_arg = @argv
+    second_arg, third_arg = @argv[1..2]
 
     return client_list unless arguments? && second_arg
     return client_list.take(second_arg.to_i) if third_arg.nil?
