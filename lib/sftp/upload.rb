@@ -149,10 +149,10 @@ class SFTPUploader
     start_point, end_point = @argv[1..2]
 
     index += if end_point
-               start_point.to_i
-             else
-               1
-             end
+              start_point.to_i
+            else
+              1
+            end
 
     print_formatted_details(format_client_details(index, client, remote_location))
   end

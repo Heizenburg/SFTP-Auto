@@ -22,7 +22,7 @@ module InternalLogMethods
       logger = Logger.new($stdout)
       logger.formatter = proc do |_severity, datetime, _progname, msg|
         date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
-        "[#{date_format}]\n#{msg}\n".yellow
+        "[#{date_format}] -- #{msg}\n".yellow
       end
       logger.send(method_name, "#{message}\n")
     end
@@ -42,7 +42,6 @@ class SFTP
     @port     = port
     @password = password
     @clients  = 0
-    @logger   = Logger.new($stdout)
 
     connect
   end
