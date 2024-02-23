@@ -79,7 +79,7 @@ def process_clients_again?(prompt)
   prompt.yes?("Do you want to #{mode} any more clients?")
 end
 
-def get_default_days
+def default_days
   30
 end
 
@@ -90,7 +90,7 @@ def get_prompt_information(prompt, logger)
   source_location = get_source_location(client_type)
 
   range = get_range(prompt, clients, logger)
-  days = get_default_days
+  days = default_days
 
   logger.info("\n")
   [days, range, clients, source_location]

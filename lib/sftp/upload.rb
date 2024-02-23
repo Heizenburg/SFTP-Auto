@@ -3,7 +3,6 @@
 require_relative '../helpers/terminal_helpers'
 require_relative '../helpers/file_helpers'
 require_relative '../console_utils'
-require_relative 'message'
 require_relative 'prompt'
 require_relative 'sftp'
 
