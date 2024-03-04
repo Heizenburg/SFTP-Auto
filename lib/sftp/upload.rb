@@ -30,7 +30,7 @@ class SFTPUploader
       clear_console
       process_clients
       unless process_clients_again?(@prompt)
-        terminal_message(@logger, 'The End!')
+        @logger.info("\nServer connection closed".yellow)
 
         break
       end
@@ -76,10 +76,6 @@ class SFTPUploader
 
   def clear_console
     ConsoleUtils.clear_console_screen
-  end
-
-  def terminal_message(logger, message)
-    ConsoleUtils.display_message(logger, message)
   end
 
   def clients_to_cycle(client_list)
