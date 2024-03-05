@@ -29,6 +29,22 @@ Benchmark.bm do |x|
   x.report('Method with drop(1) x 1 000 000') { 1_000_000.times { remove_file_from_location_v3(remote_location, file) } }
 end
 
+# Define the first method without regex
+def is_client_file_includes(file, client)
+  file.downcase.include?(client.downcase)
+end
+
+# Define the second method with regex
+def is_client_file_regex(file, client)
+  file.match?(Regexp.new("^.*#{client}.*\\..+$", Regexp::IGNORECASE))
+end
+
+# Benchmark the two methods
+Benchmark.bm(10) do |x|
+  x.report("is_client_file includes?:") { 100000.times { is_client_file_includes('example_client_file.txt', 'Client') } }
+  x.report("is_client_file regex:") { 100000.times { is_client_file_regex('example_client_file.txt', 'Client') } }
+end
+
 def get_matching_files_entries(local, client)
   pattern = Regexp.new("(#{client}).*\\.(\\w+)$", Regexp::IGNORECASE)
   Dir.entries(local).select do |file|

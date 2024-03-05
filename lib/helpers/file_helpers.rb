@@ -33,7 +33,7 @@ end
 
 # Returns true if file is of a specific client.
 def client_file?(file, client)
-  file.match?(Regexp.new("^.*#{client}.*\\..+$", Regexp::IGNORECASE))
+  file.downcase.include?(client.downcase)
 end
 
 # Returns true if the file is not older than DAYS_LIMIT days.
