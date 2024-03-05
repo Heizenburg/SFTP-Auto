@@ -41,25 +41,25 @@ end
 
 # Benchmark the two methods
 Benchmark.bm(10) do |x|
-  x.report("is_client_file includes?:") { 100000.times { is_client_file_includes('example_client_file.txt', 'Client') } }
-  x.report("is_client_file regex:") { 100000.times { is_client_file_regex('example_client_file.txt', 'Client') } }
+  x.report("is_client_file includes? x  1 000 000") { 1_000_000.times { is_client_file_includes('example_client_file.txt', 'Client') } }
+  x.report("is_client_file regex x 1 000 000") { 1_000_000.times { is_client_file_regex('example_client_file.txt', 'Client') } }
 end
 
-def get_matching_files_entries(local, client)
+def get_matching_files_dir_entries(local, client)
   pattern = Regexp.new("(#{client}).*\\.(\\w+)$", Regexp::IGNORECASE)
   Dir.entries(local).select do |file|
     file.match(pattern)
   end
 end
 
-def get_matching_files_glob(local, client)
+def get_matching_files_dir_glob(local, client)
   pattern = Regexp.new("(#{client}).*\\.(\\w+)$", Regexp::IGNORECASE)
   Dir.glob(local.to_s).select do |file|
     file.match(pattern)
   end
 end
 
-def get_matching_files_dir(local, client)
+def get_matching_files_dir_children(local, client)
   Dir.children(local).select do |file|
     file =~ /(#{client}).*\.\w+$/i
   end
@@ -69,9 +69,8 @@ def get_matching_files_regex(local, client)
   Dir.children(local).select { |file| file =~ /^.*#{client}.*\..+$/i }
 end
 
-
 def get_matching_files_includes(local, client)
-  Dir.children(local).select { |file| file.downcase.include?(client.first.downcase) && File.extname(file).length > 1 }
+  Dir.children(local).select { |file| file.downcase.include?(client.first.downcase) }
 end
 
 # Load the list of clients from a YAML file and take the first five.
@@ -87,13 +86,16 @@ def report_average(name, results)
   puts "#{name}: #{format('%.2f', average_time)} seconds"
 end
 
-[
-  ['Dir.entries', method(:get_matching_files_entries)],
-  ['Dir.glob', method(:get_matching_files_glob)],
-  ['Dir.children - regex', method(:get_matching_files_dir)],
-  ['Dir.children - regex (used)', method(:get_matching_files_regex)],
-  ['Dir.children - include? and ext', method(:get_matching_files_includes)]
-].each do |name, method|
-  results = Array.new(5) { measure_time(-> { clients.map { |client| method.call(local, client) } }) }
+methods_calls = 
+  [
+    ['Dir.entries', method(:get_matching_files_dir_entries)],
+    ['Dir.glob', method(:get_matching_files_dir_glob)],
+    ['Dir.children - regex', method(:get_matching_files_dir_children)],
+    ['Dir.children - regex (used)', method(:get_matching_files_regex)],
+    ['Dir.children - include? and ext', method(:get_matching_files_includes)]
+  ]
+
+methods_calls.each do |name, method|
+  results = Array.new(methods_calls.size) { measure_time(-> { clients.map { |client| method.call(local, client) } }) }
   report_average(name, results)
 end
