@@ -129,23 +129,25 @@ class SFTPUploader
       end
     end
 
-    if files_to_delete.any?
-      if @prompt.yes?("\nDo you want to delete all files that do not belong to the client?")
-        files_to_delete.each do |file|
-          remove_file_from_location(@session, remote_location, file)
-          @logger.info("#{file.longname} ----- DELETED".red)
-        end
-        @logger.info("\nFiles were successfully deleted.".green)
-      else
-        @logger.info("\nNo files were deleted.".green)
-      end
+    return if files_to_delete.empty?
+
+    if !@prompt.yes?("\nDo you want to delete all files that do not belong to the client?")
+      @logger.info("\nNo files were deleted.".green)
+      return
     end
+    
+    files_to_delete.each do |file|
+      remove_file_from_location(@session, remote_location, file)
+      @logger.info("#{file.longname} ----- DELETED".red)
+    end
+    
+    @logger.info("\nSuccessfully deleted #{files_to_delete.size} files not belonging to the client.".green)
 
     @logger.info("\n")
   end
 
   def get_matching_files(client)
-    Dir.children(@directory).select { |file| file.downcase.include?(client.downcase) && File.extname(file).length > 1 }
+    Dir.children(@directory).select { |file| file.downcase.include?(client.downcase) }
   end
 
   def print_client_details(index, client, remote_location)
