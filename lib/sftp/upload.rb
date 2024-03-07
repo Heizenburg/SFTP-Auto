@@ -129,7 +129,10 @@ class SFTPUploader
       end
     end
 
-    return if files_to_delete.empty?
+    if files_to_delete.empty?
+      @logger.info("\n")
+      return 
+    end
 
     if !@prompt.yes?("\nDo you want to delete all files that do not belong to the client?")
       @logger.info("\nNo files were deleted.".green)
@@ -141,9 +144,7 @@ class SFTPUploader
       @logger.info("#{file.longname} ----- DELETED".red)
     end
     
-    @logger.info("\nSuccessfully deleted #{files_to_delete.size} files not belonging to the client.".green)
-
-    @logger.info("\n")
+    @logger.info("\nSuccessfully deleted #{files_to_delete.size} files not belonging to the client.\n".green)
   end
 
   def get_matching_files(client)

@@ -40,7 +40,7 @@ def is_client_file_regex(file, client)
 end
 
 # Benchmark the two methods
-Benchmark.bm(10) do |x|
+Benchmark.bm do |x|
   x.report("is_client_file includes? x  1 000 000") { 1_000_000.times { is_client_file_includes('example_client_file.txt', 'Client') } }
   x.report("is_client_file regex x 1 000 000") { 1_000_000.times { is_client_file_regex('example_client_file.txt', 'Client') } }
 end

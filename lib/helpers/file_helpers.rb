@@ -75,10 +75,6 @@ def remove_file_from_location(session, remote_location, file)
   session.remove!(File.join(remote_location.slice(1, remote_location.size), file.name))
 end
 
-def local_file_count(dir)
-  Dir[File.join(dir, '*.zip')].length
-end
-
 def hidden_file?(file)
   file.start_with?('.')
 end
