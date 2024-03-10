@@ -22,7 +22,7 @@ module InternalLogMethods
       logger = Logger.new($stdout)
       logger.formatter = proc do |_severity, datetime, _progname, msg|
         date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
-        "[#{date_format}] -- #{msg}\n".yellow
+        "[#{date_format}]\n#{msg}\n"
       end
       logger.send(method_name, "#{message}\n")
     end

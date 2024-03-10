@@ -35,7 +35,8 @@ class SFTPUploader
         break
       end
 
-      @argv = [@argv.first] # Reset ARGV if user opts to re-run the program.
+      # Reset ARGV if user opts to re-run the program.
+      @argv = [@argv.first] 
       get_user_input
     end
   end
@@ -129,13 +130,8 @@ class SFTPUploader
       end
     end
 
-    if files_to_delete.empty?
+    if files_to_delete.empty? || !@prompt.yes?("\nDo you want to delete all files that do not belong to the client?")
       @logger.info("\n")
-      return 
-    end
-
-    if !@prompt.yes?("\nDo you want to delete all files that do not belong to the client?")
-      @logger.info("\nNo files were deleted.".green)
       return
     end
     
