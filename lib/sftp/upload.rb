@@ -21,8 +21,14 @@ class SFTPUploader
     get_user_input
   end
 
+  # Retrieves user input and assigns the values returned   
   def get_user_input
-    @days, @range, @clients, @directory = get_prompt_information(@prompt, @logger)
+    prompt_info = get_prompt_information(@prompt, @logger)
+
+    @directory = prompt_info[:source_location]
+    @clients   = prompt_info[:clients]
+    @range     = prompt_info[:range]
+    @days      = prompt_info[:days]
   end
 
   def run

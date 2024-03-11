@@ -35,14 +35,21 @@ def get_source_location(client_type)
   source_location
 end
 
-# Parse the given input to return client to cycle.
+# Parse the given input to return a range.
 def parse_range_input(range_input)
-  range_delimiters = /[\s\-:]/
+  range_delimiters = /[\s\-:.]/
+  if range_input.nil? || range_input.empty?
+    raise ArgumentError, "Input cannot be empty"
+  end
   if range_input.include?('.')
     num = range_input.split('.').first.strip.to_i
     [num, num]
   elsif range_input.match?(range_delimiters)
-    range_input.split(range_delimiters).map(&:to_i)
+    range_parts = range_input.split(range_delimiters).map(&:to_i)
+    if range_parts.size != 2
+      raise ArgumentError, "Invalid range input format"
+    end
+    range_parts
   else
     [1, range_input.to_i]
   end
@@ -79,13 +86,14 @@ def process_clients_again?(prompt)
   prompt.yes?("Do you want to #{mode} any more clients?")
 end
 
+# Returns the default number of days as an integer.
 def default_days
   30
 end
 
+# Retrieves prompt information based on the input prompt and logger
 def get_prompt_information(prompt, logger)
   client_type = get_client_type(prompt)
-
   clients = load_clients(client_type)
   source_location = get_source_location(client_type)
 
@@ -93,5 +101,11 @@ def get_prompt_information(prompt, logger)
   days = default_days
 
   logger.info("\n")
-  [days, range, clients, source_location]
+
+  { days: days, range: range, clients: clients, source_location: source_location }.tap do |hash|
+    hash.keys.each do |key|
+      hash[key.to_sym] = hash.delete(key)
+    end
+  end
 end
+
