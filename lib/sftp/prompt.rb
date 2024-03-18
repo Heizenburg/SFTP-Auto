@@ -14,10 +14,8 @@ def load_clients(client_type)
   begin
     YAML.load_file(File.expand_path("../yaml_files/#{retailer}_clients.yml", __FILE__))
   rescue Errno::ENOENT => e
-    # Raise a StandardError if the file is not found
     raise StandardError, "Retailer file not found: #{client_type}_clients.yml, #{e.message}"
   rescue Psych::SyntaxError => e
-    # Raise a StandardError if there is a YAML syntax error in the file
     raise StandardError, "YAML syntax error in file: #{client_type}_clients.yml, #{e.message}"
   end
 end
@@ -46,9 +44,8 @@ def parse_range_input(range_input)
     [num, num]
   elsif range_input.match?(range_delimiters)
     range_parts = range_input.split(range_delimiters).map(&:to_i)
-    if range_parts.size != 2
-      raise ArgumentError, "Invalid range input format"
-    end
+    raise ArgumentError, "Invalid range input format" if range_parts.size != 2
+    
     range_parts
   else
     [1, range_input.to_i]
@@ -60,8 +57,7 @@ def format_range_string(range_numbers, clients)
   if range_numbers.uniq.length == 1
     "[#{range_numbers.first}: #{clients.keys[range_numbers.first - 1]}] Only"
   else
-    range_info = range_numbers.map { |num| "[#{num}: #{clients.keys[num - 1]}]" }
-    "#{range_info.first} to #{range_info.last}"
+    range_info = range_numbers.map { |num| "[#{num}: #{clients.keys[num - 1]}]" }.join(' to ')
   end
 end
 
@@ -81,15 +77,14 @@ def get_range(prompt, clients, logger)
   range_numbers
 end
 
-def process_clients_again?(prompt)
-  mode = analysis_mode? ? 'analyze' : 'upload'
-  prompt.yes?("Do you want to #{mode} any more clients?")
+def should_continue_processing_clients?(prompt)
+  prompt.yes?(
+    "Do you want to #{analysis_mode? ? 'analyze' : 'upload'} more clients?"
+  )
 end
 
-# Returns the default number of days as an integer.
-def default_days
-  30
-end
+# Default number of days for analysis and upload.
+DEFAULT_DAYS = 30
 
 # Retrieves prompt information based on the input prompt and logger
 def get_prompt_information(prompt, logger)
@@ -98,7 +93,7 @@ def get_prompt_information(prompt, logger)
   source_location = get_source_location(client_type)
 
   range = get_range(prompt, clients, logger)
-  days = default_days
+  days = DEFAULT_DAYS
 
   logger.info("\n")
 
@@ -108,4 +103,5 @@ def get_prompt_information(prompt, logger)
     end
   end
 end
+
 

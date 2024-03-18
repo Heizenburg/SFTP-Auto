@@ -6,7 +6,7 @@ require_relative '../lib/helpers/file_helpers'
 require_relative '../lib/helpers/terminal_helpers'
 
 class FileMethodsTest < Minitest::Test
-  def test_file_extension
+  def test_file_extension_match
     assert file_extension?('file.zip', '.zip')
     refute file_extension?('file.txt', '.zip')
   end

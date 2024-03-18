@@ -35,7 +35,7 @@ class SFTPUploader
     loop do
       clear_console
       process_clients
-      unless process_clients_again?(@prompt)
+      unless should_continue_processing_clients?(@prompt)
         @logger.info("\nServer connection closed".yellow)
 
         break
@@ -85,6 +85,7 @@ class SFTPUploader
     ConsoleUtils.clear_console_screen
   end
 
+  # Returns a Filtered client list based on the given arguments.
   def clients_to_cycle(client_list)
     second_arg, third_arg = @argv[1..2]
 
@@ -98,6 +99,7 @@ class SFTPUploader
     client_list.to_a[first...second]
   end
 
+  # Analyzes remote entries and deletes files not belonging to the client.
   def analyze_remote_entries(remote_location, client)
     files_to_delete = []
 
@@ -122,7 +124,7 @@ class SFTPUploader
         next
       end
 
-      unless client_file?(entry.name, client)
+      if !client_file?(entry.name, client)
         @logger.info(entry.longname.to_s << ' ----- FILE DOES NOT BELONG HERE'.red)
         files_to_delete << entry
       end
@@ -140,16 +142,22 @@ class SFTPUploader
       @logger.info("\n")
       return
     end
-    
+
+    handle_files_to_delete(files_to_delete, remote_location)
+  end
+
+
+  def handle_files_to_delete(files_to_delete, remote_location)  
     files_to_delete.each do |file|
       remove_file_from_location(@session, remote_location, file)
       @logger.info("#{file.longname} ----- DELETED".red)
     end
-    
+  
     @logger.info("\nSuccessfully deleted #{files_to_delete.size} files not belonging to the client.\n".green)
   end
 
-  def get_matching_files(client)
+  # Returns a list of files in the directory that contain the specified client name, case-insensitive.
+  def matching_files(client)
     Dir.children(@directory).select { |file| file.downcase.include?(client.downcase) }
   end
 
@@ -166,7 +174,8 @@ class SFTPUploader
   end
 
   def format_client_details(index, client, remote_location)
-    "[#{index}: #{client}] #{remote_location}\n".yellow
+    formatted = "[#{index}: #{client}] #{remote_location}\n"
+    formatted.yellow
   end
 
   def print_formatted_details(formatted_details)
@@ -174,7 +183,7 @@ class SFTPUploader
   end
 
   def upload_files(remote_location, client)
-    matches = get_matching_files(client)
+    matches = matching_files(client)
     matches.compact.each_with_index do |file, index|
       upload_file(file, remote_location, index, matches.size)
     end
