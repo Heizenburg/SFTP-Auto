@@ -6,9 +6,7 @@ require 'tty-prompt'
 require_relative '../helpers/terminal_helpers'
 require_relative '../sftp/prompt'
 
-prompt = TTY::Prompt.new
-
-client_type = get_client_type(prompt)
+client_type = get_client_type(TTY::Prompt.new)
 clients = load_clients(client_type)
 
 clients.each_with_index do |(key, value), index|
