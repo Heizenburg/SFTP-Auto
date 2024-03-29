@@ -35,7 +35,7 @@ class SFTPUploader
     loop do
       clear_console
       process_clients
-      unless should_continue_processing_clients?(@prompt)
+      unless continue_processing_clients?(@prompt)
         @logger.info("\nServer connection closed".yellow)
 
         break

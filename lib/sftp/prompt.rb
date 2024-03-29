@@ -35,16 +35,18 @@ end
 
 # Parse the given input to return a range.
 def parse_range_input(range_input)
-  range_delimiters = /[\s\-:.]/
   if range_input.nil? || range_input.empty?
     raise ArgumentError, "Input cannot be empty"
   end
+
+  range_delimiters = /[\s\-:.]/
+
   if range_input.include?('.')
     num = range_input.split('.').first.strip.to_i
     [num, num]
   elsif range_input.match?(range_delimiters)
     range_parts = range_input.split(range_delimiters).map(&:to_i)
-    raise ArgumentError, "Invalid range input format" if range_parts.size != 2
+    raise ArgumentError, "Invalid range input format: more than two numbers" if range_parts.size != 2
     
     range_parts
   else
@@ -77,10 +79,8 @@ def get_range(prompt, clients, logger)
   range_numbers
 end
 
-def should_continue_processing_clients?(prompt)
-  prompt.yes?(
-    "Do you want to #{analysis_mode? ? 'analyze' : 'upload'} more clients?"
-  )
+def continue_processing_clients?(prompt)
+  prompt.yes?("Continue #{analysis_mode? ? 'analyzing' : 'uploading'} clients?")
 end
 
 # Default number of days for analysis and upload.
@@ -95,13 +95,8 @@ def get_prompt_information(prompt, logger)
   range = get_range(prompt, clients, logger)
   days = DEFAULT_DAYS
 
-  logger.info("\n")
-
-  { days: days, range: range, clients: clients, source_location: source_location }.tap do |hash|
-    hash.keys.each do |key|
-      hash[key.to_sym] = hash.delete(key)
-    end
-  end
+  { days: days, range: range, clients: clients, source_location: source_location }.transform_keys(&:to_sym)
 end
+
 
 
