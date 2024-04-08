@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'awesome_print'
-require 'find'
 require 'net/sftp'
 require 'dotenv/load'
 require 'logger'
@@ -17,18 +16,29 @@ module InternalLogMethods
     message: :info
   }.freeze
 
-  LOG_LEVELS.each do |level, method_name|
-    define_method("log_#{level}") do |message|
-      logger = Logger.new($stdout)
-      logger.formatter = proc do |_severity, datetime, _progname, msg|
-        date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
-        "[#{date_format}]\n#{msg}\n"
-      end
-      logger.send(method_name, "#{message}\n")
+  def log_message(message)
+    log(:info, message)
+  end
+
+  def log_error(message)
+    log(:error, message)
+  end
+
+  private
+
+  def log(level, message)
+    logger = Logger.new($stdout)
+    logger.formatter = proc do |severity, datetime, _, msg|
+      formatted_datetime = datetime.strftime('%F %T')
+      formatted_severity = severity.to_s[0..3].upcase.rjust(4)
+      formatted_msg      = msg.to_s
+
+      "#{formatted_datetime} [#{formatted_severity}] #{formatted_msg}\n"
     end
 
-    private "log_#{level}"
+    logger.send(level, "#{message}\n")
   end
+
 end
 
 class SFTP
@@ -96,6 +106,8 @@ class SFTP
 
   private
 
+  # A method to handle missing method calls by delegating to the @session object if the method is defined. 
+  # Otherwise falls back to the default behavior of the superclass.
   def method_missing(method_name, *args, &block)
     if @session.respond_to?(method_name)
       @session.send(method_name, *args, &block)

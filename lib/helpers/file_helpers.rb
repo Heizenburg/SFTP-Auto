@@ -18,7 +18,7 @@ end
 
 # Converts the given file size in bytes to the specified unit (KB or MB) and returns the formatted string.
 def convert_bytes(bytes, to_unit = :KB)
-  return 'Invalid input' if bytes.nil? || bytes <= 0
+  return '0KB or Invalid input'.red if bytes.nil? || bytes <= 0
 
   case to_unit
   when :KB

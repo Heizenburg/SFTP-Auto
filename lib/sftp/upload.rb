@@ -16,14 +16,14 @@ class SFTPUploader
     @prompt  = TTY::Prompt.new
     @argv    = ARGV
     @logger  = Logger.new($stdout)
-    @logger.formatter = proc { |_severity, _datetime, _progname, msg| "#{msg}\n" }
+    @logger.formatter = proc { |_sev, _dt, _pn, msg| "#{msg}\n" }
 
     get_user_input
   end
 
   # Retrieves user input and assigns the values returned   
   def get_user_input
-    prompt_info = get_prompt_information(@prompt, @logger)
+    prompt_info = get_prompt_info(@prompt, @logger)
 
     @directory = prompt_info[:source_location]
     @clients   = prompt_info[:clients]
@@ -145,7 +145,6 @@ class SFTPUploader
 
     handle_files_to_delete(files_to_delete, remote_location)
   end
-
 
   def handle_files_to_delete(files_to_delete, remote_location)  
     files_to_delete.each do |file|

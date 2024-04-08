@@ -59,7 +59,7 @@ def format_range_string(range_numbers, clients)
   if range_numbers.uniq.length == 1
     "[#{range_numbers.first}: #{clients.keys[range_numbers.first - 1]}] Only"
   else
-    range_info = range_numbers.map { |num| "[#{num}: #{clients.keys[num - 1]}]" }.join(' to ')
+    range_numbers.map { |num| "[#{num}: #{clients.keys[num - 1]}]" }.join(' to ')
   end
 end
 
@@ -87,15 +87,16 @@ end
 DEFAULT_DAYS = 30
 
 # Retrieves prompt information based on the input prompt and logger
-def get_prompt_information(prompt, logger)
+def get_prompt_info(prompt, logger)
   client_type = get_client_type(prompt)
   clients = load_clients(client_type)
-  source_location = get_source_location(client_type)
 
-  range = get_range(prompt, clients, logger)
-  days = DEFAULT_DAYS
-
-  { days: days, range: range, clients: clients, source_location: source_location }.transform_keys(&:to_sym)
+  {
+    range: get_range(prompt, clients, logger),
+    days:  DEFAULT_DAYS,
+    clients: clients,
+    source_location: get_source_location(client_type)
+  }.transform_keys(&:to_sym)
 end
 
 
