@@ -110,6 +110,12 @@ class SFTPUploader
       file_size_kb = convert_bytes(file_size, :KB)
       file_size_mb = convert_bytes(file_size, :MB)
 
+      if file_size.nil? || file_size <= 0
+        @logger.info("#{entry.longname} #{file_size_kb}" << ' ----- FILE SIZE ISSUE'.red)
+        files_to_delete << entry
+        next
+      end
+
       if entry.attributes.directory?
         @logger.info("#{entry.longname} ----- FOLDER".cyan)
         next
@@ -138,7 +144,7 @@ class SFTPUploader
       end
     end
 
-    if files_to_delete.empty? || !@prompt.yes?("\nDo you want to delete all files that do not belong to the client?")
+    if files_to_delete.empty? || !@prompt.yes?("\nDo you want to delete all files highlighted in red?")
       @logger.info("\n")
       return
     end
@@ -146,13 +152,13 @@ class SFTPUploader
     handle_files_to_delete(files_to_delete, remote_location)
   end
 
-  def handle_files_to_delete(files_to_delete, remote_location)  
+  def handle_files_to_delete(files_to_delete, remote_location)
     files_to_delete.each do |file|
       remove_file_from_location(@session, remote_location, file)
       @logger.info("#{file.longname} ----- DELETED".red)
     end
   
-    @logger.info("\nSuccessfully deleted #{files_to_delete.size} files not belonging to the client.\n".green)
+    @logger.info("\nSuccessfully deleted #{files_to_delete.size} file(s).\n".green)
   end
 
   # Returns a list of files in the directory that contain the specified client name, case-insensitive.
