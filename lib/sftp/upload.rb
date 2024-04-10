@@ -151,7 +151,7 @@ class SFTPUploader
 
     handle_files_to_delete(files_to_delete, remote_location)
   end
-
+  
   def handle_files_to_delete(files_to_delete, remote_location)
     files_to_delete.each do |file|
       remove_file_from_location(@session, remote_location, file)

@@ -63,20 +63,19 @@ def format_range_string(range_numbers, clients)
   end
 end
 
-def get_range(prompt, clients, logger)
-  provide_range = prompt.yes?('Do you want to provide a range?')
-  return nil unless provide_range
+def get_selected_clients(prompt, clients, logger)
+  provide_range = prompt.yes?('Provide client range?')
+  return unless provide_range
+  
+  range_input = prompt.ask("Select clients by range between [1] and [#{clients.size}]:") { |q| q.in("1-#{clients.size}") }
+  selected_range = parse_range_input(range_input)
 
-  range_input = prompt.ask("Provide a range of clients between 1 and #{clients.size}:") do |q|
-    q.in("1-#{clients.size}")
-  end
-  range_numbers = parse_range_input(range_input)
+  selected_clients = format_range_string(selected_range, clients)
+  logger.info("Range provided: #{selected_clients}".yellow)
+  
+  sleep(1.5) # Add a delay to allow the user to read the message
 
-  range_str = format_range_string(range_numbers, clients)
-  logger.info("Range provided: #{range_str}".yellow)
-  sleep(1.5) # To give the user time to see the range provided.
-
-  range_numbers
+  selected_range
 end
 
 def continue_processing_clients?(prompt)
@@ -92,7 +91,7 @@ def get_prompt_info(prompt, logger)
   clients = load_clients(client_type)
 
   {
-    range: get_range(prompt, clients, logger),
+    range: get_selected_clients(prompt, clients, logger),
     days:  DEFAULT_DAYS,
     clients: clients,
     source_location: get_source_location(client_type)
