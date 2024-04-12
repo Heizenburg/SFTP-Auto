@@ -107,14 +107,15 @@ class SFTPUploader
       next if hidden_file?(entry.name)
 
       file_size = entry.attributes.size
-      file_size_kb = convert_bytes(file_size, :KB)
-      file_size_mb = convert_bytes(file_size, :MB)
-
+      
       if file_size.nil? || file_size <= 0
         @logger.info("#{entry.longname} #{file_size_kb}" << ' ----- FILE SIZE ISSUE'.red)
         files_to_delete << entry
         next
       end
+
+      file_size_kb = convert_bytes(file_size, :KB)
+      file_size_mb = convert_bytes(file_size, :MB)
 
       if entry.attributes.directory?
         @logger.info("#{entry.longname} ----- FOLDER".cyan)

@@ -67,7 +67,7 @@ def get_selected_clients(prompt, clients, logger)
   provide_range = prompt.yes?('Provide client range?')
   return unless provide_range
   
-  range_input = prompt.ask("Select clients by range between [1] and [#{clients.size}]:") { |q| q.in("1-#{clients.size}") }
+  range_input = prompt.ask("Select clients by range between [1: #{clients.keys.first}] and [#{clients.size}: #{clients.keys.last}]:") { |q| q.in("1-#{clients.size}") }
   selected_range = parse_range_input(range_input)
 
   selected_clients = format_range_string(selected_range, clients)
