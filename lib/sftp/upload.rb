@@ -41,13 +41,17 @@ class SFTPUploader
         break
       end
 
-      # Reset ARGV if user opts to re-run the program.
-      @argv = [@argv.first] 
-      get_user_input
+      reset_user_input
     end
   end
-
+  
   private
+
+  # Reset input if user opts to re-run the program.
+  def reset_user_input
+    @argv = [@argv.first]
+    get_user_input
+  end
 
   def process_clients
     @argv.concat(@range) if @range
