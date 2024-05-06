@@ -5,6 +5,7 @@ require_relative '../helpers/file_helpers'
 require_relative '../console_utils'
 require_relative 'prompt'
 require_relative 'sftp'
+require_relative 'file_entry'
 
 class SFTPUploader
   include InternalLogMethods
@@ -21,10 +22,14 @@ class SFTPUploader
     get_user_input
   end
 
-  # Retrieves user input and assigns the values returned   
+  # Retrieves user input and assigns the values returned
   def get_user_input
     prompt_info = get_prompt_info(@prompt, @logger)
+    assign_user_input(prompt_info)
+  end
 
+  # Assigns user input values
+  def assign_user_input(prompt_info)
     @directory = prompt_info[:source_location]
     @clients   = prompt_info[:clients]
     @range     = prompt_info[:range]
@@ -35,14 +40,12 @@ class SFTPUploader
     loop do
       clear_console
       process_clients
-      unless continue_processing_clients?(@prompt)
-        @logger.info("\nServer connection closed".yellow)
-
-        break
-      end
+      break unless continue_processing_clients?(@prompt)
 
       reset_user_input
     end
+    # Log server connection close once breaking out of loop
+    @logger.info("\nServer connection closed".yellow)
   end
   
   private
@@ -65,11 +68,15 @@ class SFTPUploader
   end
 
   def process_client_files(remote_location, client, days)
-    unless analysis_mode?
+    # Remove old files and upload new files
+    if !analysis_mode?
       remove_old_files(@session, remote_location, client, days)
       upload_files(remote_location, client)
     end
+
+    # Analyze remote files
     analyze_remote_entries(remote_location, client)
+
     increment_client_count
   end
 
@@ -103,67 +110,62 @@ class SFTPUploader
     client_list.to_a[first...second]
   end
 
-  # Analyzes remote entries and deletes files not belonging to the client.
   def analyze_remote_entries(remote_location, client)
     files_to_delete = []
-
+  
     @session.entries(remote_location) do |entry|
       next if hidden_file?(entry.name)
-
-      file_size = entry.attributes.size
-      
-      if file_size.nil? || file_size <= 0
-        @logger.info("#{entry.longname} #{file_size_kb}" << ' ----- FILE SIZE ISSUE'.red)
-        files_to_delete << entry
-        next
-      end
-
-      file_size_kb = convert_bytes(file_size, :KB)
-      file_size_mb = convert_bytes(file_size, :MB)
-
-      if entry.attributes.directory?
-        @logger.info("#{entry.longname} ----- FOLDER".cyan)
-        next
-      end
-
-      if recent_file?(entry) && client_file?(entry.name, client)
-        if file_size_mb
-          @logger.info("#{entry.longname.green} #{file_size_kb} (#{file_size_mb})")
-        else
-          @logger.info("#{entry.longname.green} #{file_size_kb}")
-        end
-        next
-      end
-
-      if !client_file?(entry.name, client)
-        @logger.info(entry.longname.to_s << ' ----- FILE DOES NOT BELONG HERE'.red)
-        files_to_delete << entry
-      end
-
-      if client_file?(entry.name, client) && !recent_file?(entry)
-        if file_size_mb
-          @logger.info("#{entry.longname} #{file_size_kb} (#{file_size_mb})")
-        else
-          @logger.info("#{entry.longname} #{file_size_kb}")
-        end
-      end
+  
+      file_entry = FileEntry.new(entry, client)
+      handle_file(file_entry, files_to_delete)
     end
+  
+    if files_to_delete.empty?
+      @logger.info("\n")
+      return
+    end
+  
+    handle_files_to_delete(files_to_delete, remote_location)
+  end
 
-    if files_to_delete.empty? || !@prompt.yes?("\nDo you want to delete all files highlighted in red?")
+  def handle_file(file_entry, files_to_delete)
+    if file_entry.directory?
+      @logger.info("#{file_entry.entry.longname} ----- FOLDER".cyan)
+    elsif file_entry.entry.attributes.size.nil? || file_entry.entry.attributes.size <= 0
+      @logger.info("#{file_entry.entry.longname} #{file_entry.file_size_kb}" << ' ----- FILE SIZE ISSUE'.red)
+      files_to_delete << file_entry.entry
+    elsif !client_file?(file_entry.entry.name, file_entry.client)
+      @logger.info(file_entry.entry.longname.to_s << ' ----- FILE DOES NOT BELONG HERE'.red)
+      files_to_delete << file_entry.entry
+    elsif recent_file?(file_entry.entry) && client_file?(file_entry.entry.name, file_entry.client)
+      log_file(file_entry)
+    else
+      log_file(file_entry, false)
+    end
+  end
+
+  def handle_files_to_delete(files_to_delete, remote_location)
+    if !@prompt.yes?("\nDo you want to delete all files highlighted in red?")
       @logger.info("\n")
       return
     end
 
-    handle_files_to_delete(files_to_delete, remote_location)
-  end
-  
-  def handle_files_to_delete(files_to_delete, remote_location)
     files_to_delete.each do |file|
       remove_file_from_location(@session, remote_location, file)
       @logger.info("#{file.longname} ----- DELETED".red)
     end
-  
+
     @logger.info("\nSuccessfully deleted #{files_to_delete.size} file(s).\n".green)
+  end
+  
+  def log_file(file_entry, green = true)
+    log_file_info(file_entry, green)
+  end
+  
+  def log_file_info(file_entry, green = true)
+    file = file_entry.entry.longname.green if green
+    log_message = "#{file || file_entry.entry.longname} #{file_entry.file_size_kb}#{' (' + file_entry.file_size_mb + ')' if file_entry.file_size_mb}"
+    @logger.info(log_message)
   end
 
   # Returns a list of files in the directory that contain the specified client name, case-insensitive.

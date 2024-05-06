@@ -38,13 +38,15 @@ end
 
 # Returns true if the file is not older than DAYS_LIMIT days.
 def recent_file?(file)
-  if file.respond_to?(:attributes) && file.attributes.respond_to?(:mtime)
-    Time.at(file.attributes.mtime) > (Time.now - DAYS_LIMIT.days)
-  else
-    File.mtime(file) > (Time.now - DAYS_LIMIT.days)
-  end
+  file_mtime = if file.respond_to?(:attributes) && file.attributes.respond_to?(:mtime)
+                Time.at(file.attributes.mtime)
+              else
+                File.mtime(file)
+              end
+  file_mtime > (Time.now - DAYS_LIMIT.days)
 end
 
+# Performs file cleanup. Removes files older than DAYS_LIMIT days.
 def remove_old_files(sftp, remote_location, _client, number_of_days)
   files_to_delete = sftp.dir.entries(remote_location).select do |file|
     file.file? && Time.at(file.attributes.mtime) < (Time.now - number_of_days.days)
