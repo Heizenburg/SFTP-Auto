@@ -24,9 +24,17 @@ remote_location = %w[root folder1 folder2 folder3]
 file = OpenStruct.new(name: 'file.txt')
 
 Benchmark.bm do |x|
-  x.report('Method with [1..-1] x 1 000 000') { 1_000_000.times { remove_file_from_location_v1(remote_location, file) } }
+  x.report('Method with [1..-1] x 1 000 000') do
+    1_000_000.times do
+      remove_file_from_location_v1(remote_location, file)
+    end
+  end
   x.report('Method with slice x 1 000 000') { 1_000_000.times { remove_file_from_location_v2(remote_location, file) } }
-  x.report('Method with drop(1) x 1 000 000') { 1_000_000.times { remove_file_from_location_v3(remote_location, file) } }
+  x.report('Method with drop(1) x 1 000 000') do
+    1_000_000.times do
+      remove_file_from_location_v3(remote_location, file)
+    end
+  end
 end
 
 # Define the first method without regex
@@ -41,8 +49,16 @@ end
 
 # Benchmark the two methods
 Benchmark.bm do |x|
-  x.report("is_client_file includes? x  1 000 000") { 1_000_000.times { is_client_file_includes('example_client_file.txt', 'Client') } }
-  x.report("is_client_file regex x 1 000 000") { 1_000_000.times { is_client_file_regex('example_client_file.txt', 'Client') } }
+  x.report('is_client_file includes? x  1 000 000') do
+    1_000_000.times do
+      is_client_file_includes('example_client_file.txt', 'Client')
+    end
+  end
+  x.report('is_client_file regex x 1 000 000') do
+    1_000_000.times do
+      is_client_file_regex('example_client_file.txt', 'Client')
+    end
+  end
 end
 
 def get_matching_files_dir_entries(local, client)
@@ -86,7 +102,7 @@ def report_average(name, results)
   puts "#{name}: #{format('%.2f', average_time)} seconds"
 end
 
-methods_calls = 
+methods_calls =
   [
     ['Dir.entries', method(:get_matching_files_dir_entries)],
     ['Dir.glob', method(:get_matching_files_dir_glob)],

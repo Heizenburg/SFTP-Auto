@@ -68,7 +68,6 @@ class SFTPUploader
   end
 
   def process_client_files(remote_location, client, days)
-    # Remove old files and upload new files
     if !analysis_mode?
       remove_old_files(@session, remote_location, client, days)
       upload_files(remote_location, client)
@@ -138,9 +137,9 @@ class SFTPUploader
       @logger.info(file_entry.entry.longname.to_s << ' ----- FILE DOES NOT BELONG HERE'.red)
       files_to_delete << file_entry.entry
     elsif recent_file?(file_entry.entry) && client_file?(file_entry.entry.name, file_entry.client)
-      log_file(file_entry)
+      log_file_info(file_entry)
     else
-      log_file(file_entry, false)
+      log_file_info(file_entry, false)
     end
   end
 
@@ -158,14 +157,14 @@ class SFTPUploader
     @logger.info("\nSuccessfully deleted #{files_to_delete.size} file(s).\n".green)
   end
   
-  def log_file(file_entry, green = true)
-    log_file_info(file_entry, green)
-  end
-  
-  def log_file_info(file_entry, green = true)
-    file = file_entry.entry.longname.green if green
-    log_message = "#{file || file_entry.entry.longname} #{file_entry.file_size_kb}#{' (' + file_entry.file_size_mb + ')' if file_entry.file_size_mb}"
-    @logger.info(log_message)
+  def log_file_info(file_entry, recent = true)
+    file_name = recent ? file_entry.entry.longname.green : file_entry.entry.longname
+    file_size = if file_entry.file_size_mb
+      "#{file_entry.file_size_kb} (#{file_entry.file_size_mb})"
+    else
+      "#{file_entry.file_size_kb}"
+    end
+    @logger.info("#{file_name} #{file_size}")
   end
 
   # Returns a list of files in the directory that contain the specified client name, case-insensitive.

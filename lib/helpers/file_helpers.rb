@@ -39,9 +39,9 @@ end
 # Returns true if the file is not older than DAYS_LIMIT days.
 def recent_file?(file)
   file_mtime = if file.respond_to?(:attributes) && file.attributes.respond_to?(:mtime)
-                Time.at(file.attributes.mtime)
+                  Time.at(file.attributes.mtime)
               else
-                File.mtime(file)
+                  File.mtime(file)
               end
   file_mtime > (Time.now - DAYS_LIMIT.days)
 end

@@ -38,7 +38,6 @@ module InternalLogMethods
 
     logger.send(level, "#{message}\n")
   end
-
 end
 
 class SFTP
@@ -106,7 +105,7 @@ class SFTP
 
   private
 
-  # A method to handle missing method calls by delegating to the @session object if the method is defined. 
+  # A method to handle missing method calls by delegating to the @session object if the method is defined.
   # Otherwise falls back to the default behavior of the superclass.
   def method_missing(method_name, *args, &block)
     if @session.respond_to?(method_name)
