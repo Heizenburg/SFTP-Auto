@@ -3,7 +3,7 @@
     "editor.fontLigatures": true,
     "editor.cursorSmoothCaretAnimation": "on",
     "editor.tabSize": 2,
-    "editor.fontFamily": "Consolas",
+    "editor.fontFamily": "Consolas, monospace",
     "editor.fontWeight": "100",
     "files.autoSave": "onFocusChange",
     "editor.minimap.enabled": false,
