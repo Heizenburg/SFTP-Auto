@@ -1,27 +1,23 @@
 class FileProcessor
-  def initialize(session, logger, directory, client, days, analysis_mode)
+  def initialize(session, logger)
     @session = session
     @logger = logger
-    @directory = directory
-    @client = client
-    @days = days
-    @analysis_mode = analysis_mode
   end
 
-  def process_files(remote_location)
-    unless @analysis_mode
-      remove_old_files(remote_location)
-      upload_files(remote_location)
+  def process_client_files(remote_location, client, days, analysis_mode)
+    unless analysis_mode
+      remove_old_files(remote_location, days)
+      upload_files(remote_location, client)
     end
 
-    analyze_remote_entries(remote_location)
+    analyze_remote_entries(remote_location, client)
   end
 
   private
 
-  def remove_old_files(remote_location)
+  def remove_old_files(remote_location, days)
     files_to_delete = @session.dir.entries(remote_location).select do |file|
-      file.file? && Time.at(file.attributes.mtime) < (Time.now - @days * 24 * 60 * 60)
+      file.file? && Time.at(file.attributes.mtime) < (Time.now - days * 24 * 60 * 60)
     end
 
     return if files_to_delete.empty?
@@ -37,9 +33,9 @@ class FileProcessor
       begin
         remove_file_from_location(remote_location, file)
         delete_spinner.success
-        @logger.info("Removed: #{file.longname} #{convert_bytes(file.attributes.size)} -- OLDER THAN #{@days} DAYS ".red)
+        @logger.info("Removed: #{file.longname} #{convert_bytes(file.attributes.size)} -- OLDER THAN #{days} DAYS ".red)
       rescue StandardError => e
-        log_error("Error deleting file #{file.name}: #{e}".red)
+        @logger.error("Error deleting file #{file.name}: #{e}".red)
       end
     end
     @logger.info("\n")
@@ -49,15 +45,15 @@ class FileProcessor
     @session.remove!(File.join(remote_location.slice(1, remote_location.size), file.name))
   end
 
-  def upload_files(remote_location)
-    matches = matching_files
+  def upload_files(remote_location, client)
+    matches = matching_files(client)
     matches.compact.each_with_index do |file, index|
       upload_file(file, remote_location, index, matches.size)
     end
   end
 
-  def matching_files
-    Dir.children(@directory).select { |file| file.downcase.include?(@client.downcase) }
+  def matching_files(client)
+    Dir.children(@directory).select { |file| file.downcase.include?(client.downcase) }
   end
 
   def upload_file(file, remote_location, index, total_files)
@@ -75,3 +71,9 @@ class FileProcessor
       handle_upload_error(file, e)
     end
   end
+
+  def analyze_remote_entries(remote_location, client)
+    file_analyzer = FileAnalyzer.new(@session, @logger, @prompt)
+    file_analyzer.analyze(remote_location, client)
+  end
+end

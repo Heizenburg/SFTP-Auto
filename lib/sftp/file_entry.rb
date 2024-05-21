@@ -17,4 +17,20 @@ class FileEntry
   def directory?
     entry.attributes.directory?
   end
+  
+  private
+
+  def convert_bytes(bytes, to_unit = :KB)
+    return '0KB or Invalid input'.red if bytes.nil? || bytes <= 0
+
+    case to_unit
+    when :KB
+      "#{(bytes / 1024.0).ceil}KB".yellow
+    when :MB
+      if bytes >= 1024 * 1024
+        mb = bytes / (1024.0 * 1024.0)
+        "#{format('%.1f', mb)}MB".cyan
+      end
+    end
+  end
 end

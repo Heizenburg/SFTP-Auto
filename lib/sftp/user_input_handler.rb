@@ -1,6 +1,6 @@
 class UserInputHandler
   DEFAULT_DAYS = 30
-
+  
   def initialize(prompt, logger)
     @prompt = prompt
     @logger = logger
@@ -9,17 +9,12 @@ class UserInputHandler
   def get_prompt_info
     client_type = get_client_type
     clients = load_clients(client_type)
-
     {
       range: get_selected_clients(clients),
       days: DEFAULT_DAYS,
       clients: clients,
       source_location: get_source_location(client_type)
     }.transform_keys(&:to_sym)
-  end
-
-  def continue_processing_clients?
-    @prompt.yes?("Continue #{analysis_mode? ? 'analyzing' : 'uploading'} clients?")
   end
 
   private
@@ -41,18 +36,6 @@ class UserInputHandler
     end
   end
 
-  def get_source_location(client_type)
-    env_variable = client_type.upcase
-    source_location = ENV[env_variable]
-
-    if source_location.nil? || source_location.empty?
-      raise "Environment variable not found or empty for client type: #{client_type}. " \
-            "Please make sure to set #{env_variable} to its local directory in the .env file."
-    end
-
-    source_location
-  end
-
   def get_selected_clients(clients)
     return unless @prompt.yes?('Provide client range?')
 
@@ -63,10 +46,20 @@ class UserInputHandler
 
     selected_clients = format_range_string(selected_range, clients)
     @logger.info("Range provided: #{selected_clients}".yellow)
-
-    sleep(1.5) # Add a delay to allow the user to read the message
-
+    sleep(1.5)
     selected_range
+  end
+
+  def get_source_location(client_type)
+    env_variable = client_type.upcase
+    source_location = ENV[env_variable]
+
+    if source_location.nil? || source_location.empty?
+      raise "Environment variable not found or empty for client type: #{client_type}. " \
+            "Please make sure to set #{env_variable} to its local directory in the .env file."
+    end
+
+    source_location
   end
 
   def parse_range_input(range_input)
