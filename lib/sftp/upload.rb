@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
 require_relative '../helpers/terminal_helpers'
-require_relative '../helpers/file_helpers'
 require_relative '../console_utils'
-require_relative 'prompt'
 require_relative 'sftp'
 require_relative 'file_entry'
+require_relative 'file_analyzer'
+require_relative 'file_processor'
 require_relative 'user_input_handler'
-require_relative 'client_processor'
 require_relative 'logger_wrapper'
 
 class SFTPUploader
   def initialize
     @session = SFTP.new(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD'])
-    @prompt  = TTY::Prompt.new
-    @logger  = Logger.new($stdout)
+    @prompt = TTY::Prompt.new
+    @logger = Logger.new($stdout)
+    @argv = ARGV
     @logger.formatter = proc { |_sev, _dt, _pn, msg| "#{msg}\n" }
     @input_handler = UserInputHandler.new(@prompt, @logger)
-    @file_processor = FileProcessor.new(@session, @logger)
-
+    
     get_user_input
+    @file_processor = FileProcessor.new(@session, @logger, @directory)
   end
 
   def get_user_input

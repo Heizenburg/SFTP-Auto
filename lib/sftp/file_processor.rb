@@ -1,11 +1,13 @@
 class FileProcessor
-  def initialize(session, logger)
+  def initialize(session, logger, directory)
     @session = session
     @logger = logger
+    @directory = directory
+    @prompt = TTY::Prompt.new
   end
 
   def process_client_files(remote_location, client, days, analysis_mode)
-    unless analysis_mode
+    if !analysis_mode
       remove_old_files(remote_location, days)
       upload_files(remote_location, client)
     end
@@ -17,7 +19,7 @@ class FileProcessor
 
   def remove_old_files(remote_location, days)
     files_to_delete = @session.dir.entries(remote_location).select do |file|
-      file.file? && Time.at(file.attributes.mtime) < (Time.now - days * 24 * 60 * 60)
+      file.file? && Time.at(file.attributes.mtime) < (Time.now - days.days)
     end
 
     return if files_to_delete.empty?

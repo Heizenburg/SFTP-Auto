@@ -9,7 +9,7 @@ class FileEntry
 
   def initialize(entry, client)
     @entry = entry
-    @file_size_kb = convert_bytes(entry.attributes.size, :KB)
+    @file_size_kb = convert_bytes(entry.attributes.size)
     @file_size_mb = convert_bytes(entry.attributes.size, :MB)
     @client = client
   end

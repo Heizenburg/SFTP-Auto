@@ -13,7 +13,9 @@ class FileAnalyzer
 
       file_entry = FileEntry.new(entry, client)
       handle_file(file_entry, files_to_delete)
+
     end
+    @logger.info("\n")
 
     handle_files_to_delete(files_to_delete, remote_location) unless files_to_delete.empty?
   end
