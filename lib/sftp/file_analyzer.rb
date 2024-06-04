@@ -1,4 +1,8 @@
 class FileAnalyzer
+
+  # Number of days files are considered to be recent
+  DAYS_LIMIT = 6 
+
   def initialize(session, logger, prompt)
     @session = session
     @logger = logger

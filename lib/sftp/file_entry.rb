@@ -1,7 +1,4 @@
 # frozen_string_literal: true
-
-require_relative '../helpers/file_helpers'
-
 class FileEntry
   include InternalLogMethods
 
