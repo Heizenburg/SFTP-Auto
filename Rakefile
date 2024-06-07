@@ -6,22 +6,24 @@
 
 task default: %w[analyze]
 
-task :upload do
-  sh 'ruby lib/sftp_upload.rb upload', verbose: false
+# Define a hash mapping task names to their corresponding commands
+TASKS = {
+  upload: 'ruby lib/sftp_upload.rb upload',
+  analyze: 'ruby lib/sftp_upload.rb analyze',
+  list: 'ruby lib/sftp/clients.rb',
+  benchmark: 'ruby benchmarks.rb',
+  test: 'ruby test/upload_test.rb analyze'
+}.freeze
+
+# Define tasks and their aliases
+TASKS.each do |name, command|
+  task name do
+    sh command, verbose: false
+  end
+
+  alias_task = name.to_s[0] # Get the first letter of the task name
+  Rake::Task.define_task(alias_task) do
+    Rake::Task[name].invoke
+  end
 end
 
-task :analyze do
-  sh 'ruby lib/sftp_upload.rb analyze', verbose: false
-end
-
-task :list do
-  sh 'ruby lib/sftp/clients.rb', verbose: false
-end
-
-task :benchmark do
-  sh 'ruby benchmarks.rb', verbose: false
-end
-
-task :test do
-  sh 'ruby test/upload_test.rb analyze', verbose: false
-end
