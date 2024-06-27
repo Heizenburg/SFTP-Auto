@@ -4,7 +4,6 @@ require 'yaml'
 require 'tty-prompt'
 
 require_relative '../helpers/terminal_helpers'
-require_relative '../sftp/prompt'
 
 client_type = get_client_type(TTY::Prompt.new)
 clients = load_clients(client_type)
