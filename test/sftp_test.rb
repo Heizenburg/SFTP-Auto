@@ -43,7 +43,6 @@ class SFTPTest < Minitest::Test
   end
 
   def test_open
-    # Create a mock SFTP session that expects a call to the file.open method
     mock_session = Minitest::Mock.new
     mock_session.expect :file, mock_session, []
     mock_session.expect :open, nil, %w[remote_file r]

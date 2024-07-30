@@ -39,7 +39,7 @@ class SFTPUploader
       clear_console
       process_clients
       break unless continue_processing_clients?
-
+      clear_console
       reset_user_input
     end
     @logger.info("\nServer connection closed".yellow)

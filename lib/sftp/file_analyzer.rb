@@ -1,12 +1,13 @@
 class FileAnalyzer
 
   # Number of days files are considered to be recent
-  DAYS_LIMIT = 6 
+  DAYS_LIMIT = 6
 
   def initialize(session, logger, prompt)
     @session = session
     @logger = logger
     @prompt = prompt
+    @recent_file_count = 0
   end
 
   def analyze(remote_location, client)
@@ -17,11 +18,11 @@ class FileAnalyzer
 
       file_entry = FileEntry.new(entry, client)
       handle_file(file_entry, files_to_delete)
-
     end
     @logger.info("\n")
 
     handle_files_to_delete(files_to_delete, remote_location) unless files_to_delete.empty?
+    @logger.info("Recent files count:" << " #{@recent_file_count}\n".green)
   end
 
   private
@@ -43,8 +44,9 @@ class FileAnalyzer
   end
 
   def handle_files_to_delete(files_to_delete, remote_location)
-    return unless @prompt.yes?("\nDo you want to delete all files highlighted in red?")
+    return unless @prompt.yes?("Do you want to delete all files highlighted in red?")
 
+    @logger.info("\n")
     files_to_delete.each do |file|
       remove_file_from_location(remote_location, file)
       @logger.info("#{file.longname} ----- DELETED".red)
@@ -82,5 +84,7 @@ class FileAnalyzer
                   "#{file_entry.file_size_kb}"
                 end
     @logger.info("#{file_name} #{file_size}")
+
+    @recent_file_count += 1 if recent
   end
 end
