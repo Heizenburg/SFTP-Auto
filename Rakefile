@@ -10,7 +10,6 @@ task default: %w[analyze]
 TASKS = {
   upload: 'ruby lib/sftp_upload.rb upload',
   analyze: 'ruby lib/sftp_upload.rb analyze',
-  list: 'ruby lib/sftp/clients.rb',
   benchmark: 'ruby benchmarks.rb',
   test: 'ruby test/upload_test.rb analyze'
 }.freeze

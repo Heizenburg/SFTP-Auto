@@ -37,17 +37,31 @@ class UserInputHandler
   end
 
   def get_selected_clients(clients)
-    return unless @prompt.yes?('Provide client range?')
-
-    range_input = @prompt.ask("Select clients by range between [1: #{clients.keys.first}] and [#{clients.size}: #{clients.keys.last}]:") do |q|
-      q.in("1-#{clients.size}")
+    # First, ask the user if they want to list all clients
+    if @prompt.yes?('Would you like to list all clients?')
+      list_all_clients(clients)
     end
-    selected_range = parse_range_input(range_input)
 
-    selected_clients = format_range_string(selected_range, clients)
-    @logger.info("Range provided: #{selected_clients}".yellow)
-    sleep(1.5)
-    selected_range
+    # Then, ask if they want to provide a client range
+    if @prompt.yes?('Provide client range?')
+      range_input = @prompt.ask("Select clients by range between [1: #{clients.keys.first}] and [#{clients.size}: #{clients.keys.last}]:") do |q|
+        q.in("1-#{clients.size}")
+      end
+      selected_range = parse_range_input(range_input)
+      selected_clients = format_range_string(selected_range, clients)
+      @logger.info("Range provided: #{selected_clients}".yellow)
+      sleep(1.5)
+      selected_range
+    end
+  end
+
+  def list_all_clients(clients)
+    @logger.info("Listing all clients:\n")
+    clients.each_with_index do |(client, _), index|
+      @logger.info(" - [#{index + 1}]: #{client}")
+    end
+    clients.keys
+    @logger.info("\n")
   end
 
   def get_source_location(client_type)

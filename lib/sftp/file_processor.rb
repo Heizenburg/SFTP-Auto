@@ -77,5 +77,6 @@ class FileProcessor
   def analyze_remote_entries(remote_location, client)
     file_analyzer = FileAnalyzer.new(@session, @logger, @prompt)
     file_analyzer.analyze(remote_location, client)
+    file_analyzer.recent_file_count
   end
 end

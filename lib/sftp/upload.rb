@@ -38,6 +38,7 @@ class SFTPUploader
     loop do
       clear_console
       process_clients
+      summarize_clients_with_zero_recent_files
       break unless continue_processing_clients?
       clear_console
       reset_user_input
@@ -54,14 +55,29 @@ class SFTPUploader
 
   def process_clients
     @argv.concat(@range) if @range
+    @clients_with_recent_file_count = {}
 
     clients_to_cycle(@clients).each_with_index do |(client, remote_location), index|
       print_client_details(index, client, remote_location)
-      next if remote_location.empty?
+      next if remote_location.empty? || remote_location.nil?
 
-      @file_processor.process_client_files(remote_location, client, @days, analysis_mode?)
+      recent_file_count = @file_processor.process_client_files(remote_location, client, @days, analysis_mode?)
+      @clients_with_recent_file_count[client] = recent_file_count
     end
   end
+
+  def summarize_clients_with_zero_recent_files
+    clients_with_zero_recent_files = @clients_with_recent_file_count.select { |_, count| count.zero? }
+
+    if clients_with_zero_recent_files.any?
+      @logger.info("Clients with zero recent files:")
+      clients_with_zero_recent_files.each do |client, location|
+        @logger.info(" - #{client}: #{location}".red)
+      end
+      @logger.info("\n")
+    end
+  end
+
 
   def continue_processing_clients?
     @prompt.yes?("Continue #{analysis_mode? ? 'analyzing' : 'uploading'} clients?")
