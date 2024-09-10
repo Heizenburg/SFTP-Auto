@@ -57,8 +57,8 @@ class UserInputHandler
 
   def list_all_clients(clients)
     @logger.info("Listing all clients:\n")
-    clients.each_with_index do |(client, _), index|
-      @logger.info(" - [#{index + 1}]: #{client}")
+    clients.each_with_index do |(client, location), index|
+      @logger.info("[#{index + 1}]: #{client} - #{location}")
     end
     clients.keys
     @logger.info("\n")
