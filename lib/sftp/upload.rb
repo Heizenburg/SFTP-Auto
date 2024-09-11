@@ -70,14 +70,13 @@ class SFTPUploader
     clients_with_zero_recent_files = @clients_with_recent_file_count.select { |_, count| count.zero? }
 
     if clients_with_zero_recent_files.any?
-      @logger.info("Clients with zero recent files:")
+      @logger.info("Clients with zero recent files:\n")
       clients_with_zero_recent_files.each do |client, location|
         @logger.info(" - #{client}: #{location}".red)
       end
       @logger.info("\n")
     end
   end
-
 
   def continue_processing_clients?
     @prompt.yes?("Continue #{analysis_mode? ? 'analyzing' : 'uploading'} clients?")

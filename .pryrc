@@ -130,7 +130,6 @@ end
 module CodeRay
   module Encoders
     class Terminal < Encoder
-      # override old colors
       TERM_TOKEN_COLORS.each_pair do |key, value|
         TOKEN_COLORS[key] = value
       end

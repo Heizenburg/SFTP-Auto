@@ -93,11 +93,11 @@ class FileAnalyzer
   end
 
   def recent_file?(file)
-    file_mtime = if file.respond_to?(:attributes) && file.attributes.respond_to?(:mtime)
-                  Time.at(file.attributes.mtime)
-                else
-                  File.mtime(file)
-                end
+    if file.respond_to?(:attributes) && file.attributes.respond_to?(:mtime)
+      file_mtime = Time.at(file.attributes.mtime)
+    else
+      file_mtime = File.mtime(file)
+    end
     file_mtime > (Time.now - DAYS_LIMIT.days)
   end
 
