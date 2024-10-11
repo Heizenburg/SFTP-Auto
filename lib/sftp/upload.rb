@@ -9,6 +9,8 @@ require_relative 'file_processor'
 require_relative 'user_input_handler'
 require_relative 'logger_wrapper'
 
+require 'io/console'
+
 class SFTPUploader
   def initialize
     @session = SFTP.new(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD'])
@@ -20,6 +22,10 @@ class SFTPUploader
     
     get_user_input
     @file_processor = FileProcessor.new(@session, @logger, @directory)
+    
+    # Flag to control the loop
+    @running = true
+    start_key_listener  # Start listening for key presses
   end
 
   def get_user_input
@@ -36,13 +42,19 @@ class SFTPUploader
 
   def run
     loop do
+      break unless @running 
+      
       clear_console
       process_clients
       summarize_clients_with_zero_recent_files
+      
       break unless continue_processing_clients?
-      clear_console
+      
+      clear_consolerake
+
       reset_user_input
     end
+    
     @logger.info("\nServer connection closed".yellow)
   end
 
@@ -63,6 +75,8 @@ class SFTPUploader
 
       recent_file_count = @file_processor.process_client_files(remote_location, client, @days, analysis_mode?)
       @clients_with_recent_file_count[client] = recent_file_count
+      
+      break unless @running
     end
   end
 
@@ -70,15 +84,17 @@ class SFTPUploader
     clients_with_zero_recent_files = @clients_with_recent_file_count.select { |_, count| count.zero? }
 
     if clients_with_zero_recent_files.any?
-      @logger.info("Clients with zero recent files:\n")
+      @logger.info("Clients with no recent files:\n")
       clients_with_zero_recent_files.each do |client, location|
-        @logger.info(" - #{client}: #{location}".red)
+        @logger.info("[#{client}]: #{location}".red)
       end
       @logger.info("\n")
     end
   end
 
   def continue_processing_clients?
+    return false unless @running  # Prevent asking if not running
+    
     @prompt.yes?("Continue #{analysis_mode? ? 'analyzing' : 'uploading'} clients?")
   end
 
@@ -93,6 +109,7 @@ class SFTPUploader
   def clients_to_cycle(client_list)
     second_arg, third_arg = @argv[1..2]
     return client_list unless @argv.any? && second_arg
+    
     return client_list.take(second_arg.to_i) if third_arg.nil?
 
     first = second_arg.to_i.pred
@@ -110,4 +127,21 @@ class SFTPUploader
     formatted = "[#{index}: #{client}] #{remote_location}\n"
     formatted.yellow
   end
+  
+  # Start listening for key presses in a separate thread.
+  def start_key_listener
+    Thread.new do
+      loop do
+        break unless @running
+        
+        # Esc (ASCII value: 27)
+        if IO.console.getch.ord == 27 
+          @logger.info("\nEscape key pressed. Stopping the program...\n")
+          @running = false 
+        end
+        
+        sleep(0.7) # Small delay to prevent high CPU usage in the loop.
+      end
+    end
+  end  
 end
