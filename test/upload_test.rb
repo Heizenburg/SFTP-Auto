@@ -72,14 +72,14 @@ class TestClientsToCycle < Minitest::Test
     let(:client) { 'client1' }
     let(:entry1) do
       double('entry1', name: 'file1', longname: 'file1',
-                       attributes: double('attributes', directory?: false, size: 1024))
+                      attributes: double('attributes', directory?: false, size: 1024))
     end
     let(:entry2) do
       double('entry2', name: 'file2', longname: 'file2', attributes: double('attributes', directory?: true, size: 0))
     end
     let(:entry3) do
       double('entry3', name: 'file3', longname: 'file3',
-                       attributes: double('attributes', directory?: false, size: 2048))
+                      attributes: double('attributes', directory?: false, size: 2048))
     end
 
     it 'should print the correct output for a recent client file' do
