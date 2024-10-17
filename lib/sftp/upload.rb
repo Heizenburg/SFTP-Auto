@@ -12,20 +12,22 @@ require_relative 'logger_wrapper'
 require 'io/console'
 
 class SFTPUploader
+  ESC_KEY = 27
+
   def initialize
     @session = SFTP.new(ENV['HOST'], ENV['USERNAME'], ENV['PASSWORD'])
     @prompt = TTY::Prompt.new
     @logger = Logger.new($stdout)
     @argv = ARGV
+    
     @logger.formatter = proc { |_sev, _dt, _pn, msg| "#{msg}\n" }
     @input_handler = UserInputHandler.new(@prompt, @logger)
     
+    @running = true
+    start_key_listener
+
     get_user_input
     @file_processor = FileProcessor.new(@session, @logger, @directory)
-    
-    # Flag to control the loop
-    @running = true
-    start_key_listener  # Start listening for key presses
   end
 
   def get_user_input
@@ -50,8 +52,7 @@ class SFTPUploader
       
       break unless continue_processing_clients?
       
-      clear_consolerake
-
+      clear_console
       reset_user_input
     end
     
@@ -93,7 +94,7 @@ class SFTPUploader
   end
 
   def continue_processing_clients?
-    return false unless @running  # Prevent asking if not running
+    return false unless @running
     
     @prompt.yes?("Continue #{analysis_mode? ? 'analyzing' : 'uploading'} clients?")
   end
@@ -128,19 +129,17 @@ class SFTPUploader
     formatted.yellow
   end
   
-  # Start listening for key presses in a separate thread.
   def start_key_listener
     Thread.new do
       loop do
         break unless @running
         
-        # Esc (ASCII value: 27)
-        if IO.console.getch.ord == 27 
+        if IO.console.getch.ord == ESC_KEY 
           @logger.info("\nEscape key pressed. Stopping the program...\n")
-          @running = false 
+          @running = false
         end
         
-        sleep(0.7) # Small delay to prevent high CPU usage in the loop.
+        sleep(0.7)
       end
     end
   end  

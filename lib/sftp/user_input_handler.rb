@@ -42,7 +42,6 @@ class UserInputHandler
       list_all_clients(clients)
     end
 
-    binding.pry
     # Then, ask if they want to provide a client range
     if @prompt.yes?('Provide client range?')
       range_input = @prompt.ask("Select clients by range between [1: #{clients.keys.first}] and [#{clients.size}: #{clients.keys.last}]:") do |q|
