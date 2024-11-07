@@ -55,7 +55,8 @@ class SFTPUploader
       clear_console
       reset_user_input
     end
-    
+  
+    @logger.info("\nProgram ended due to escape key press") unless @running
     @logger.info("\nServer connection closed".yellow)
   end
 
