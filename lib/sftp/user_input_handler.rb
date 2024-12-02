@@ -47,6 +47,7 @@ class UserInputHandler
       range_input = @prompt.ask("Select clients by range between [1: #{clients.keys.first}] and [#{clients.size}: #{clients.keys.last}]:") do |q|
         q.in("1-#{clients.size}")
       end
+
       selected_range = parse_range_input(range_input)
       selected_clients = format_range_string(selected_range, clients)
       @logger.info("Range provided: #{selected_clients}".yellow)
@@ -81,10 +82,10 @@ class UserInputHandler
 
     range_delimiters = /[\s\-:.]/
 
-    if range_input.include?('.')
+    if range_input.include?('.') # User input for a single client
       num = range_input.split('.').first.strip.to_i
       [num, num]
-    elsif range_input.match?(range_delimiters)
+    elsif range_input.match?(range_delimiters)  
       range_parts = range_input.split(range_delimiters).map(&:to_i)
       raise ArgumentError, 'Invalid range input format: more than two numbers' if range_parts.size != 2
 

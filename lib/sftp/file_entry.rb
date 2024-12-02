@@ -4,7 +4,7 @@ class FileEntry
 
   attr_reader :entry, :file_size_kb, :file_size_mb, :client
 
-  def initialize(entry, client)
+  def initialize(entry, client = nil)
     @entry = entry
     @file_size_kb = convert_bytes(entry.attributes.size)
     @file_size_mb = convert_bytes(entry.attributes.size, :MB)
@@ -17,8 +17,12 @@ class FileEntry
   
   private
 
+  def file_size_invalid?(bytes)
+    bytes.nil? || bytes <= 0 
+  end
+
   def convert_bytes(bytes, to_unit = :KB)
-    return '0KB or Invalid input'.red if bytes.nil? || bytes <= 0
+    return '0KB or Invalid input'.red if file_size_invalid?(bytes)
 
     case to_unit
     when :KB

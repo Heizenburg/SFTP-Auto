@@ -8,6 +8,7 @@ class FileProcessor
 
   def process_client_files(remote_location, client, days, analysis_mode)
     if !analysis_mode
+      # Remove older files before it uploads
       remove_old_files(remote_location, days)
       upload_files(remote_location, client)
     end
@@ -35,7 +36,7 @@ class FileProcessor
       begin
         remove_file_from_location(remote_location, file)
         delete_spinner.success
-        @logger.info("Removed: #{file.longname} #{convert_bytes(file.attributes.size)} -- OLDER THAN #{days} DAYS ".red)
+        @logger.info("Removed: #{file.longname} -- OLDER THAN #{days} DAYS ".red)
       rescue StandardError => e
         @logger.error("Error deleting file #{file.name}: #{e}".red)
       end

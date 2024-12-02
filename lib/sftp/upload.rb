@@ -70,30 +70,46 @@ class SFTPUploader
   def process_clients
     @argv.concat(@range) if @range
     @clients_with_recent_file_count = {}
-
+  
     clients_to_cycle(@clients).each_with_index do |(client, remote_location), index|
       print_client_details(index, client, remote_location)
-      next if remote_location.empty? || remote_location.nil?
-
+      next if remote_location.nil? || remote_location.empty?
+  
       recent_file_count = @file_processor.process_client_files(remote_location, client, @days, analysis_mode?)
-      @clients_with_recent_file_count[client] = recent_file_count
+      
+      # Store the recent file count along with the remote location and index
+      @clients_with_recent_file_count[client] = {
+        count: recent_file_count,
+        remote_location: remote_location,
+        index: index + 1
+      }
       
       break unless @running
     end
   end
-
+  
   def summarize_clients_with_zero_recent_files
-    clients_with_zero_recent_files = @clients_with_recent_file_count.select { |_, count| count.zero? }
-
-    if clients_with_zero_recent_files.any?
-      @logger.info("Clients with no recent files:\n")
-      clients_with_zero_recent_files.each do |client, location|
-        @logger.info("[#{client}]: #{location}".red)
-      end
-      @logger.info("\n")
-    end
+    # Report clients with zero latest files on FTP.
+    clients_with_zero_recent_files = @clients_with_recent_file_count.select { |_, data| data[:count].zero? }
+    
+    # Report clients with less than 20 latest files on FTP.
+    clients_with_a_few_files = @clients_with_recent_file_count.select { |_, data| data[:count] < 20 && data[:count] > 0 }
+  
+    log_clients("Clients with no recent files (no files uploaded for the past week or more):", clients_with_zero_recent_files, :red) if clients_with_zero_recent_files.any?
+    log_clients("Clients with a few recent files (less than 20 uploaded):", clients_with_a_few_files, :yellow) if clients_with_a_few_files.any?
   end
 
+  # Extract info for each client and log it
+  def log_clients(message, clients, color)
+    @logger.info("#{message}\n")
+    clients.each do |client, data|
+      remote_location, index = data[:remote_location], data[:index]
+      
+      @logger.info("[#{index}: #{client}] #{remote_location}: #{data[:count]}".send(color))
+    end
+    @logger.info("\n")
+  end
+  
   def continue_processing_clients?
     return false unless @running
     
@@ -135,7 +151,7 @@ class SFTPUploader
       loop do
         break unless @running
         
-        if IO.console.getch.ord == ESC_KEY 
+        if IO.console.getch.ord == ESC_KEY
           @logger.info("\nEscape key pressed. Stopping the program...\n")
           @running = false
         end
@@ -143,5 +159,5 @@ class SFTPUploader
         sleep(0.7)
       end
     end
-  end  
+  end
 end

@@ -65,7 +65,7 @@ class FileAnalyzer
 
   def log_recent_files_count
     count_message = @recent_file_count.zero? ? " #{@recent_file_count}\n" : " #{@recent_file_count}\n".green
-    @logger.info("Recent files count" << count_message)
+    @logger.info("Recent files count:" << count_message)
   end
 
   def handle_files_to_delete(files_to_delete, remote_location)
