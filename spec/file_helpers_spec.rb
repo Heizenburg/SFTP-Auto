@@ -2,7 +2,7 @@
 
 # spec/file_helpers_spec.rb
 
-require_relative '../lib/helpers/file_helpers'
+require_relative '../src/helpers/file_helpers'
 require 'rspec'
 
 RSpec.describe 'FileHelpers' do

@@ -48,7 +48,7 @@ class SFTPUploader
       
       clear_console
       process_clients
-      summarize_clients_with_zero_recent_files
+      call_out_clients_with_unusual_file_counts
       
       break unless continue_processing_clients?
       
@@ -88,15 +88,15 @@ class SFTPUploader
     end
   end
   
-  def summarize_clients_with_zero_recent_files
-    # Report clients with zero latest files on FTP.
+  def call_out_clients_with_unusual_file_counts
     clients_with_zero_recent_files = @clients_with_recent_file_count.select { |_, data| data[:count].zero? }
-    
-    # Report clients with less than 20 latest files on FTP.
     clients_with_a_few_files = @clients_with_recent_file_count.select { |_, data| data[:count] < 20 && data[:count] > 0 }
   
     log_clients("Clients with no recent files (no files uploaded for the past week or more):", clients_with_zero_recent_files, :red) if clients_with_zero_recent_files.any?
-    log_clients("Clients with a few recent files (less than 20 uploaded):", clients_with_a_few_files, :yellow) if clients_with_a_few_files.any?
+
+    if clients_with_a_few_files.any? && @directory.include?('Shoprite')
+      log_clients("Clients with a few recent files (less than 20 uploaded):", clients_with_a_few_files, :yellow) 
+    end
   end
 
   # Extract info for each client and log it
@@ -113,8 +113,12 @@ class SFTPUploader
   def continue_processing_clients?
     return false unless @running
     
-    @prompt.yes?("Continue #{analysis_mode? ? 'analyzing' : 'uploading'} clients?")
+    user_continue_processing_clients?
   end
+
+  def user_continue_processing_clients?
+    @prompt.yes?("Continue #{analysis_mode? ? 'analyzing' : 'uploading'} clients?")
+  end 
 
   def analysis_mode?
     @argv.first == 'analyze'

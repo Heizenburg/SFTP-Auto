@@ -4,7 +4,7 @@ require 'minitest/autorun'
 require 'net/sftp'
 require 'mocha/minitest'
 
-require_relative '../lib/sftp'
+require_relative '../src/sftp'
 
 class SFTPTest < Minitest::Test
   def setup

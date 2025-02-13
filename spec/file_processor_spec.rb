@@ -1,5 +1,5 @@
-require_relative '../lib/sftp/file_processor'
-require_relative '../lib/sftp/file_analyzer'
+require_relative '../src/sftp/file_processor'
+require_relative '../src/sftp/file_analyzer'
 
 require 'rspec'
 

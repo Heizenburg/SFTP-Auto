@@ -90,7 +90,7 @@ def get_matching_files_includes(local, client)
 end
 
 # Load the list of clients from a YAML file and take the first five.
-clients = YAML.load_file('lib/sftp/yaml_files/shoprite_clients.yml').take(5)
+clients = YAML.load_file('src/sftp/yaml_files/shoprite_clients.yml').take(5)
 local = ENV['SHOPRITE']
 
 def measure_time(func)

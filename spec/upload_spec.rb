@@ -2,7 +2,7 @@
 
 # spec/upload_spec.rb
 
-require_relative '../lib/sftp/upload'
+require_relative '../src/sftp/upload'
 
 RSpec.describe SFTPUploader do
   let(:directory) { 'test_directory' }

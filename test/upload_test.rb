@@ -3,7 +3,7 @@
 require 'minitest/autorun'
 require 'yaml'
 
-require_relative '../lib/upload'
+require_relative '../src/upload'
 
 class TestClientsToCycle < Minitest::Test
   def setup
@@ -17,7 +17,7 @@ class TestClientsToCycle < Minitest::Test
 
   describe 'YAML file' do
     it 'should load the YAML file correctly' do
-      expect(YAML.load_file('lib/shoprite_clients.yml')).to_not be_nil
+      expect(YAML.load_file('src/shoprite_clients.yml')).to_not be_nil
     end
   end
 
