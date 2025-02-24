@@ -1,7 +1,7 @@
 SFTP CSV analysis and uploads
 ========================================
 
-The directory contains instructions on how to automate Shoprite CSV file uploads via SFTP.
+The directory contains instructions on how to automate CSV file uploads via SFTP.
 
 ## Install
 
